@@ -1,0 +1,52 @@
+{
+  "name": "cloudfitnest-ui",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsc-watch --onSuccess \"vite\"",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@fontsource/plus-jakarta-sans": "^5.2.8",
+    "@mui/icons-material": "^7.3.4",
+    "@mui/lab": "^7.0.1-beta.18",
+    "@mui/material": "^7.3.4",
+    "@mui/x-date-pickers": "^8.14.0",
+    "@toolpad/core": "^0.16.0",
+    "axios": "^1.12.2",
+    "dayjs": "^1.11.18",
+    "file-saver": "^2.0.5",
+    "libphonenumber-js": "^1.12.24",
+    "lodash": "^4.17.21",
+    "lucide-react": "^0.546.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "react-draggable": "^4.5.0",
+    "react-hook-form": "^7.65.0",
+    "react-otp-input": "^3.1.1",
+    "react-router": "^7.9.4",
+    "react-router-dom": "^7.9.4",
+    "react-toastify": "^11.0.5",
+    "utc": "^0.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.37.0",
+    "@types/lodash": "^4.17.20",
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@vitejs/plugin-react-swc": "^4.1.0",
+    "eslint": "^9.37.0",
+    "eslint-plugin-react-hooks": "^7.0.0",
+    "eslint-plugin-react-refresh": "^0.4.24",
+    "globals": "^16.4.0",
+    "tsc-watch": "^7.2.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.1",
+    "vite": "^7.1.10"
+  }
+}
