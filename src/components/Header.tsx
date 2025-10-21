@@ -89,13 +89,9 @@ function Header({open, drawerWidth, handleDrawerOpen, isDarkMode, handleThemeCha
 
     const handleCompanyChange = (event: any, value: any) => {
         SetAuthCompany(value.value)
-        companyContext.setCompanyId(value.value)
+        companyContext.setCompanyUuid(value.value)
         setDefaultCompanyId(value)
         setCompanyDD(false);
-    };
-
-    const handleCloseNavMenu = () => {
-        setAnchorElNav(null);
     };
 
     const handleCloseUserMenu = () => {

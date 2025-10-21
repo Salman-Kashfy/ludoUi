@@ -1,18 +1,14 @@
 import {Fragment, useContext, useEffect, useState} from 'react'
-import {BreadcrumbContext} from '../../hooks/BreadcrumbContext';
 import PageTitle from "../../components/PageTitle";
-import {Alert, Box} from '@mui/material';
+import {Alert, Box, CircularProgress} from '@mui/material';
 import Grid from '@mui/material/Grid';
 import {CompanyContext} from '../../hooks/CompanyContext';
 import {useToast} from '../../utils/toast.tsx';
-import Autocomplete from "@mui/material/Autocomplete";
-import CircularProgress from "@mui/material/CircularProgress";
-import FormInput from "../../components/FormInput";
 import DashboardStat from "./DashboardStat";
-import {NavLink} from "react-router-dom";
-import Link from "@mui/material/Link";
 import { LayoutDashboard, Gamepad2, CircleOff, Trophy, Landmark } from 'lucide-react';
 import { TableStats } from '../../services/dashboard.service';
+import { GetCategories } from '../../services/category.service';
+import { CategorySection } from '../../components/CategorySection';
 
 function Dashboard() {
     const companyContext:any = useContext(CompanyContext)
@@ -29,9 +25,26 @@ function Dashboard() {
         todaysRevenue: 0
     })
 
+    /**
+    * Categories and Tables
+    * */
+    const [categoriesLoader, setCategoriesLoader] = useState(true);
+    const [categories, setCategories] = useState([]);
+
+    const loadCategories = () => {
+        setCategoriesLoader(true);
+        GetCategories({companyUuid: companyContext.companyUuid}).then((res:any) => {
+            setCategories(res.list || []);
+        }).catch((err:any) => {
+            errorToast('Failed to load categories');
+        }).finally(() => {
+            setCategoriesLoader(false);
+        });
+    };
+
     /* Starting Point */
     useEffect(() => {
-        TableStats({companyId: companyContext.companyId}).then((res:any) => {
+        TableStats({companyUuid: companyContext.companyUuid}).then((res:any) => {
             if(res.status) {
                 setDashboardStats(res.data)
             }
@@ -41,7 +54,9 @@ function Dashboard() {
         }).finally(() => {
             setStatsLoader(false)
         })
-    }, [companyContext.companyId])
+
+        loadCategories();
+    }, [companyContext.companyUuid])
     return (
         <Fragment>
             <PageTitle title="Dashboard" titleIcon={<LayoutDashboard />} />
@@ -60,6 +75,20 @@ function Dashboard() {
                         <DashboardStat value={dashboardStats.todaysRevenue} title={'Today\'s Revenue'} icon={<Landmark color='#fff' strokeWidth={1.6} size={24} />} iconBg={'warning.main'} loading={statsLoader}/>
                     </Grid>
                 </Grid>
+
+                {categoriesLoader ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                        <CircularProgress />
+                    </Box>
+                ) : (
+                    categories.map((category: any) => (
+                        <CategorySection 
+                            key={category.uuid} 
+                            category={category} 
+                            onUpdate={loadCategories} 
+                        />
+                    ))
+                )}
             </Box>
         </Fragment>
     )

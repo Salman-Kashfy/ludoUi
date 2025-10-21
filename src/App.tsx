@@ -35,8 +35,8 @@ function App() {
     * Company Context
     * */ 
     const storageCompany = constants.LOCAL_STORAGE_COMPANY;
-    const [companyId, setCompanyId] = useState(localStorage.getItem(storageCompany) || '');
-    const companyData = {companyId, setCompanyId};
+    const [companyUuid, setCompanyUuid] = useState(localStorage.getItem(storageCompany) || '');
+    const companyData = {companyUuid, setCompanyUuid};
 
     return (
         <UserContext.Provider value={userData}>
