@@ -74,6 +74,7 @@ export const apiUrl = {
     invite: '/invite',
     validateInvite: '/validate-invite',
     tableStats: '/table-stats',
+    tableSessionBilling: '/table-session-billing',
 }
 
 export enum ERROR_CODES {
