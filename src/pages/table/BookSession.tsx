@@ -110,7 +110,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
                                     rules={{
                                         required: {
                                             value: true,
-                                            message: "Status is required"
+                                            message: "Customer is required"
                                         },
                                     }}
                                     render={() => (
