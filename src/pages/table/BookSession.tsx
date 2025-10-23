@@ -31,7 +31,6 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
         defaultValues
     })
     const hours = watch('hours')
-    const customerUuid = watch('customerUuid')
     const [bookSessionLoader, setBookSessionLoader] = useState(false);
     const companyContext:any = useContext(CompanyContext)
     const companyUuid = companyContext.companyUuid
@@ -73,20 +72,27 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
         }
     }, [searchCustomer, debouncedFetchCustomer]);
 
-    useEffect(() => {
-        reset(defaultValues)
-    }, [tableUuid])
+    const fetchBillingData = () => {
+        setBillingLoader(true)
+        TableSessionBilling({companyUuid, tableUuid, hours}).then((data) => {
+            setBillingData(data)
+        }).catch((e) => {
+            console.log(e.message)
+        }).finally(() => {
+            setBillingLoader(false)
+        })
+    }
 
-    useEffect(() => { 
-        if(hours){
-            setBillingLoader(true)
-            TableSessionBilling({companyUuid, tableUuid, hours}).then((data) => {
-                setBillingData(data)
-            }).catch((e) => {
-                console.log(e.message)
-            }).finally(() => {
-                setBillingLoader(false)
-            })
+    useEffect(() => {
+        if (open) {
+            reset(defaultValues)
+            fetchBillingData()
+        }
+    }, [open, tableUuid])
+
+    useEffect(() => {
+        if (hours && open) {
+            fetchBillingData()
         }
     }, [hours])
 
@@ -105,9 +111,15 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
         onSuccess()
     }
 
+    const _handleDialogClose = () => {
+        reset(defaultValues)
+        handleDialogClose()
+        setBillingData(null)
+    }
+
     return (
         <Fragment>
-            <Dialog open={open} onClose={handleDialogClose}>
+            <Dialog open={open} onClose={_handleDialogClose}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <DialogTitle>Book Session</DialogTitle>
                     <DialogContent>
@@ -125,7 +137,6 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
                                         <FormControlLabel value="1" control={<Radio />} label="1 hr" />
                                         <FormControlLabel value="2" control={<Radio />} label="2 hr" />
                                         <FormControlLabel value="3" control={<Radio />} label="3 hr" />
-                                        <FormControlLabel value="4" control={<Radio />} label="4 hr" />
                                     </RadioGroup>
                                 </FormControl>
                             </Grid>
@@ -224,11 +235,8 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
                             
                             {billingLoader && (
                                 <Grid size={12}>
-                                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 2 }}>
-                                        <CircularProgress size={24} />
-                                        <Typography variant="body2" sx={{ ml: 1 }}>
-                                            Calculating billing...
-                                        </Typography>
+                                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                                        <CircularProgress size={30} />
                                     </Box>
                                 </Grid>
                             )}
