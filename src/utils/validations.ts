@@ -1,4 +1,4 @@
-export function decimalOnly(e) {
+export function decimalOnly(e:any) {
     let value = e.target.value;
 
     // Allow only numbers and a single decimal point
@@ -24,7 +24,7 @@ export function decimalOnly(e) {
     e.target.value = parts.join('.');
 }
 
-export function upperAlphaOnly(e,limit = null) {
+export function upperAlphaOnly(e:any,limit = null) {
     let value = e.target.value;
     value = value.replace(/[^a-zA-Z]/g, '');
     if (limit && value.length > limit) {
@@ -33,7 +33,7 @@ export function upperAlphaOnly(e,limit = null) {
     e.target.value = value.toUpperCase();
 }
 
-export const isValidURL = (url) => {
+export const isValidURL = (url:string) => {
     try {
         new URL(url);
         return true;
@@ -42,18 +42,18 @@ export const isValidURL = (url) => {
     }
 }
 
-export const numberOnly = (e, max = null, leadingZero = true) => {
+export const numberOnly = (e:any, max = null, leadingZero = true) => {
     let value = e.target.value.replace(/[^0-9]/g, '')
     if (max && value.length > max) {
         value = value.slice(0, 2);
-    }
+    }   
     if(!leadingZero){
         value = value.replace(/^0+/, '');
     }
     e.target.value = value
 }
 
-export const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+export const isValidEmail = (email:string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 export const isValidPassword = (password:string): boolean => {
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).+$/;

@@ -3,7 +3,9 @@ import { Card, CardContent, Typography, Button, Box, Chip } from '@mui/material'
 import { Play, Square } from 'lucide-react';
 import { StartTableSession, StopTableSession } from '../services/category.service';
 import { useToast } from '../utils/toast.tsx';
-import { first } from 'lodash';
+import { useBooking } from '../hooks/BookingContext';
+import { first, isEmpty } from 'lodash';
+import { TableSessionStatus } from '../pages/table/enum.ts';
 
 interface TableSession {
     uuid: string;
@@ -25,15 +27,16 @@ interface TableCardProps {
 
 export function TableCard({ table, onUpdate }: TableCardProps) {
     const { successToast, errorToast } = useToast();
+    const { openBookingDialog } = useBooking();
     const [isLoading, setIsLoading] = useState(false);
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
+    const activeSession:any = table.tableSessions?.length > 0 ? first(table.tableSessions) : null;
 
-    const activeSession = table.tableSessions?.length > 0 ? first(table.tableSessions) : null;
 
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: number;
         
-        if (activeSession) {
+        if (activeSession?.status === TableSessionStatus.ACTIVE) {
             interval = setInterval(() => {
                 const startTime = parseInt(activeSession.startTime);
                 const elapsed = Date.now() - startTime;
@@ -76,14 +79,15 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
         }
     };
 
+
     return (
         <Card sx={{ minWidth: 200 }}>
             <CardContent>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                     <Typography variant="subtitle1">{table.name}</Typography>
                     <Chip 
-                        label={table.status} 
-                        color={table.status === 'available' ? 'muted' : 'warning'} 
+                        label={!activeSession ? 'available' : activeSession!.status} 
+                        color={!activeSession ? 'default' : activeSession!.status === TableSessionStatus.BOOKED ? 'success' : 'error'} 
                         size="small" 
                     />
                 </Box>
@@ -93,10 +97,21 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
                 </Typography>
 
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                    {!activeSession ? (
+                    {isEmpty(activeSession) ? (
                         <Button
                             variant="contained"
                             color="primary"
+                            size="small"
+                            onClick={() => openBookingDialog(table.uuid)}
+                            disabled={isLoading}
+                            fullWidth
+                        >
+                            Book
+                        </Button>
+                    ) : activeSession.status === TableSessionStatus.BOOKED ? (
+                        <Button
+                            variant="contained"
+                            color="success"
                             size="small"
                             startIcon={<Play size={16} />}
                             onClick={handleStart}
@@ -105,7 +120,7 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
                         >
                             Start
                         </Button>
-                    ) : (
+                    ) : activeSession ? (
                         <Button
                             variant="contained"
                             color="error"
@@ -117,7 +132,7 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
                         >
                             Stop
                         </Button>
-                    )}
+                    ) : null}
                 </Box>
             </CardContent>
         </Card>

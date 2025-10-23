@@ -1,18 +1,21 @@
 import {Fragment, useContext, useEffect, useState} from 'react'
 import PageTitle from "../../components/PageTitle";
-import {Alert, Box, CircularProgress} from '@mui/material';
+import {Box, CircularProgress} from '@mui/material';
 import Grid from '@mui/material/Grid';
 import {CompanyContext} from '../../hooks/CompanyContext';
+import {useBooking} from '../../hooks/BookingContext';
 import {useToast} from '../../utils/toast.tsx';
 import DashboardStat from "./DashboardStat";
 import { LayoutDashboard, Gamepad2, CircleOff, Trophy, Landmark } from 'lucide-react';
 import { TableStats } from '../../services/dashboard.service';
 import { GetCategories } from '../../services/category.service';
 import { CategorySection } from '../../components/CategorySection';
+import BookSession from '../table/BookSession';
 
 function Dashboard() {
     const companyContext:any = useContext(CompanyContext)
-    const { successToast, errorToast } = useToast()
+    const { errorToast } = useToast()
+    const { bookSessionDialog, tableUuid, closeBookingDialog, afterBooking } = useBooking()
 
     /**
     * Dashboard Stats
@@ -35,7 +38,7 @@ function Dashboard() {
         setCategoriesLoader(true);
         GetCategories({companyUuid: companyContext.companyUuid}).then((res:any) => {
             setCategories(res.list || []);
-        }).catch((err:any) => {
+        }).catch(() => {
             errorToast('Failed to load categories');
         }).finally(() => {
             setCategoriesLoader(false);
@@ -57,8 +60,15 @@ function Dashboard() {
 
         loadCategories();
     }, [companyContext.companyUuid])
+
     return (
         <Fragment>
+            <BookSession
+                open={bookSessionDialog}
+                tableUuid={tableUuid}
+                handleDialogClose={closeBookingDialog}
+                onSuccess={afterBooking}
+            />  
             <PageTitle title="Dashboard" titleIcon={<LayoutDashboard />} />
             <Box sx={{p:2}}>
                 <Grid container spacing={2} sx={{mb:4}}>
@@ -84,7 +94,7 @@ function Dashboard() {
                     categories.map((category: any) => (
                         <CategorySection 
                             key={category.uuid} 
-                            category={category} 
+                            category={category}
                             onUpdate={loadCategories} 
                         />
                     ))

@@ -5,6 +5,7 @@ import {UserContext} from './hooks/UserContext.ts';
 import {CompanyContext} from './hooks/CompanyContext.ts';
 import {ToastProvider} from './utils/toast.tsx';
 import {constants, ROUTES, PERMISSIONS} from "./utils/constants.ts";
+import {BookingProvider} from './hooks/BookingContext';
 
 // App Layout
 import AuthLayoutRoute from "./layouts/AuthLayout";
@@ -41,16 +42,18 @@ function App() {
     return (
         <UserContext.Provider value={userData}>
             <CompanyContext.Provider value={companyData}>
-                <ToastProvider>
-                    <Router>
-                        <Routes>
-                            <Route path={ROUTES.DASHBOARD} element={<DashboardLayoutRoute isAuth={true} component={Dashboard} permissionName={false} />} />
-                            {/* <Route path={ROUTES.FORBIDDEN} element={<DashboardLayoutRoute isAuth={true} component={PermissionDenied} permissionName={false} />} /> */}
-                            <Route path={ROUTES.AUTH.LOGIN} element={<AuthLayoutRoute isAuth={false} component={Signin} />} />
-                            <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<AuthLayoutRoute isAuth={false} component={ForgotPassword} />} />
-                        </Routes>
-                    </Router>
-                </ToastProvider>
+                <BookingProvider>
+                    <ToastProvider>
+                        <Router>
+                            <Routes>
+                                <Route path={ROUTES.DASHBOARD} element={<DashboardLayoutRoute isAuth={true} component={Dashboard} permissionName={false} />} />
+                                {/* <Route path={ROUTES.FORBIDDEN} element={<DashboardLayoutRoute isAuth={true} component={PermissionDenied} permissionName={false} />} /> */}
+                                <Route path={ROUTES.AUTH.LOGIN} element={<AuthLayoutRoute isAuth={false} component={Signin} />} />
+                                <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<AuthLayoutRoute isAuth={false} component={ForgotPassword} />} />
+                            </Routes>
+                        </Router>
+                    </ToastProvider>
+                </BookingProvider>
             </CompanyContext.Provider>
         </UserContext.Provider>
     )
