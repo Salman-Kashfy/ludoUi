@@ -2,7 +2,7 @@ import Grid from '@mui/material/Grid';
 import { Controller, useForm } from 'react-hook-form';
 import FormInput from '../../components/FormInput';
 import { Fragment, useState, useEffect, useCallback, useContext } from 'react';
-import { CircularProgress, Button, IconButton, Box, Typography, Paper } from '@mui/material';
+import { CircularProgress, Button, IconButton, Box, Typography, Paper, Select, InputLabel, MenuItem, FormHelperText } from '@mui/material';
 import { Plus } from 'lucide-react';
 import { Autocomplete } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
@@ -18,6 +18,7 @@ import {debounce} from "@mui/material/utils";
 import { GetCustomers } from '../../services/customer.service';
 import {CompanyContext} from '../../hooks/CompanyContext';
 import { TableSessionBilling } from '../../services/payment.service';
+import { PAYMENT_METHOD } from '../../utils/constants';
 
 const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boolean, handleDialogClose:() => void, tableUuid:string, onSuccess:() => void}) => {
 
@@ -25,6 +26,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
         tableUuid,
         hours: 1,
         customerUuid: '',
+        paymentMethod: '',
     }
     const {control, handleSubmit, watch, setValue, reset} = useForm({
         mode: "onChange",
@@ -86,6 +88,9 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
     useEffect(() => {
         if (open) {
             reset(defaultValues)
+            setCustomerId({label: '', value: ''})
+            setCustomers([])
+            setSearchCustomer('')
             fetchBillingData()
         }
     }, [open, tableUuid])
@@ -102,7 +107,6 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
     }   
 
     const handleAddCustomer = () => {
-        // TODO: Implement add customer functionality
         console.log('Add customer clicked');
     }
 
@@ -197,40 +201,60 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
                                     </IconButton>
                                 </Box>
                             </Grid>
-                            
-                            {/* Billing Information */}
-                            {billingData && (
-                                <Grid size={12}>
-                                    <Paper sx={{ p: 2, backgroundColor: 'grey.50', border: '1px solid', borderColor: 'grey.200' }}>
-                                        <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-                                            Billing Summary
+                        </Grid>
+                        {billingData && (
+                            <Fragment>
+                                <Box sx={{mt: 2, mb: 2}}>
+                                    <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+                                        Billing Summary
+                                    </Typography>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Table: {billingData.table.name}
                                         </Typography>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Table: {billingData.table.name}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Category: {billingData.table.category.name}
-                                            </Typography>
-                                        </Box>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Duration: {billingData.billing.hours} hour{billingData.billing.hours !== '1' ? 's' : ''}
-                                            </Typography>
-                                            <Typography variant="body2" color="text.secondary">
-                                                Rate: {billingData.billing.hourlyRate} {billingData.billing.currencyName}/hr
-                                            </Typography>
-                                        </Box>
-                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1, borderTop: '1px solid', borderColor: 'grey.300' }}>
-                                            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                                                Total Amount
-                                            </Typography>
-                                            <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                                                {billingData.billing.totalAmount} {billingData.billing.currencyName}
-                                            </Typography>
-                                        </Box>
-                                    </Paper>
-                                </Grid>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Category: {billingData.table.category.name}
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Duration: {billingData.billing.hours} hour{billingData.billing.hours !== '1' ? 's' : ''}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Rate: {billingData.billing.hourlyRate} {billingData.billing.currencyName}/hr
+                                        </Typography>
+                                    </Box>
+                                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1, borderTop: '1px solid', borderColor: 'grey.300' }}>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                                            Total Amount
+                                        </Typography>
+                                        <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>
+                                            {billingData.billing.totalAmount} {billingData.billing.currencyName}
+                                        </Typography>
+                                    </Box>
+                                </Box>
+                                <Box sx={{mt: 2}}>
+                                    <Controller name="paymentMethod" control={control}
+                                    rules={{
+                                        required: {
+                                            value: true,
+                                            message: "Payment method is required"
+                                        },
+                                    }}
+                                    render={({field, fieldState: {error}}) => (
+                                        <FormControl variant={'standard'} fullWidth={true} error={!!error}>
+                                            <InputLabel>Payment method</InputLabel>
+                                            <Select label="Payment method" {...field} value={field.value || ''} error={!!error}>
+                                                {Object.keys(PAYMENT_METHOD).map((key:string) => {
+                                                    return (<MenuItem value={key} key={key}>{PAYMENT_METHOD[key as keyof typeof PAYMENT_METHOD]}</MenuItem>)
+                                                })}
+                                            </Select>
+                                            {error && <FormHelperText sx={{ml: 0}}>{error.message}</FormHelperText>}
+                                        </FormControl>
+                                    )}
+                                />
+                                </Box>
+                            </Fragment>
                             )}
                             
                             {billingLoader && (
@@ -240,7 +264,6 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
                                     </Box>
                                 </Grid>
                             )}
-                        </Grid>
                     </DialogContent>
                     <DialogActions sx={{p: 2}}>
                         <Button onClick={handleDialogClose} color="error">Cancel</Button>

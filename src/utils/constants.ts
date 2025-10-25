@@ -89,3 +89,9 @@ export const emptyListResponse = {
         totalResultCount: 0
     }
 }
+
+export const PAYMENT_METHOD = {
+    CASH: 'Cash',
+    CARD: 'Card',
+    BANK_TRANSFER: 'Bank Transfer',
+}
