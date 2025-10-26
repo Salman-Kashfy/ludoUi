@@ -5,9 +5,10 @@ import { Category } from '../pages/dashboard/types';
 interface CategorySectionProps {
     category: Category;
     onUpdate: () => void;
+    onUpdateTableSession: (tableUuid: string, updatedSession: any) => void;
 }
 
-export function CategorySection({ category, onUpdate }: CategorySectionProps) {
+export function CategorySection({ category, onUpdate, onUpdateTableSession }: CategorySectionProps) {
     return (
         <Box sx={{ mb: 4 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 500, mb:2 }} gutterBottom>
@@ -17,7 +18,11 @@ export function CategorySection({ category, onUpdate }: CategorySectionProps) {
             <Grid container spacing={1}>
                 {category.tables.map((table) => (
                     <Grid size={3} key={table.uuid}>
-                        <TableCard table={table} onUpdate={onUpdate} />
+                        <TableCard 
+                            table={table} 
+                            onUpdate={onUpdate}
+                            onUpdateTableSession={onUpdateTableSession}
+                        />
                     </Grid>
                 ))}
             </Grid>

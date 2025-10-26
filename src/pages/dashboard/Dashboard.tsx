@@ -32,7 +32,7 @@ function Dashboard() {
     * Categories and Tables
     * */
     const [categoriesLoader, setCategoriesLoader] = useState(true);
-    const [categories, setCategories] = useState([]);
+    const [categories, setCategories] = useState<any[]>([]);
 
     const loadCategories = () => {
         setCategoriesLoader(true);
@@ -64,6 +64,24 @@ function Dashboard() {
     const afterBooking = () => {
         closeBookingDialog();
         loadCategories();
+    };
+
+    const updateTableSession = (tableUuid: string, updatedSession: any) => {
+        setCategories(prevCategories => 
+            prevCategories.map((category: any) => ({
+                ...category,
+                tables: category.tables.map((table: any) => 
+                    table.uuid === tableUuid 
+                        ? {
+                            ...table,
+                            tableSessions: table.tableSessions.map((session: any) => 
+                                session.uuid === updatedSession.uuid ? updatedSession : session
+                            )
+                        }
+                        : table
+                )
+            }))
+        );
     };
 
     return (
@@ -100,7 +118,8 @@ function Dashboard() {
                         <CategorySection 
                             key={category.uuid} 
                             category={category}
-                            onUpdate={loadCategories} 
+                            onUpdate={loadCategories}
+                            onUpdateTableSession={updateTableSession}
                         />
                     ))
                 )}

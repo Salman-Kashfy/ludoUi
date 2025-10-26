@@ -1,19 +1,23 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { Card, CardContent, Typography, Button, Box, Chip } from '@mui/material';
 import { Play, Square } from 'lucide-react';
-import { StartTableSession, StopTableSession } from '../services/category.service';
+import { StartTableSession, StopTableSession } from '../services/table.session.service';
 import { useToast } from '../utils/toast.tsx';
 import { useBooking } from '../hooks/BookingContext';
 import { first, isEmpty } from 'lodash';
 import { TableSessionStatus } from '../pages/table/types.ts';
 import { TableSession, Table } from '../pages/dashboard/types';
+import { CompanyContext } from '../hooks/CompanyContext';
 
 interface TableCardProps {
     table: Table;
     onUpdate: () => void;
+    onUpdateTableSession: (tableUuid: string, updatedSession: any) => void;
 }
 
-export function TableCard({ table, onUpdate }: TableCardProps) {
+export function TableCard({ table, onUpdate, onUpdateTableSession }: TableCardProps) {
+    const companyContext:any = useContext(CompanyContext)
+    const companyUuid = companyContext.companyUuid
     const { successToast, errorToast } = useToast();
     const { openBookingDialog } = useBooking();
     const [isLoading, setIsLoading] = useState(false);
@@ -45,12 +49,30 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
         
         if (activeSession?.status === TableSessionStatus.ACTIVE) {
             interval = setInterval(() => {
-                const startTime = parseInt(activeSession.startTime);
-                const elapsed = Date.now() - startTime;
-                const hours = Math.floor(elapsed / 3600000);
-                const minutes = Math.floor((elapsed % 3600000) / 60000);
-                const seconds = Math.floor((elapsed % 60000) / 1000);
-                setElapsedTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+                // Parse startTime as UTC timestamp
+                const startTime = new Date(activeSession.startTime).getTime();
+                const currentTime = Date.now();
+                const elapsed = currentTime - startTime;
+                
+                let initialDurationMs: number;
+                if (activeSession.unit === 'hours') {
+                    initialDurationMs = activeSession.duration * 3600000; // Convert hours to milliseconds
+                } else if (activeSession.unit === 'minutes') {
+                    initialDurationMs = activeSession.duration * 60000; // Convert minutes to milliseconds
+                } else {
+                    initialDurationMs = activeSession.duration * 1000; // Assume seconds
+                }
+                
+                const remaining = initialDurationMs - elapsed;
+                
+                if (remaining <= 0) {
+                    setElapsedTime('00:00:00');
+                } else {
+                    const hours = Math.floor(remaining / 3600000);
+                    const minutes = Math.floor((remaining % 3600000) / 60000);
+                    const seconds = Math.floor((remaining % 60000) / 1000);
+                    setElapsedTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
+                }
             }, 1000);
         } else if (activeSession?.status === TableSessionStatus.BOOKED) {
             // Show initial duration for booked sessions
@@ -62,17 +84,22 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
         return () => clearInterval(interval);
     }, [activeSession]);
 
-    const handleStart = async () => {
+    const startSession = async (tableSessionUuid: string) => {
         setIsLoading(true);
-        try {
-            await StartTableSession({ tableId: table.uuid });
-            successToast('Table session started');
-            onUpdate();
-        } catch (error) {
+        StartTableSession({ companyUuid, tableSessionUuid }).then((res:any) => {
+            if(res.status) {
+                successToast('Table session started');
+                // Update only the specific table session instead of reloading all categories
+                onUpdateTableSession(table.uuid, res.data);
+            } else {
+                errorToast(res.errorMessage || 'Failed to start table session');
+            }
+        }).catch((error:any) => {
+            console.log(error)
             errorToast('Failed to start table session');
-        } finally {
+        }).finally(() => {
             setIsLoading(false);
-        }
+        });
     };
 
     const handleStop = async () => {
@@ -108,40 +135,11 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
 
                 <Box sx={{ display: 'flex', gap: 1 }}>
                     {isEmpty(activeSession) ? (
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            onClick={() => openBookingDialog(table.uuid)}
-                            disabled={isLoading}
-                            fullWidth
-                        >
-                            Book
-                        </Button>
+                        <Button variant="contained" color="primary" size="small" onClick={() => openBookingDialog(table.uuid)} disabled={isLoading} fullWidth>Book</Button>
                     ) : activeSession.status === TableSessionStatus.BOOKED ? (
-                        <Button
-                            variant="contained"
-                            color="success"
-                            size="small"
-                            startIcon={<Play size={16} />}
-                            onClick={handleStart}
-                            disabled={isLoading}
-                            fullWidth
-                        >
-                            Start
-                        </Button>
+                        <Button variant="contained" color="success" size="small" startIcon={<Play size={16} />} onClick={() => startSession(activeSession.uuid)} disabled={isLoading} fullWidth>Start</Button>
                     ) : activeSession ? (
-                        <Button
-                            variant="contained"
-                            color="error"
-                            size="small"
-                            startIcon={<Square size={16} />}
-                            onClick={handleStop}
-                            disabled={isLoading}
-                            fullWidth
-                        >
-                            Stop
-                        </Button>
+                        <Button variant="contained" color="error" size="small" startIcon={<Square size={16} />} onClick={handleStop} disabled={isLoading} fullWidth>Stop</Button>
                     ) : null}
                 </Box>
             </CardContent>

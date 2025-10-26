@@ -5,14 +5,6 @@ interface GetCategoriesInput {
     companyUuid: string;
 }
 
-interface StartTableSessionInput {
-    tableId: string;
-}
-
-interface StopTableSessionInput {
-    tableSessionId: string;
-}
-
 export const GetCategories = async (params: GetCategoriesInput): Promise<any> => {
     const query = `
         query Categories($params: CategoryFilter) {
@@ -46,42 +38,4 @@ export const GetCategories = async (params: GetCategoriesInput): Promise<any> =>
     return response?.data?.categories?.list?.length
         ? response?.data?.categories
         : emptyListResponse;
-};
-
-export const StartTableSession = async (params: StartTableSessionInput): Promise<any> => {
-    const query = `
-        mutation StartTableSession($params: StartTableSessionInput!) {
-            startTableSession(params: $params) {
-                uuid
-                startTime
-                endTime
-            }
-        }
-    `;
-
-    const variables = {
-        params
-    };
-
-    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
-    return response?.data?.startTableSession;
-};
-
-export const StopTableSession = async (params: StopTableSessionInput): Promise<any> => {
-    const query = `
-        mutation StopTableSession($params: StopTableSessionInput!) {
-            stopTableSession(params: $params) {
-                uuid
-                startTime
-                endTime
-            }
-        }
-    `;
-
-    const variables = {
-        params
-    };
-
-    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
-    return response?.data?.stopTableSession;
 };
