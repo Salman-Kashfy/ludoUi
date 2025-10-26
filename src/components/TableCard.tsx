@@ -8,18 +8,19 @@ import { first, isEmpty } from 'lodash';
 import { TableSessionStatus } from '../pages/table/types.ts';
 import { TableSession, Table } from '../pages/dashboard/types';
 import { CompanyContext } from '../hooks/CompanyContext';
+import { useTableSession } from '../hooks/TableSessionContext';
 
 interface TableCardProps {
     table: Table;
     onUpdate: () => void;
-    onUpdateTableSession: (tableUuid: string, updatedSession: any) => void;
 }
 
-export function TableCard({ table, onUpdate, onUpdateTableSession }: TableCardProps) {
+export function TableCard({ table, onUpdate }: TableCardProps) {
     const companyContext:any = useContext(CompanyContext)
     const companyUuid = companyContext.companyUuid
     const { successToast, errorToast } = useToast();
     const { openBookingDialog } = useBooking();
+    const { updateTableSession } = useTableSession();
     const [isLoading, setIsLoading] = useState(false);
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
     const activeSession: TableSession | null = table.tableSessions?.length > 0 ? first(table.tableSessions) || null : null;
@@ -90,7 +91,7 @@ export function TableCard({ table, onUpdate, onUpdateTableSession }: TableCardPr
             if(res.status) {
                 successToast('Table session started');
                 // Update only the specific table session instead of reloading all categories
-                onUpdateTableSession(table.uuid, res.data);
+                updateTableSession(table.uuid, res.data);
             } else {
                 errorToast(res.errorMessage || 'Failed to start table session');
             }

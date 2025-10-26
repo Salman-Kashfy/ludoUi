@@ -11,6 +11,7 @@ import { TableStats } from '../../services/dashboard.service';
 import { GetCategories } from '../../services/category.service';
 import { CategorySection } from '../../components/CategorySection';
 import BookSession from '../table/BookSession';
+import { TableSessionProvider } from '../../hooks/TableSessionContext';
 
 function Dashboard() {
     const companyContext:any = useContext(CompanyContext)
@@ -85,46 +86,47 @@ function Dashboard() {
     };
 
     return (
-        <Fragment>
-            <BookSession
-                open={bookSessionDialog}
-                tableUuid={tableUuid}
-                handleDialogClose={closeBookingDialog}
-                onSuccess={afterBooking}
-            />  
-            <PageTitle title="Dashboard" titleIcon={<LayoutDashboard />} />
-            <Box sx={{p:2}}>
-                <Grid container spacing={2} sx={{mb:4}}>
-                    <Grid size={3}>
-                        <DashboardStat value={dashboardStats.availableTables} title={'Available Tables'} icon={<Gamepad2 color='#fff' strokeWidth={1.6} size={24} />} iconBg={'primary.main'} loading={statsLoader}/>
+        <TableSessionProvider updateTableSession={updateTableSession}>
+            <Fragment>
+                <BookSession
+                    open={bookSessionDialog}
+                    tableUuid={tableUuid}
+                    handleDialogClose={closeBookingDialog}
+                    onSuccess={afterBooking}
+                />  
+                <PageTitle title="Dashboard" titleIcon={<LayoutDashboard />} />
+                <Box sx={{p:2}}>
+                    <Grid container spacing={2} sx={{mb:4}}>
+                        <Grid size={3}>
+                            <DashboardStat value={dashboardStats.availableTables} title={'Available Tables'} icon={<Gamepad2 color='#fff' strokeWidth={1.6} size={24} />} iconBg={'primary.main'} loading={statsLoader}/>
+                        </Grid>
+                        <Grid size={3}>
+                            <DashboardStat value={dashboardStats.occupiedTables} title={'Occupied Tables'} icon={<CircleOff color='#fff' strokeWidth={1.6} size={24} />} iconBg={'triadic.main'} loading={statsLoader}/>
+                        </Grid>
+                        <Grid size={3}>
+                            <DashboardStat value={dashboardStats.activeTournaments} title={'Active Tournaments'} icon={<Trophy color='#fff' strokeWidth={1.6} size={24} />} iconBg={'success.main'} loading={statsLoader}/>
+                        </Grid>
+                        <Grid size={3}>
+                            <DashboardStat value={dashboardStats.todaysRevenue} title={'Today\'s Revenue'} icon={<Landmark color='#fff' strokeWidth={1.6} size={24} />} iconBg={'warning.main'} loading={statsLoader}/>
+                        </Grid>
                     </Grid>
-                    <Grid size={3}>
-                        <DashboardStat value={dashboardStats.occupiedTables} title={'Occupied Tables'} icon={<CircleOff color='#fff' strokeWidth={1.6} size={24} />} iconBg={'triadic.main'} loading={statsLoader}/>
-                    </Grid>
-                    <Grid size={3}>
-                        <DashboardStat value={dashboardStats.activeTournaments} title={'Active Tournaments'} icon={<Trophy color='#fff' strokeWidth={1.6} size={24} />} iconBg={'success.main'} loading={statsLoader}/>
-                    </Grid>
-                    <Grid size={3}>
-                        <DashboardStat value={dashboardStats.todaysRevenue} title={'Today\'s Revenue'} icon={<Landmark color='#fff' strokeWidth={1.6} size={24} />} iconBg={'warning.main'} loading={statsLoader}/>
-                    </Grid>
-                </Grid>
 
-                {categoriesLoader ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-                        <CircularProgress />
-                    </Box>
-                ) : (
-                    categories.map((category: any) => (
-                        <CategorySection 
-                            key={category.uuid} 
-                            category={category}
-                            onUpdate={loadCategories}
-                            onUpdateTableSession={updateTableSession}
-                        />
-                    ))
-                )}
-            </Box>
-        </Fragment>
+                    {categoriesLoader ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                            <CircularProgress />
+                        </Box>
+                    ) : (
+                        categories.map((category: any) => (
+                            <CategorySection 
+                                key={category.uuid} 
+                                category={category}
+                                onUpdate={loadCategories}
+                            />
+                        ))
+                    )}
+                </Box>
+            </Fragment>
+        </TableSessionProvider>
     )
 }
 
