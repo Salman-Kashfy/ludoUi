@@ -5,20 +5,8 @@ import { StartTableSession, StopTableSession } from '../services/category.servic
 import { useToast } from '../utils/toast.tsx';
 import { useBooking } from '../hooks/BookingContext';
 import { first, isEmpty } from 'lodash';
-import { TableSessionStatus } from '../pages/table/enum.ts';
-
-interface TableSession {
-    uuid: string;
-    startTime: string;
-    endTime: string | null;
-}
-
-interface Table {
-    uuid: string;
-    name: string;
-    status: string;
-    tableSessions: TableSession[];
-}
+import { TableSessionStatus } from '../pages/table/types.ts';
+import { TableSession, Table } from '../pages/dashboard/types';
 
 interface TableCardProps {
     table: Table;
@@ -30,7 +18,26 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
     const { openBookingDialog } = useBooking();
     const [isLoading, setIsLoading] = useState(false);
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
-    const activeSession:any = table.tableSessions?.length > 0 ? first(table.tableSessions) : null;
+    const activeSession: TableSession | null = table.tableSessions?.length > 0 ? first(table.tableSessions) || null : null;
+
+    // Function to format duration based on unit and duration
+    const formatInitialDuration = (duration: number, unit: string): string => {
+        let totalSeconds: number;
+        
+        if (unit === 'hours') {
+            totalSeconds = duration * 3600; // Convert hours to seconds
+        } else if (unit === 'minutes') {
+            totalSeconds = duration * 60; // Convert minutes to seconds
+        } else {
+            totalSeconds = duration; // Assume seconds if unit is not specified
+        }
+        
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    }
 
 
     useEffect(() => {
@@ -45,6 +52,9 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
                 const seconds = Math.floor((elapsed % 60000) / 1000);
                 setElapsedTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
             }, 1000);
+        } else if (activeSession?.status === TableSessionStatus.BOOKED) {
+            // Show initial duration for booked sessions
+            setElapsedTime(formatInitialDuration(activeSession.duration, activeSession.unit));
         } else {
             setElapsedTime('00:00:00');
         }

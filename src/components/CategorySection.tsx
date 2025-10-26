@@ -1,26 +1,6 @@
 import { Typography, Box, Grid } from '@mui/material';
 import { TableCard } from './TableCard';
-
-interface TableSession {
-    uuid: string;
-    startTime: string;
-    endTime: string | null;
-}
-
-interface Table {
-    uuid: string;
-    name: string;
-    status: string;
-    tableSessions: TableSession[];
-}
-
-interface Category {
-    uuid: string;
-    name: string;
-    hourlyRate: number;
-    currencyName: string;
-    tables: Table[];
-}
+import { Category } from '../pages/dashboard/types';
 
 interface CategorySectionProps {
     category: Category;

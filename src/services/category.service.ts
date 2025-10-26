@@ -28,7 +28,8 @@ export const GetCategories = async (params: GetCategoriesInput): Promise<any> =>
                         tableSessions {
                             uuid
                             startTime
-                            hours
+                            unit
+                            duration
                             status
                         }
                     }
