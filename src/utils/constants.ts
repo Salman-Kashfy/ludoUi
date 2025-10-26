@@ -95,3 +95,16 @@ export const PAYMENT_METHOD = {
     CARD: 'Card',
     BANK_TRANSFER: 'Bank Transfer',
 }
+
+export const HOURS = {
+    '0.25': '15 mins',
+    '0.5': '30 mins',
+    '0.75': '45 mins',
+    '1': '1 hr',
+}
+
+export const emptyMutationResponse = {
+    data: null,
+    status: false,
+    errorMessage: null
+}

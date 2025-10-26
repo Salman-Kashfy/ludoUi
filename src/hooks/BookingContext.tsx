@@ -5,7 +5,6 @@ interface BookingContextType {
     tableUuid: string;
     openBookingDialog: (tableUuid: string) => void;
     closeBookingDialog: () => void;
-    afterBooking: () => void;
 }
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
@@ -28,11 +27,6 @@ export function BookingProvider({ children }: BookingProviderProps) {
         setTableUuid('');
     };
 
-    const afterBooking = () => {
-        setBookSessionDialog(false);
-        setTableUuid('');
-    };
-
     return (
         <BookingContext.Provider 
             value={{
@@ -40,7 +34,6 @@ export function BookingProvider({ children }: BookingProviderProps) {
                 tableUuid,
                 openBookingDialog,
                 closeBookingDialog,
-                afterBooking
             }}
         >
             {children}

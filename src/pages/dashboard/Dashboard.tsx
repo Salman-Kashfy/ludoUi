@@ -15,7 +15,7 @@ import BookSession from '../table/BookSession';
 function Dashboard() {
     const companyContext:any = useContext(CompanyContext)
     const { errorToast } = useToast()
-    const { bookSessionDialog, tableUuid, closeBookingDialog, afterBooking } = useBooking()
+    const { bookSessionDialog, tableUuid, closeBookingDialog } = useBooking()
 
     /**
     * Dashboard Stats
@@ -60,6 +60,11 @@ function Dashboard() {
 
         loadCategories();
     }, [companyContext.companyUuid])
+
+    const afterBooking = () => {
+        closeBookingDialog();
+        loadCategories();
+    };
 
     return (
         <Fragment>

@@ -2,7 +2,7 @@ import Grid from '@mui/material/Grid';
 import { Controller, useForm } from 'react-hook-form';
 import FormInput from '../../components/FormInput';
 import { Fragment, useState, useEffect, useCallback, useContext } from 'react';
-import { CircularProgress, Button, IconButton, Box, Typography, Paper, Select, InputLabel, MenuItem, FormHelperText } from '@mui/material';
+import { CircularProgress, Button, IconButton, Box, Typography, Select, InputLabel, MenuItem, FormHelperText } from '@mui/material';
 import { Plus } from 'lucide-react';
 import { Autocomplete } from '@mui/material';
 import Dialog from '@mui/material/Dialog';
@@ -18,7 +18,9 @@ import {debounce} from "@mui/material/utils";
 import { GetCustomers } from '../../services/customer.service';
 import {CompanyContext} from '../../hooks/CompanyContext';
 import { TableSessionBilling } from '../../services/payment.service';
-import { PAYMENT_METHOD } from '../../utils/constants';
+import { PAYMENT_METHOD, HOURS } from '../../utils/constants';
+import { BookTableSession } from '../../services/table.session.service';
+import { useToast } from '../../utils/toast.tsx';
 
 const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boolean, handleDialogClose:() => void, tableUuid:string, onSuccess:() => void}) => {
 
@@ -33,6 +35,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
         defaultValues
     })
     const hours = watch('hours')
+    const paymentMethod = watch('paymentMethod')
     const [bookSessionLoader, setBookSessionLoader] = useState(false);
     const companyContext:any = useContext(CompanyContext)
     const companyUuid = companyContext.companyUuid
@@ -43,6 +46,8 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
     const [customerId, setCustomerId] = useState<{label: string, value: string}>({label: '', value: ''});
     const [customerLoader, setCustomerLoader] = useState(false);
     const [searchCustomer, setSearchCustomer] = useState("");
+
+    const { successToast, errorToast } = useToast();
 
     const fetchCustomers = ({searchCustomer, companyUuid}:{searchCustomer:string, companyUuid:string}) => {
         setCustomerLoader(true)
@@ -101,7 +106,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
         }
     }, [hours])
 
-    const handleCustomerChange = (event: any, value: { value: string, label: string } | null) => {
+    const handleCustomerChange = (_event: any, value: { value: string, label: string } | null) => {
         setValue('customerUuid', value?.value || '')
         setCustomerId({label: value?.label || '', value: value?.value || ''})
     }   
@@ -112,10 +117,30 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
 
     const onSubmit = () => {
         setBookSessionLoader(true)
-        onSuccess()
+        const input = {
+            tableUuid,
+            customerUuid: customerId.value,
+            paymentMethod:{ paymentScheme: paymentMethod },
+            hours: Number(hours),
+            companyUuid
+        }
+        BookTableSession(input).then((data) => {
+            if(data.status) {
+                successToast('Session booked successfully')
+                onSuccess()
+            } else {
+                errorToast('Something went wrong!')
+            }
+        }).catch((e) => {
+            console.log(e.message)
+            errorToast('Failed to book table session')
+        }).finally(() => {
+            setBookSessionLoader(false)
+        })
     }
 
     const _handleDialogClose = () => {
+        if(bookSessionLoader) return;
         reset(defaultValues)
         handleDialogClose()
         setBillingData(null)
@@ -138,9 +163,10 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
                                         value={hours}
                                         onChange={(e:any) => setValue('hours', e.target.value)}
                                     >
+                                        <FormControlLabel value="0.25" control={<Radio />} label="15 mins" />
+                                        <FormControlLabel value="0.5" control={<Radio />} label="30 mins" />
+                                        <FormControlLabel value="0.75" control={<Radio />} label="45 mins" />
                                         <FormControlLabel value="1" control={<Radio />} label="1 hr" />
-                                        <FormControlLabel value="2" control={<Radio />} label="2 hr" />
-                                        <FormControlLabel value="3" control={<Radio />} label="3 hr" />
                                     </RadioGroup>
                                 </FormControl>
                             </Grid>
@@ -154,7 +180,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
                                                         message: "Customer is required"
                                                     },
                                                 }}
-                                                render={() => (
+                                                render={({fieldState: {error}}) => (
                                                     <Autocomplete
                                                         id="customer-dd"
                                                         options={customers}
@@ -172,7 +198,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
                                                                 option.label.includes(input.replace(/^0/, ''))
                                                             );
                                                         }}
-                                                        renderInput={(params) => <FormInput fullWidth={true} label={'Customer'} placeholder={'Search by name or phone number'} params={params}
+                                                        renderInput={(params) => <FormInput fullWidth={true} error={error} label={'Customer'} placeholder={'Search by name or phone number'} params={params}
                                                             slotProps={{
                                                                 input: {
                                                                     ...params.InputProps,
@@ -218,7 +244,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                         <Typography variant="body2" color="text.secondary">
-                                            Duration: {billingData.billing.hours} hour{billingData.billing.hours !== '1' ? 's' : ''}
+                                            Duration: {HOURS[billingData.billing.hours as keyof typeof HOURS]}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
                                             Rate: {billingData.billing.hourlyRate} {billingData.billing.currencyName}/hr
@@ -235,24 +261,24 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
                                 </Box>
                                 <Box sx={{mt: 2}}>
                                     <Controller name="paymentMethod" control={control}
-                                    rules={{
-                                        required: {
-                                            value: true,
-                                            message: "Payment method is required"
-                                        },
-                                    }}
-                                    render={({field, fieldState: {error}}) => (
-                                        <FormControl variant={'standard'} fullWidth={true} error={!!error}>
-                                            <InputLabel>Payment method</InputLabel>
-                                            <Select label="Payment method" {...field} value={field.value || ''} error={!!error}>
-                                                {Object.keys(PAYMENT_METHOD).map((key:string) => {
-                                                    return (<MenuItem value={key} key={key}>{PAYMENT_METHOD[key as keyof typeof PAYMENT_METHOD]}</MenuItem>)
-                                                })}
-                                            </Select>
-                                            {error && <FormHelperText sx={{ml: 0}}>{error.message}</FormHelperText>}
-                                        </FormControl>
-                                    )}
-                                />
+                                        rules={{
+                                            required: {
+                                                value: true,
+                                                message: "Payment method is required"
+                                            },
+                                        }}
+                                        render={({field, fieldState: {error}}) => (
+                                            <FormControl variant={'standard'} fullWidth={true} error={!!error}>
+                                                <InputLabel>Payment method</InputLabel>
+                                                <Select label="Payment method" {...field} value={field.value || ''} error={!!error}>
+                                                    {Object.keys(PAYMENT_METHOD).map((key:string) => {
+                                                        return (<MenuItem value={key} key={key}>{PAYMENT_METHOD[key as keyof typeof PAYMENT_METHOD]}</MenuItem>)
+                                                    })}
+                                                </Select>
+                                                {error && <FormHelperText sx={{ml: 0}}>{error.message}</FormHelperText>}
+                                            </FormControl>
+                                        )}
+                                    />
                                 </Box>
                             </Fragment>
                             )}
@@ -267,7 +293,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
                     </DialogContent>
                     <DialogActions sx={{p: 2}}>
                         <Button onClick={handleDialogClose} color="error">Cancel</Button>
-                        <Button type="submit" variant="contained" disabled={bookSessionLoader || billingLoader}>Book Now</Button>
+                        <Button type="submit" variant="contained" loading={bookSessionLoader} disabled={bookSessionLoader || billingLoader}>Book Now</Button>
                     </DialogActions>
                 </form>
             </Dialog>
