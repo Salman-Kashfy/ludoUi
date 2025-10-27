@@ -90,7 +90,6 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
         StartTableSession({ companyUuid, tableSessionUuid }).then((res:any) => {
             if(res.status) {
                 successToast('Table session started');
-                // Update only the specific table session instead of reloading all categories
                 updateTableSession(table.uuid, res.data);
             } else {
                 errorToast(res.errorMessage || 'Failed to start table session');

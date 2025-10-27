@@ -25,6 +25,9 @@ export const BookTableSession = async (input:BookTableSessionInput) => {
                 data {
                     uuid
                     startTime
+                    duration
+                    unit
+                    status
                 }
                 status
                 errors

@@ -21,8 +21,9 @@ import { TableSessionBilling } from '../../services/payment.service';
 import { PAYMENT_METHOD, HOURS } from '../../utils/constants';
 import { BookTableSession } from '../../services/table.session.service';
 import { useToast } from '../../utils/toast.tsx';
+import { useTableSession } from '../../hooks/TableSessionContext';
 
-const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boolean, handleDialogClose:() => void, tableUuid:string, onSuccess:() => void}) => {
+const BookSession = ({open, handleDialogClose, tableUuid}:{open:boolean, handleDialogClose:() => void, tableUuid:string }) => {
 
     const defaultValues = {
         tableUuid,
@@ -38,6 +39,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
     const paymentMethod = watch('paymentMethod')
     const [bookSessionLoader, setBookSessionLoader] = useState(false);
     const companyContext:any = useContext(CompanyContext)
+    const { addTableSession } = useTableSession();
     const companyUuid = companyContext.companyUuid
     const [billingLoader, setBillingLoader] = useState(false);
     const [billingData, setBillingData] = useState<any>(null);
@@ -124,10 +126,12 @@ const BookSession = ({open, handleDialogClose, tableUuid, onSuccess}:{open:boole
             hours: Number(hours),
             companyUuid
         }
-        BookTableSession(input).then((data) => {
-            if(data.status) {
+        BookTableSession(input).then((res) => {
+            console.log('BookTableSession response', res.data)
+            if(res.status) {
                 successToast('Session booked successfully')
-                onSuccess()
+                addTableSession(tableUuid, res.data)
+                handleDialogClose()
             } else {
                 errorToast('Something went wrong!')
             }

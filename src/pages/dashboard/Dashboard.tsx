@@ -62,11 +62,6 @@ function Dashboard() {
         loadCategories();
     }, [companyContext.companyUuid])
 
-    const afterBooking = () => {
-        closeBookingDialog();
-        loadCategories();
-    };
-
     const updateTableSession = (tableUuid: string, updatedSession: any) => {
         setCategories(prevCategories => 
             prevCategories.map((category: any) => ({
@@ -85,14 +80,29 @@ function Dashboard() {
         );
     };
 
+    const addTableSession = (tableUuid: string, newSession: any) => {
+        setCategories(prevCategories => 
+            prevCategories.map((category: any) => ({
+                ...category,
+                tables: category.tables.map((table: any) => 
+                    table.uuid === tableUuid 
+                        ? {
+                            ...table,
+                            tableSessions: [...table.tableSessions, newSession]
+                        }
+                        : table
+                )
+            }))
+        );
+    };
+
     return (
-        <TableSessionProvider updateTableSession={updateTableSession}>
+        <TableSessionProvider updateTableSession={updateTableSession} addTableSession={addTableSession}>
             <Fragment>
                 <BookSession
                     open={bookSessionDialog}
                     tableUuid={tableUuid}
                     handleDialogClose={closeBookingDialog}
-                    onSuccess={afterBooking}
                 />  
                 <PageTitle title="Dashboard" titleIcon={<LayoutDashboard />} />
                 <Box sx={{p:2}}>

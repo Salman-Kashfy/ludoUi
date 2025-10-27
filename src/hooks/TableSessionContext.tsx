@@ -2,6 +2,7 @@ import { createContext, useContext, ReactNode } from 'react';
 
 interface TableSessionContextType {
     updateTableSession: (tableUuid: string, updatedSession: any) => void;
+    addTableSession: (tableUuid: string, newSession: any) => void;
 }
 
 const TableSessionContext = createContext<TableSessionContextType | undefined>(undefined);
@@ -9,11 +10,12 @@ const TableSessionContext = createContext<TableSessionContextType | undefined>(u
 interface TableSessionProviderProps {
     children: ReactNode;
     updateTableSession: (tableUuid: string, updatedSession: any) => void;
+    addTableSession: (tableUuid: string, newSession: any) => void;
 }
 
-export function TableSessionProvider({ children, updateTableSession }: TableSessionProviderProps) {
+export function TableSessionProvider({ children, updateTableSession, addTableSession }: TableSessionProviderProps) {
     return (
-        <TableSessionContext.Provider value={{ updateTableSession }}>
+        <TableSessionContext.Provider value={{ updateTableSession, addTableSession }}>
             {children}
         </TableSessionContext.Provider>
     );
