@@ -11,12 +11,13 @@ import { TableStats } from '../../services/dashboard.service';
 import { GetCategories } from '../../services/category.service';
 import { CategorySection } from '../../components/CategorySection';
 import BookSession from '../table/BookSession';
+import RechargeSession from '../table/RechargeSession';
 import { TableSessionProvider } from '../../hooks/TableSessionContext';
 
 function Dashboard() {
     const companyContext:any = useContext(CompanyContext)
     const { errorToast } = useToast()
-    const { bookSessionDialog, tableUuid, closeBookingDialog } = useBooking()
+    const { bookSessionDialog, tableUuid, closeBookingDialog, rechargeSessionDialog, tableSessionUuid, closeRechargeDialog } = useBooking()
 
     /**
     * Dashboard Stats
@@ -96,14 +97,38 @@ function Dashboard() {
         );
     };
 
+    const rechargeTableSession = (tableUuid: string, rechargedSession: any) => {
+        setCategories(prevCategories => 
+            prevCategories.map((category: any) => ({
+                ...category,
+                tables: category.tables.map((table: any) => 
+                    table.uuid === tableUuid 
+                        ? {
+                            ...table,
+                            tableSessions: table.tableSessions.map((session: any) => 
+                                session.uuid === rechargedSession.uuid ? rechargedSession : session
+                            )
+                        }
+                        : table
+                )
+            }))
+        );
+    };
+
     return (
-        <TableSessionProvider updateTableSession={updateTableSession} addTableSession={addTableSession}>
+        <TableSessionProvider updateTableSession={updateTableSession} addTableSession={addTableSession} rechargeTableSession={rechargeTableSession}>
             <Fragment>
                 <BookSession
                     open={bookSessionDialog}
                     tableUuid={tableUuid}
                     handleDialogClose={closeBookingDialog}
-                />  
+                />
+                <RechargeSession
+                    open={rechargeSessionDialog}
+                    tableUuid={tableUuid}
+                    handleDialogClose={closeRechargeDialog}
+                    tableSessionUuid={tableSessionUuid}
+                />
                 <PageTitle title="Dashboard" titleIcon={<LayoutDashboard />} />
                 <Box sx={{p:2}}>
                     <Grid container spacing={2} sx={{mb:4}}>

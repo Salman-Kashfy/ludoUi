@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
-import { Card, CardContent, Typography, Button, Box, Chip } from '@mui/material';
-import { Play, Square } from 'lucide-react';
+import { Card, CardContent, Typography, Button, Box, Chip, IconButton } from '@mui/material';
+import { Play, Square, Zap } from 'lucide-react';
 import { StartTableSession, StopTableSession } from '../services/table.session.service';
 import { useToast } from '../utils/toast.tsx';
 import { useBooking } from '../hooks/BookingContext';
@@ -19,71 +19,47 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
     const companyContext:any = useContext(CompanyContext)
     const companyUuid = companyContext.companyUuid
     const { successToast, errorToast } = useToast();
-    const { openBookingDialog } = useBooking();
+    const { openBookingDialog, openRechargeDialog } = useBooking();
     const { updateTableSession } = useTableSession();
     const [isLoading, setIsLoading] = useState(false);
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
     const activeSession: TableSession | null = table.tableSessions?.length > 0 ? first(table.tableSessions) || null : null;
 
-    // Function to format duration based on unit and duration
-    const formatInitialDuration = (duration: number, unit: string): string => {
-        let totalSeconds: number;
-        
-        if (unit === 'hours') {
-            totalSeconds = duration * 3600; // Convert hours to seconds
-        } else if (unit === 'minutes') {
-            totalSeconds = duration * 60; // Convert minutes to seconds
-        } else {
-            totalSeconds = duration; // Assume seconds if unit is not specified
-        }
-        
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    }
-
-
     useEffect(() => {
         let interval: number;
-        
-        if (activeSession?.status === TableSessionStatus.ACTIVE) {
-            interval = setInterval(() => {
-                // Parse startTime as UTC timestamp
-                const startTime = new Date(activeSession.startTime).getTime();
-                const currentTime = Date.now();
-                const elapsed = currentTime - startTime;
-                
-                let initialDurationMs: number;
-                if (activeSession.unit === 'hours') {
-                    initialDurationMs = activeSession.duration * 3600000; // Convert hours to milliseconds
-                } else if (activeSession.unit === 'minutes') {
-                    initialDurationMs = activeSession.duration * 60000; // Convert minutes to milliseconds
-                } else {
-                    initialDurationMs = activeSession.duration * 1000; // Assume seconds
-                }
-                
-                const remaining = initialDurationMs - elapsed;
-                
-                if (remaining <= 0) {
-                    setElapsedTime('00:00:00');
-                } else {
-                    const hours = Math.floor(remaining / 3600000);
-                    const minutes = Math.floor((remaining % 3600000) / 60000);
-                    const seconds = Math.floor((remaining % 60000) / 1000);
-                    setElapsedTime(`${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`);
-                }
-            }, 1000);
-        } else if (activeSession?.status === TableSessionStatus.BOOKED) {
-            // Show initial duration for booked sessions
-            setElapsedTime(formatInitialDuration(activeSession.duration, activeSession.unit));
+      
+        if (activeSession?.status === TableSessionStatus.ACTIVE && activeSession.startTime) {
+          interval = setInterval(() => {
+            // Convert both to UTC timestamps
+            const startTimeUTC = new Date(activeSession.startTime).getTime();
+            const currentTimeUTC = Date.now();
+      
+            // Calculate difference (future = positive, past = negative)
+            const diff = startTimeUTC - currentTimeUTC;
+      
+            if (diff <= 0) {
+              // Start time reached or passed → stop at 00:00:00
+              setElapsedTime('00:00:00');
+              clearInterval(interval);
+            } else {
+              // Convert diff (ms) → hours/mins/secs
+              const hours = Math.floor(diff / 3600000);
+              const minutes = Math.floor((diff % 3600000) / 60000);
+              const seconds = Math.floor((diff % 60000) / 1000);
+      
+              setElapsedTime(
+                `${hours.toString().padStart(2, '0')}:${minutes
+                  .toString()
+                  .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+              );
+            }
+          }, 1000);
         } else {
-            setElapsedTime('00:00:00');
+          setElapsedTime('00:00:00');
         }
-
+      
         return () => clearInterval(interval);
-    }, [activeSession]);
+      }, [activeSession]);      
 
     const startSession = async (tableSessionUuid: string) => {
         setIsLoading(true);
@@ -129,9 +105,22 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
                     />
                 </Box>
                 
-                <Typography variant="body2" color={activeSession ? "primary" : "text.secondary"} sx={{ mb: 2, fontFamily: 'monospace', minHeight: '20px' }}>
-                    {activeSession ? elapsedTime : '00:00:00'}
-                </Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="body2" color={activeSession ? "primary" : "text.secondary"} sx={{ fontFamily: 'monospace', minHeight: '20px' }}>
+                        {activeSession ? elapsedTime : '00:00:00'}
+                    </Typography>
+                    {activeSession && activeSession.status === TableSessionStatus.ACTIVE && (
+                        <IconButton 
+                            size="small" 
+                            onClick={() => openRechargeDialog(table.uuid, activeSession.uuid)}
+                            disabled={!activeSession || isLoading || elapsedTime === '00:00:00'}
+                            color="warning"
+                            title="Recharge Session"
+                        >
+                            <Zap size={18} strokeWidth={1.25} />
+                        </IconButton>
+                    )}
+                </Box>
 
                 <Box sx={{ display: 'flex', gap: 1 }}>
                     {isEmpty(activeSession) ? (

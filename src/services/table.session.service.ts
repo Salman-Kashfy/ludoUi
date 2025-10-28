@@ -18,6 +18,13 @@ interface StopTableSessionInput {
     tableSessionId: string;
 }
 
+interface RechargeTableSessionInput {
+    tableSessionUuid: string;
+    hours: number;
+    paymentMethod: any;
+    companyUuid: string;
+}
+
 export const BookTableSession = async (input:BookTableSessionInput) => {
     const query = `
         mutation BookTableSession($input: BookTableSessionInput!) {
@@ -25,8 +32,6 @@ export const BookTableSession = async (input:BookTableSessionInput) => {
                 data {
                     uuid
                     startTime
-                    duration
-                    unit
                     status
                 }
                 status
@@ -49,8 +54,6 @@ export const StartTableSession = async (input:StartTableSessionInput): Promise<a
                 data {
                     uuid
                     startTime
-                    duration
-                    unit
                     status
                 }
                 status
@@ -85,4 +88,28 @@ export const StopTableSession = async (input:StopTableSessionInput): Promise<any
 
     const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
     return response?.data?.stopTableSession || emptyMutationResponse;
+};
+
+export const RechargeTableSession = async (input: RechargeTableSessionInput): Promise<any> => {
+    const query = `
+        mutation RechargeTableSession($input: RechargeTableSessionInput!) {
+            rechargeTableSession(input: $input) {
+                data {
+                    uuid
+                    startTime
+                    status
+                }
+                errors
+                status
+                errorMessage
+            }
+        }
+    `;
+
+    const variables = {
+        input
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    return response?.data?.rechargeTableSession || emptyMutationResponse;
 };

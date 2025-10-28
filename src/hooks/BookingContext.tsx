@@ -5,6 +5,10 @@ interface BookingContextType {
     tableUuid: string;
     openBookingDialog: (tableUuid: string) => void;
     closeBookingDialog: () => void;
+    rechargeSessionDialog: boolean;
+    tableSessionUuid: string;
+    openRechargeDialog: (tableUuid: string, tableSessionUuid: string) => void;
+    closeRechargeDialog: () => void;
 }
 
 const BookingContext = createContext<BookingContextType | undefined>(undefined);
@@ -16,6 +20,8 @@ interface BookingProviderProps {
 export function BookingProvider({ children }: BookingProviderProps) {
     const [bookSessionDialog, setBookSessionDialog] = useState(false);
     const [tableUuid, setTableUuid] = useState('');
+    const [rechargeSessionDialog, setRechargeSessionDialog] = useState(false);
+    const [tableSessionUuid, setTableSessionUuid] = useState('');
 
     const openBookingDialog = (tableUuid: string) => {
         setTableUuid(tableUuid);
@@ -27,6 +33,18 @@ export function BookingProvider({ children }: BookingProviderProps) {
         setTableUuid('');
     };
 
+    const openRechargeDialog = (tableUuid: string, tableSessionUuid: string) => {
+        setTableUuid(tableUuid);
+        setTableSessionUuid(tableSessionUuid);
+        setRechargeSessionDialog(true);
+    };
+
+    const closeRechargeDialog = () => {
+        setRechargeSessionDialog(false);
+        setTableUuid('');
+        setTableSessionUuid('');
+    };
+
     return (
         <BookingContext.Provider 
             value={{
@@ -34,6 +52,10 @@ export function BookingProvider({ children }: BookingProviderProps) {
                 tableUuid,
                 openBookingDialog,
                 closeBookingDialog,
+                rechargeSessionDialog,
+                tableSessionUuid,
+                openRechargeDialog,
+                closeRechargeDialog,
             }}
         >
             {children}
