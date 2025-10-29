@@ -18,6 +18,7 @@ import ForgotPassword from "./pages/auth/ForgotPassword";
 
 // Supporting Components
 import PermissionDenied from "./components/PermissionDenied";
+import Category from './pages/category/Category.tsx';
 
 function App() {
     /**
@@ -47,6 +48,7 @@ function App() {
                         <Router>
                             <Routes>
                                 <Route path={ROUTES.DASHBOARD} element={<DashboardLayoutRoute isAuth={true} component={Dashboard} permissionName={false} />} />
+                                <Route path={ROUTES.CATEGORY.LIST} element={<DashboardLayoutRoute isAuth={true} component={Category} permissionName={PERMISSIONS.CATEGORY.LIST} />} />
                                 {/* <Route path={ROUTES.FORBIDDEN} element={<DashboardLayoutRoute isAuth={true} component={PermissionDenied} permissionName={false} />} /> */}
                                 <Route path={ROUTES.AUTH.LOGIN} element={<AuthLayoutRoute isAuth={false} component={Signin} />} />
                                 <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<AuthLayoutRoute isAuth={false} component={ForgotPassword} />} />

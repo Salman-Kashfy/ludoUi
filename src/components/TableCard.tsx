@@ -26,7 +26,7 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
     const activeSession: TableSession | null = table.tableSessions?.length > 0 ? first(table.tableSessions) || null : null;
 
     useEffect(() => {
-        let interval: number;
+        let interval: ReturnType<typeof setInterval> | null = null;
       
         if (activeSession?.status === TableSessionStatus.ACTIVE && activeSession.startTime) {
           interval = setInterval(() => {
@@ -40,7 +40,10 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
             if (diff <= 0) {
               // Start time reached or passed → stop at 00:00:00
               setElapsedTime('00:00:00');
-              clearInterval(interval);
+              if (interval) {
+                clearInterval(interval);
+                interval = null;
+              }
             } else {
               // Convert diff (ms) → hours/mins/secs
               const hours = Math.floor(diff / 3600000);
@@ -58,7 +61,11 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
           setElapsedTime('00:00:00');
         }
       
-        return () => clearInterval(interval);
+        return () => {
+          if (interval) {
+            clearInterval(interval);
+          }
+        };
       }, [activeSession]);      
 
     const startSession = async (tableSessionUuid: string) => {

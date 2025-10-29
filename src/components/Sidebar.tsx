@@ -13,11 +13,7 @@ import MuiDrawer from "@mui/material/Drawer";
 import { NavLink } from 'react-router-dom';
 import DonutLargeIcon from '@mui/icons-material/DonutLarge';
 import Tooltip from '@mui/material/Tooltip';
-import * as React from "react";
 import {ROUTES,PERMISSIONS} from "../utils/constants";
-import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
-import TransferWithinAStationIcon from '@mui/icons-material/TransferWithinAStation';
-import SportsIcon from '@mui/icons-material/Sports';
 import { hasPermission } from '../utils/permissions'
 import GridViewOutlinedIcon from '@mui/icons-material/GridViewOutlined';
 import WorkspacePremiumOutlinedIcon from '@mui/icons-material/WorkspacePremiumOutlined';
@@ -37,7 +33,7 @@ import {useTheme} from "@mui/material";
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import TrendingDownOutlinedIcon from '@mui/icons-material/TrendingDownOutlined';
 import AltRouteIcon from "@mui/icons-material/AltRoute";
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard , Shapes} from 'lucide-react';
 
 const openedMixin = (theme: Theme): CSSObject => ({
     width: drawerWidth,
@@ -136,19 +132,19 @@ function SideBar({open, drawerWidth}) {
                     </Tooltip>
                 </ListItem>
                 { 
-                // hasPermission(PERMISSIONS.CATEGORY.LIST) ?
-                //     <ListItem key="category" disablePadding sx={{ display: 'block', }}>
-                //         <Tooltip title="Category" placement={'right'} disableHoverListener={open} disableFocusListener={open}>
-                //             <ListItemButton component={NavLink} to={ROUTES.CATEGORY.LIST} sx={[listBtnStyles, open ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
-                //                 <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, open ? {mr: 2} : {mr: 'auto'}]}>
-                //                     {/* <GridViewOutlinedIcon sx={iconStyles}/> */}
-                //                     <LayoutDashboard strokeWidth={1.5}/>
-                //                 </ListItemIcon>
-                //                 <ListItemText primary="Category" sx={[open ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
-                //             </ListItemButton>
-                //         </Tooltip>
-                //     </ListItem>
-                //     : <></>
+                hasPermission(PERMISSIONS.CATEGORY.LIST) ?
+                    <ListItem key="category" disablePadding sx={{ display: 'block', }}>
+                        <Tooltip title="Category" placement={'right'} disableHoverListener={open} disableFocusListener={open}>
+                            <ListItemButton component={NavLink} to={ROUTES.CATEGORY.LIST} sx={[listBtnStyles, open ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
+                                <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, open ? {mr: 2} : {mr: 'auto'}]}>
+                                    {/* <GridViewOutlinedIcon sx={iconStyles}/> */}
+                                    <Shapes strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
+                                </ListItemIcon>
+                                <ListItemText primary="Category" sx={[open ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
+                            </ListItemButton>
+                        </Tooltip>
+                    </ListItem>
+                    : <></>
                 }
             </List>
         </Drawer>
