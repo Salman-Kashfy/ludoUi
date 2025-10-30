@@ -25,6 +25,14 @@ export const GetCategories = async (params: GetCategoriesInput): Promise<any> =>
                             status
                         }
                     }
+                    categoryPrices {
+                        uuid
+                        price
+                        unit
+                        duration
+                        freeMins
+                        currencyName
+                    }
                 }
             }
         }

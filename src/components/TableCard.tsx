@@ -6,16 +6,17 @@ import { useToast } from '../utils/toast.tsx';
 import { useBooking } from '../hooks/BookingContext';
 import { first, isEmpty } from 'lodash';
 import { TableSessionStatus } from '../pages/table/types.ts';
-import { TableSession, Table } from '../pages/dashboard/types';
+import { TableSession, Table, CategoryPrice } from '../pages/dashboard/types';
 import { CompanyContext } from '../hooks/CompanyContext';
 import { useTableSession } from '../hooks/TableSessionContext';
 
 interface TableCardProps {
     table: Table;
+    categoryPrices: CategoryPrice[];
     onUpdate: () => void;
 }
 
-export function TableCard({ table, onUpdate }: TableCardProps) {
+export function TableCard({ table, categoryPrices, onUpdate }: TableCardProps) {
     const companyContext:any = useContext(CompanyContext)
     const companyUuid = companyContext.companyUuid
     const { successToast, errorToast } = useToast();
@@ -131,7 +132,7 @@ export function TableCard({ table, onUpdate }: TableCardProps) {
 
                 <Box sx={{ display: 'flex', gap: 1 }}>
                     {isEmpty(activeSession) ? (
-                        <Button variant="contained" color="primary" size="small" onClick={() => openBookingDialog(table.uuid)} disabled={isLoading} fullWidth>Book</Button>
+                        <Button variant="contained" color="primary" size="small" onClick={() => openBookingDialog(table.uuid, categoryPrices)} disabled={isLoading} fullWidth>Book</Button>
                     ) : activeSession.status === TableSessionStatus.BOOKED ? (
                         <Button variant="contained" color="success" size="small" startIcon={<Play size={16} />} onClick={() => startSession(activeSession.uuid)} disabled={isLoading} fullWidth>Start</Button>
                     ) : activeSession ? (

@@ -17,7 +17,7 @@ import Signin from "./pages/auth/Signin";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 
 // Supporting Components
-import PermissionDenied from "./components/PermissionDenied";
+// import PermissionDenied from "./components/PermissionDenied";
 import Category from './pages/category/Category.tsx';
 
 function App() {

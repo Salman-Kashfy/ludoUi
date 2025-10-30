@@ -19,6 +19,7 @@ export function CategorySection({ category, onUpdate }: CategorySectionProps) {
                     <Grid size={3} key={table.uuid}>
                         <TableCard 
                             table={table} 
+                            categoryPrices={category.categoryPrices || []}
                             onUpdate={onUpdate}
                         />
                     </Grid>

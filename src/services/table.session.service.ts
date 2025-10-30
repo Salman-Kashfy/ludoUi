@@ -5,7 +5,7 @@ interface BookTableSessionInput {
     tableUuid: string;
     customerUuid: string;
     paymentMethod: any;
-    hours: number;
+    categoryPriceUuid: string;
     companyUuid: string;
 }
 

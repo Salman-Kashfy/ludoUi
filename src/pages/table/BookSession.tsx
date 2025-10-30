@@ -18,16 +18,16 @@ import {debounce} from "@mui/material/utils";
 import { GetCustomers } from '../../services/customer.service';
 import {CompanyContext} from '../../hooks/CompanyContext';
 import { TableSessionBilling } from '../../services/payment.service';
-import { PAYMENT_METHOD, HOURS } from '../../utils/constants';
+import { PAYMENT_METHOD } from '../../utils/constants';
 import { BookTableSession } from '../../services/table.session.service';
 import { useToast } from '../../utils/toast.tsx';
 import { useTableSession } from '../../hooks/TableSessionContext';
 
-const BookSession = ({open, handleDialogClose, tableUuid}:{open:boolean, handleDialogClose:() => void, tableUuid:string }) => {
+const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices}:{open:boolean, handleDialogClose:() => void, tableUuid:string, categoryPrices: any[] }) => {
 
     const defaultValues = {
         tableUuid,
-        hours: 1,
+        categoryPriceUuid: '',
         customerUuid: '',
         paymentMethod: '',
     }
@@ -35,7 +35,7 @@ const BookSession = ({open, handleDialogClose, tableUuid}:{open:boolean, handleD
         mode: "onChange",
         defaultValues
     })
-    const hours = watch('hours')
+    const categoryPriceUuid = watch('categoryPriceUuid')
     const paymentMethod = watch('paymentMethod')
     const [bookSessionLoader, setBookSessionLoader] = useState(false);
     const companyContext:any = useContext(CompanyContext)
@@ -83,7 +83,7 @@ const BookSession = ({open, handleDialogClose, tableUuid}:{open:boolean, handleD
 
     const fetchBillingData = () => {
         setBillingLoader(true)
-        TableSessionBilling({companyUuid, tableUuid, hours}).then((data) => {
+        TableSessionBilling({companyUuid, tableUuid, categoryPriceUuid}).then((data) => {
             setBillingData(data)
         }).catch((e) => {
             console.log(e.message)
@@ -103,10 +103,10 @@ const BookSession = ({open, handleDialogClose, tableUuid}:{open:boolean, handleD
     }, [open, tableUuid])
 
     useEffect(() => {
-        if (hours && open) {
+        if (categoryPriceUuid && open) {
             fetchBillingData()
         }
-    }, [hours])
+    }, [categoryPriceUuid])
 
     const handleCustomerChange = (_event: any, value: { value: string, label: string } | null) => {
         setValue('customerUuid', value?.value || '')
@@ -120,11 +120,9 @@ const BookSession = ({open, handleDialogClose, tableUuid}:{open:boolean, handleD
     const onSubmit = () => {
         setBookSessionLoader(true)
         const input = {
-            tableUuid,
+            tableUuid, categoryPriceUuid, companyUuid,
             customerUuid: customerId.value,
             paymentMethod:{ paymentScheme: paymentMethod },
-            hours: Number(hours),
-            companyUuid
         }
         BookTableSession(input).then((res) => {
             console.log('BookTableSession response', res.data)
@@ -158,21 +156,38 @@ const BookSession = ({open, handleDialogClose, tableUuid}:{open:boolean, handleD
                     <DialogContent>
                         <Grid container spacing={2}>
                             <Grid size={12}>
-                                <FormControl>
-                                    <FormLabel id="hours">Session Duration</FormLabel>
-                                    <RadioGroup
-                                        row
-                                        aria-labelledby="hours"
-                                        name="hours"
-                                        value={hours}
-                                        onChange={(e:any) => setValue('hours', e.target.value)}
-                                    >
-                                        <FormControlLabel value="0.25" control={<Radio />} label="15 mins" />
-                                        <FormControlLabel value="0.5" control={<Radio />} label="30 mins" />
-                                        <FormControlLabel value="0.75" control={<Radio />} label="45 mins" />
-                                        <FormControlLabel value="1" control={<Radio />} label="1 hr" />
-                                    </RadioGroup>
-                                </FormControl>
+                                <Controller
+                                    name="categoryPriceUuid"
+                                    control={control}
+                                    rules={{
+                                        required: {
+                                            value: true,
+                                            message: "Duration is required"
+                                        }
+                                    }}
+                                    render={({ field, fieldState: { error } }) => (
+                                        <FormControl error={!!error} required>
+                                            <FormLabel id="categoryPriceUuid">Session Duration</FormLabel>
+                                            <RadioGroup
+                                                row
+                                                aria-labelledby="categoryPriceUuid"
+                                                name="categoryPriceUuid"
+                                                value={field.value}
+                                                onChange={(e) => field.onChange(e.target.value)}
+                                            >
+                                                {categoryPrices.map((price) => (
+                                                    <FormControlLabel 
+                                                        key={price.uuid}
+                                                        value={price.uuid} 
+                                                        control={<Radio />} 
+                                                        label={`${price.duration} ${price.unit === 'hours' ? 'hour' : 'mins'}${price.freeMins ? ` + ${price.freeMins}mins free` : ''}`} 
+                                                    />
+                                                ))}
+                                            </RadioGroup>
+                                            {error && <FormHelperText sx={{ml: 0}}>{error.message}</FormHelperText>}
+                                        </FormControl>
+                                    )}
+                                />
                             </Grid>
                             <Grid size={12}>
                                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
@@ -232,7 +247,7 @@ const BookSession = ({open, handleDialogClose, tableUuid}:{open:boolean, handleD
                                 </Box>
                             </Grid>
                         </Grid>
-                        {billingData && (
+                        {billingData && categoryPriceUuid && (
                             <Fragment>
                                 <Box sx={{mt: 2, mb: 2}}>
                                     <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
@@ -248,10 +263,16 @@ const BookSession = ({open, handleDialogClose, tableUuid}:{open:boolean, handleD
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                         <Typography variant="body2" color="text.secondary">
-                                            Duration: {HOURS[billingData.billing.hours as keyof typeof HOURS]}
+                                            Duration: {(() => {
+                                                const selectedPrice = categoryPrices.find(price => price.uuid === categoryPriceUuid);
+                                                return selectedPrice ? `${selectedPrice.duration} ${selectedPrice.unit === 'hours' ? 'hour' : 'mins'}${selectedPrice.freeMins ? ` + ${selectedPrice.freeMins}mins free` : ''}` : '';
+                                            })()}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            Rate: {billingData.billing.hourlyRate} {billingData.billing.currencyName}/hr
+                                            Rate: {(() => {
+                                                const selectedPrice = categoryPrices.find(price => price.uuid === categoryPriceUuid);
+                                                return selectedPrice ? `${selectedPrice.price} ${selectedPrice.currencyName}` : '';
+                                            })()}
                                         </Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1, borderTop: '1px solid', borderColor: 'grey.300' }}>
@@ -259,7 +280,10 @@ const BookSession = ({open, handleDialogClose, tableUuid}:{open:boolean, handleD
                                             Total Amount
                                         </Typography>
                                         <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                                            {billingData.billing.totalAmount} {billingData.billing.currencyName}
+                                            {(() => {
+                                                const selectedPrice = categoryPrices.find(price => price.uuid === categoryPriceUuid);
+                                                return selectedPrice ? `${selectedPrice.price} ${selectedPrice.currencyName}` : '';
+                                            })()}
                                         </Typography>
                                     </Box>
                                 </Box>

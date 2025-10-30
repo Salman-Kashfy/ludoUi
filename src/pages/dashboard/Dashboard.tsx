@@ -17,7 +17,7 @@ import { TableSessionProvider } from '../../hooks/TableSessionContext';
 function Dashboard() {
     const companyContext:any = useContext(CompanyContext)
     const { errorToast } = useToast()
-    const { bookSessionDialog, tableUuid, closeBookingDialog, rechargeSessionDialog, tableSessionUuid, closeRechargeDialog } = useBooking()
+    const { bookSessionDialog, tableUuid, categoryPrices, closeBookingDialog, rechargeSessionDialog, tableSessionUuid, closeRechargeDialog } = useBooking()
 
     /**
     * Dashboard Stats
@@ -121,6 +121,7 @@ function Dashboard() {
                 <BookSession
                     open={bookSessionDialog}
                     tableUuid={tableUuid}
+                    categoryPrices={categoryPrices}
                     handleDialogClose={closeBookingDialog}
                 />
                 <RechargeSession

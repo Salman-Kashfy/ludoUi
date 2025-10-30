@@ -4,7 +4,7 @@ import { GET } from "./api.service.wrapper";
 interface BillingTotalInterface {
     companyUuid: string;
     tableUuid: string;
-    hours: number;
+    categoryPriceUuid: string;
 }
 
 export const TableSessionBilling = async (params:BillingTotalInterface) => {
