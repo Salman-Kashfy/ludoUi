@@ -13,28 +13,29 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import {CompanyContext} from '../../hooks/CompanyContext';
 import { TableSessionBilling } from '../../services/payment.service';
-import { PAYMENT_METHOD, HOURS } from '../../utils/constants';
+import { PAYMENT_METHOD } from '../../utils/constants';
 import { RechargeTableSession } from '../../services/table.session.service';
 import { useToast } from '../../utils/toast.tsx';
 import { useTableSession } from '../../hooks/TableSessionContext';
 
-const RechargeSession = ({open, handleDialogClose, tableUuid, tableSessionUuid}:{
+const RechargeSession = ({open, handleDialogClose, tableUuid, tableSessionUuid, categoryPrices}:{
     open: boolean, 
     handleDialogClose: () => void, 
     tableUuid: string,
-    tableSessionUuid: string
+    tableSessionUuid: string,
+    categoryPrices: any[]
 }) => {
 
     const defaultValues = {
         tableUuid,
-        hours: 1,
+        categoryPriceUuid: '',
         paymentMethod: '',
     }
-    const {control, handleSubmit, watch, setValue, reset} = useForm({
+    const {control, handleSubmit, watch, reset} = useForm({
         mode: "onChange",
         defaultValues
     })
-    const hours = watch('hours')
+    const categoryPriceUuid = watch('categoryPriceUuid')
     const paymentMethod = watch('paymentMethod')
     const [rechargeSessionLoader, setRechargeSessionLoader] = useState(false);
     const companyContext:any = useContext(CompanyContext)
@@ -47,7 +48,7 @@ const RechargeSession = ({open, handleDialogClose, tableUuid, tableSessionUuid}:
 
     const fetchBillingData = () => {
         setBillingLoader(true)
-        TableSessionBilling({companyUuid, tableUuid, hours}).then((data) => {
+        TableSessionBilling({companyUuid, tableUuid, categoryPriceUuid}).then((data) => {
             setBillingData(data)
         }).catch((e) => {
             console.log(e.message)
@@ -64,21 +65,20 @@ const RechargeSession = ({open, handleDialogClose, tableUuid, tableSessionUuid}:
     }, [open, tableUuid])
 
     useEffect(() => {
-        if (hours && open) {
+        if (categoryPriceUuid && open) {
             fetchBillingData()
         }
-    }, [hours])
+    }, [categoryPriceUuid])
 
     const onSubmit = () => {
         setRechargeSessionLoader(true)
         const input = {
             tableSessionUuid: tableSessionUuid,
-            hours: Number(hours),
+            categoryPriceUuid: categoryPriceUuid,
             paymentMethod: { paymentScheme: paymentMethod },
             companyUuid
         }
         RechargeTableSession(input).then((res) => {
-            console.log('RechargeTableSession response', res.data)
             if(res.status) {
                 successToast('Session recharged successfully')
                 rechargeTableSession(tableUuid, res.data)
@@ -109,24 +109,41 @@ const RechargeSession = ({open, handleDialogClose, tableUuid, tableSessionUuid}:
                     <DialogContent>
                         <Grid container spacing={2}>
                             <Grid size={12}>
-                                <FormControl>
-                                    <FormLabel id="hours">Additional Duration</FormLabel>
-                                    <RadioGroup
-                                        row
-                                        aria-labelledby="hours"
-                                        name="hours"
-                                        value={hours}
-                                        onChange={(e:any) => setValue('hours', e.target.value)}
-                                    >
-                                        <FormControlLabel value="0.25" control={<Radio />} label="15 mins" />
-                                        <FormControlLabel value="0.5" control={<Radio />} label="30 mins" />
-                                        <FormControlLabel value="0.75" control={<Radio />} label="45 mins" />
-                                        <FormControlLabel value="1" control={<Radio />} label="1 hr" />
-                                    </RadioGroup>
-                                </FormControl>
+                                <Controller
+                                    name="categoryPriceUuid"
+                                    control={control}
+                                    rules={{
+                                        required: {
+                                            value: true,
+                                            message: "Duration is required"
+                                        }
+                                    }}
+                                    render={({ field, fieldState: { error } }) => (
+                                        <FormControl error={!!error} required>
+                                            <FormLabel id="categoryPriceUuid">Additional Duration</FormLabel>
+                                            <RadioGroup
+                                                row
+                                                aria-labelledby="categoryPriceUuid"
+                                                name="categoryPriceUuid"
+                                                value={field.value}
+                                                onChange={(e) => field.onChange(e.target.value)}
+                                            >
+                                                {categoryPrices.map((price) => (
+                                                    <FormControlLabel 
+                                                        key={price.uuid}
+                                                        value={price.uuid} 
+                                                        control={<Radio />} 
+                                                        label={`${price.duration} ${price.unit === 'hours' ? 'hour' : 'mins'}${price.freeMins ? ` + ${price.freeMins}mins free` : ''}`} 
+                                                    />
+                                                ))}
+                                            </RadioGroup>
+                                            {error && <FormHelperText sx={{ml: 0}}>{error.message}</FormHelperText>}
+                                        </FormControl>
+                                    )}
+                                />
                             </Grid>
                         </Grid>
-                        {billingData && (
+                        {billingData && categoryPriceUuid && (
                             <Fragment>
                                 <Box sx={{mt: 2, mb: 2}}>
                                     <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
@@ -142,10 +159,16 @@ const RechargeSession = ({open, handleDialogClose, tableUuid, tableSessionUuid}:
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                         <Typography variant="body2" color="text.secondary">
-                                            Additional Duration: {HOURS[billingData.billing.hours as keyof typeof HOURS]}
+                                            Additional Duration: {(() => {
+                                                const selectedPrice = categoryPrices.find(price => price.uuid === categoryPriceUuid);
+                                                return selectedPrice ? `${selectedPrice.duration} ${selectedPrice.unit === 'hours' ? 'hour' : 'mins'}${selectedPrice.freeMins ? ` + ${selectedPrice.freeMins}mins free` : ''}` : '';
+                                            })()}
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            Rate: {billingData.billing.hourlyRate} {billingData.billing.currencyName}/hr
+                                            Rate: {(() => {
+                                                const selectedPrice = categoryPrices.find(price => price.uuid === categoryPriceUuid);
+                                                return selectedPrice ? `${selectedPrice.price} ${selectedPrice.currencyName}` : '';
+                                            })()}
                                         </Typography>
                                     </Box>
                                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', pt: 1, borderTop: '1px solid', borderColor: 'grey.300' }}>
@@ -153,7 +176,10 @@ const RechargeSession = ({open, handleDialogClose, tableUuid, tableSessionUuid}:
                                             Additional Amount
                                         </Typography>
                                         <Typography variant="subtitle1" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                                            {billingData.billing.totalAmount} {billingData.billing.currencyName}
+                                            {(() => {
+                                                const selectedPrice = categoryPrices.find(price => price.uuid === categoryPriceUuid);
+                                                return selectedPrice ? `${selectedPrice.price} ${selectedPrice.currencyName}` : '';
+                                            })()}
                                         </Typography>
                                     </Box>
                                 </Box>

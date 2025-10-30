@@ -20,7 +20,7 @@ interface StopTableSessionInput {
 
 interface RechargeTableSessionInput {
     tableSessionUuid: string;
-    hours: number;
+    categoryPriceUuid: string;
     paymentMethod: any;
     companyUuid: string;
 }

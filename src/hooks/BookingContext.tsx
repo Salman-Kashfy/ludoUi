@@ -17,7 +17,8 @@ interface BookingContextType {
     closeBookingDialog: () => void;
     rechargeSessionDialog: boolean;
     tableSessionUuid: string;
-    openRechargeDialog: (tableUuid: string, tableSessionUuid: string) => void;
+    rechargeCategoryPrices: CategoryPrice[];
+    openRechargeDialog: (tableUuid: string, tableSessionUuid: string, categoryPrices: CategoryPrice[]) => void;
     closeRechargeDialog: () => void;
 }
 
@@ -33,6 +34,7 @@ export function BookingProvider({ children }: BookingProviderProps) {
     const [categoryPrices, setCategoryPrices] = useState<CategoryPrice[]>([]);
     const [rechargeSessionDialog, setRechargeSessionDialog] = useState(false);
     const [tableSessionUuid, setTableSessionUuid] = useState('');
+    const [rechargeCategoryPrices, setRechargeCategoryPrices] = useState<CategoryPrice[]>([]);
 
     const openBookingDialog = (tableUuid: string, categoryPrices: CategoryPrice[]) => {
         setTableUuid(tableUuid);
@@ -46,9 +48,10 @@ export function BookingProvider({ children }: BookingProviderProps) {
         setCategoryPrices([]);
     };
 
-    const openRechargeDialog = (tableUuid: string, tableSessionUuid: string) => {
+    const openRechargeDialog = (tableUuid: string, tableSessionUuid: string, categoryPrices: CategoryPrice[]) => {
         setTableUuid(tableUuid);
         setTableSessionUuid(tableSessionUuid);
+        setRechargeCategoryPrices(categoryPrices);
         setRechargeSessionDialog(true);
     };
 
@@ -56,6 +59,7 @@ export function BookingProvider({ children }: BookingProviderProps) {
         setRechargeSessionDialog(false);
         setTableUuid('');
         setTableSessionUuid('');
+        setRechargeCategoryPrices([]);
     };
 
     return (
@@ -68,6 +72,7 @@ export function BookingProvider({ children }: BookingProviderProps) {
                 closeBookingDialog,
                 rechargeSessionDialog,
                 tableSessionUuid,
+                rechargeCategoryPrices,
                 openRechargeDialog,
                 closeRechargeDialog,
             }}

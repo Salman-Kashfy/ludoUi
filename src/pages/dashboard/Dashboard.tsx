@@ -17,7 +17,7 @@ import { TableSessionProvider } from '../../hooks/TableSessionContext';
 function Dashboard() {
     const companyContext:any = useContext(CompanyContext)
     const { errorToast } = useToast()
-    const { bookSessionDialog, tableUuid, categoryPrices, closeBookingDialog, rechargeSessionDialog, tableSessionUuid, closeRechargeDialog } = useBooking()
+    const { bookSessionDialog, tableUuid, categoryPrices, closeBookingDialog, rechargeSessionDialog, tableSessionUuid, rechargeCategoryPrices, closeRechargeDialog } = useBooking()
 
     /**
     * Dashboard Stats
@@ -127,8 +127,9 @@ function Dashboard() {
                 <RechargeSession
                     open={rechargeSessionDialog}
                     tableUuid={tableUuid}
-                    handleDialogClose={closeRechargeDialog}
                     tableSessionUuid={tableSessionUuid}
+                    categoryPrices={rechargeCategoryPrices}
+                    handleDialogClose={closeRechargeDialog}
                 />
                 <PageTitle title="Dashboard" titleIcon={<LayoutDashboard />} />
                 <Box sx={{p:2}}>

@@ -120,7 +120,7 @@ export function TableCard({ table, categoryPrices, onUpdate }: TableCardProps) {
                     {activeSession && activeSession.status === TableSessionStatus.ACTIVE && (
                         <IconButton 
                             size="small" 
-                            onClick={() => openRechargeDialog(table.uuid, activeSession.uuid)}
+                            onClick={() => openRechargeDialog(table.uuid, activeSession.uuid, categoryPrices)}
                             disabled={!activeSession || isLoading || elapsedTime === '00:00:00'}
                             color="warning"
                             title="Recharge Session"
