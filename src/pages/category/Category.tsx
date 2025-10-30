@@ -1,12 +1,14 @@
 import { Shapes } from "lucide-react"
 import { Fragment, useState, useEffect, useContext } from "react"
 import PageTitle from "../../components/PageTitle"
-import { Box, Chip, IconButton, Stack } from "@mui/material"
+import { Box, Chip, IconButton, Stack, Card, CardContent } from "@mui/material";
 import { CompanyContext } from "../../hooks/CompanyContext"
 import { GetCategories } from "../../services/category.service"
 import { useToast } from "../../utils/toast"
 import { DataGrid } from '@mui/x-data-grid';
 import {Pencil} from 'lucide-react';
+import { NavLink } from "react-router-dom"
+import { ROUTES } from "../../utils/constants"
 
 function Category() {
     const companyContext:any = useContext(CompanyContext)
@@ -43,9 +45,9 @@ function Category() {
             field: 'action', 
             headerName: 'Action',
             width: 100,
-            renderCell: () => {
+            renderCell: (params: any) => {
                 return (
-                    <IconButton color="info" size="small">
+                    <IconButton color="info" size="small" component={NavLink} to={ROUTES.CATEGORY.EDIT(params.row.id)}>
                         <Pencil size={20} strokeWidth={1.5} />
                     </IconButton>
                 );
@@ -89,15 +91,19 @@ function Category() {
     return (
         <Fragment>
             <PageTitle title="Category" titleIcon={<Shapes />} />
-            <Box sx={{p:2}}>
-                <DataGrid
-                    rows={categories}
-                    columns={columns}
-                    loading={loading}
-                    sx={{ border: 0 }}
-                    hideFooter
-                />
-            </Box>
+            <Card>
+                <CardContent>   
+                    <Box sx={{p:2}}>
+                        <DataGrid
+                            rows={categories}
+                            columns={columns}
+                            loading={loading}
+                            sx={{ border: 0 }}
+                            hideFooter
+                        />
+                    </Box>
+                </CardContent>
+            </Card>
         </Fragment>
     )
 }

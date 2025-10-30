@@ -47,3 +47,32 @@ export const GetCategories = async (params: GetCategoriesInput): Promise<any> =>
         ? response?.data?.categories
         : emptyListResponse;
 };
+
+export const GetCategory = async (uuid:string): Promise<any> => {
+    const query = `
+        query Category($uuid: ID!) {
+            category(uuid: $uuid) {
+                data {
+                    uuid
+                    name
+                    hourlyRate
+                    currencyName
+                    categoryPrices {
+                        uuid
+                        price
+                        unit
+                        duration
+                        currencyName
+                    }
+                }
+            }
+        }
+    `;
+
+    const variables = {
+        uuid
+    }
+
+    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    return response?.data?.category.data || {}
+};

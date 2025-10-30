@@ -25,7 +25,7 @@ interface PageTitleProps {
 const PageTitle = ({ title, titleIcon, btn, backTo = '', input = ''}: PageTitleProps) => {
     const theme = useTheme()
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2, p: 2, borderRadius: '6px 6px 0 0', backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : '#fff', borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#333' : '#e0e0e0'}` }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, borderRadius: '6px 6px 0 0', backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : '#fff', borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#333' : '#e0e0e0'}` }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 {titleIcon && (
                     <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>

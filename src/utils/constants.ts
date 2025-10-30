@@ -33,27 +33,25 @@ export const ROUTES = {
     CATEGORY: {
         LIST: '/categories',
         CREATE: '/category/create',
-        EDIT: ((id = null) => '/category/'+(id || ':id')+'/edit'),
-        VIEW: ((id = null) => '/category/'+(id || ':id')),
+        EDIT: ((uuid = null) => '/category/'+(uuid || ':uuid')+'/edit'),
+        VIEW: ((uuid = null) => '/category/'+(uuid || ':uuid')),
     },
     TABLE: {
         LIST: '/tables',
         CREATE: '/table/create',
-        EDIT: ((id = null) => '/table/'+(id || ':id')+'/edit'),
-        VIEW: ((id = null) => '/table/'+(id || ':id')),
+        EDIT: ((uuid = null) => '/table/'+(uuid || ':uuid')+'/edit'),
+        VIEW: ((uuid = null) => '/table/'+(uuid || ':uuid')),
     }
 }
 
 export const PERMISSIONS = {
     CATEGORY: {
         LIST: 'category:view',
-        CREATE: 'category:create',
-        UPDATE: 'category:update',
+        UPSERT: 'category:upsert'
     },
     TABLE: {
         LIST: 'table:view',
-        CREATE: 'table:create',
-        UPDATE: 'table:update',
+        UPSERT: 'table:upsert',
     },
 
 }

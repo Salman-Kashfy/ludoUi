@@ -43,7 +43,7 @@ export const lightTheme = createTheme({
         MuiCard: {
             styleOverrides: {
                 root: {
-                    backgroundColor: '#f7f7f7',
+                    backgroundColor: '#fff',
                 },
             },
         },
