@@ -25,7 +25,7 @@ function Category() {
 
     const columns = [
         { field: 'name', headerName: 'Name', width: 100 },
-        { field: 'tableCount', headerName: 'Tables Count', width: 130 },
+        { field: 'tableCount', headerName: 'Tables', width: 130 },
         { 
             field: 'categoryPrices', 
             headerName: 'Pricing',
