@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, Fragment } from 'react';
 import { Card, CardContent, Typography, Button, Box, Chip, IconButton } from '@mui/material';
 import { Play, Square, Zap } from 'lucide-react';
 import { StartTableSession, StopTableSession } from '../services/table.session.service';
@@ -117,7 +117,7 @@ export function TableCard({ table, categoryPrices, onUpdate }: TableCardProps) {
                     <Typography variant="body2" color={activeSession ? "primary" : "text.secondary"} sx={{ fontFamily: 'monospace', minHeight: '20px' }}>
                         {activeSession ? elapsedTime : '00:00:00'}
                     </Typography>
-                    {activeSession && activeSession.status === TableSessionStatus.ACTIVE && (
+                    {activeSession && activeSession.status === TableSessionStatus.ACTIVE ? (
                         <IconButton 
                             size="small" 
                             onClick={() => openRechargeDialog(table.uuid, activeSession.uuid, categoryPrices)}
@@ -127,7 +127,9 @@ export function TableCard({ table, categoryPrices, onUpdate }: TableCardProps) {
                         >
                             <Zap size={18} strokeWidth={1.25} />
                         </IconButton>
-                    )}
+                    ) : <Fragment>
+                            <Box sx={{height: 28, width: 28}}></Box>
+                        </Fragment>}
                 </Box>
 
                 <Box sx={{ display: 'flex', gap: 1 }}>
