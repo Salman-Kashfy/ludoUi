@@ -113,14 +113,21 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
                 <Box sx={{ mt: 3, mb: 3 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                         <Typography variant="h6">Category Prices</Typography>
-                        <Button 
-                            startIcon={<Plus size={18} />}
-                            variant="outlined" 
+                        <IconButton 
+                            sx={{
+                                backgroundColor: 'primary.main',
+                                boxShadow: '0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12)',
+                                color: 'white',
+                                "&:hover": {
+                                    backgroundColor: 'primary.dark',
+                                },
+                            }}
                             onClick={addNewPrice}
                             disabled={formLoader}
+                            aria-label="Add Price"
                         >
-                            Add Price
-                        </Button>
+                            <Plus size={20} />
+                        </IconButton>
                     </Box>
 
                     {fields.map((field, index) => {

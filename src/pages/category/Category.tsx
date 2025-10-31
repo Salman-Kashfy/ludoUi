@@ -6,7 +6,7 @@ import { CompanyContext } from "../../hooks/CompanyContext"
 import { GetCategories } from "../../services/category.service"
 import { useToast } from "../../utils/toast"
 import { DataGrid } from '@mui/x-data-grid';
-import {Pencil, Plus} from 'lucide-react';
+import {Pencil} from 'lucide-react';
 import { NavLink } from "react-router-dom"
 import { PERMISSIONS, ROUTES } from "../../utils/constants"
 import { hasPermission } from "../../utils/permissions";
