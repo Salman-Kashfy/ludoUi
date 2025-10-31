@@ -1,18 +1,18 @@
 /* Global font family override for Material-UI components */
 .MuiTypography-root {
-    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-family: "Segoe UI", "Inter", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Arial, sans-serif !important;
 }
 
 .MuiButton-root {
-    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-family: "Segoe UI", "Inter", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Arial, sans-serif !important;
 }
 
 .MuiTextField-root .MuiInputLabel-root,
 .MuiTextField-root .MuiInputBase-input {
-    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-family: "Segoe UI", "Inter", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Arial, sans-serif !important;
 }
 
 /* Body font override */
 body {
-    font-family: "Plus Jakarta Sans", sans-serif !important;
+    font-family: "Segoe UI", "Inter", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Arial, sans-serif !important;
 }

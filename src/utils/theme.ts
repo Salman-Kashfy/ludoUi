@@ -18,6 +18,9 @@ const components = {
 }
 
 export const lightTheme = createTheme({
+    typography: {
+        fontFamily: '"Segoe UI", "Inter", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Arial, sans-serif',
+    },
     palette: {
         mode: 'light',
         primary: {
@@ -74,6 +77,9 @@ export const lightTheme = createTheme({
 });
 
 export const darkTheme = createTheme({
+    typography: {
+        fontFamily: '"Segoe UI", "Inter", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Arial, sans-serif',
+    },
     palette: {
         mode: 'dark',
         primary: {

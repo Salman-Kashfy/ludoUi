@@ -1,10 +1,11 @@
 import {Navigate} from "react-router-dom";
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { GetToken } from '../services/auth/auth.service.ts'
-import '@fontsource/plus-jakarta-sans/300.css';
-import '@fontsource/plus-jakarta-sans/400.css';
-import '@fontsource/plus-jakarta-sans/500.css';
-import '@fontsource/plus-jakarta-sans/700.css';
+import '@fontsource/inter/300.css';
+import '@fontsource/inter/400.css';
+import '@fontsource/inter/500.css';
+import '@fontsource/inter/600.css';
+import '@fontsource/inter/700.css';
 import {Box, Typography} from "@mui/material";
 import crmLogo from "../assets/cloudfitnest.png";
 import companyLogo from "../assets/company-logo.png";
