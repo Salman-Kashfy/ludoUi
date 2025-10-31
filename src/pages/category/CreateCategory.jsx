@@ -1,33 +1,27 @@
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useState } from "react";
 import { Box, Card, CardContent } from "@mui/material";
 import PageTitle from "../../components/PageTitle";
 import { Shapes } from "lucide-react";
 import CategoryForm from "./CategoryForm";
-import { GetCategory, SaveCategory } from "../../services/category.service";
-import {useParams} from "react-router-dom";
+import { SaveCategory } from "../../services/category.service";
 import ProgressBar from "../../components/ProgressBar";
 import { useToast } from "../../utils/toast";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "../../utils/constants";
 
-function EditCategory() {
+function CreateCategory() {
+    const navigate = useNavigate();
     const { successToast, errorToast } = useToast();
     const [loader, setLoader] = useState(false);
     const [formLoader, setFormLoader] = useState(false);
-    const { uuid } = useParams();
-    const [record, setRecord] = useState({});
-
-    useEffect(() => {
-        GetCategory(uuid).then((res) => {
-            setRecord(res);
-        }).finally(() => {
-            setFormLoader(false);
-        });
-    }, [uuid]);
 
     const onSubmit = (data) => {
         setLoader(true);
         SaveCategory(data).then((res) => {
             if(res.status) {
-                successToast('Updated successfully');
+                successToast('Created successfully');
+                console.log(res.data.uuid);
+                navigate(ROUTES.CATEGORY.EDIT(res.data.uuid));
             } else {
                 errorToast(res.errorMessage || 'Failed to save category');
             }
@@ -38,15 +32,15 @@ function EditCategory() {
 
     return (
         <Fragment>
-            <PageTitle title="Edit Category" titleIcon={<Shapes />} />
+            <PageTitle title="Add Category" titleIcon={<Shapes />} />
             <Card>
                 <ProgressBar formLoader={formLoader}/>
                 <CardContent>
-                    <CategoryForm record={record} formLoader={formLoader} loader={loader} callback={onSubmit}/>
+                    <CategoryForm formLoader={formLoader} loader={loader} callback={onSubmit}/>
                 </CardContent>
             </Card>
         </Fragment>
     )
 }
 
-export default EditCategory;
+export default CreateCategory;

@@ -11,7 +11,7 @@ export function CategorySection({ category, onUpdate }: CategorySectionProps) {
     return (
         <Box sx={{ mb: 4 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 500, mb:2 }} gutterBottom>
-                {category.name} - {category.hourlyRate} {category.currencyName}/hr
+                {category.name}
             </Typography>
             
             <Grid container spacing={1}>

@@ -6,15 +6,23 @@ import { CompanyContext } from "../../hooks/CompanyContext"
 import { GetCategories } from "../../services/category.service"
 import { useToast } from "../../utils/toast"
 import { DataGrid } from '@mui/x-data-grid';
-import {Pencil} from 'lucide-react';
+import {Pencil, Plus} from 'lucide-react';
 import { NavLink } from "react-router-dom"
-import { ROUTES } from "../../utils/constants"
+import { PERMISSIONS, ROUTES } from "../../utils/constants"
+import { hasPermission } from "../../utils/permissions";
 
 function Category() {
     const companyContext:any = useContext(CompanyContext)
     const { errorToast } = useToast()
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState<any[]>([]);
+    const btn = {
+        to: ROUTES.CATEGORY.CREATE,
+        label: 'Add Category',
+        color: 'primary',
+        show: hasPermission(PERMISSIONS.CATEGORY.UPSERT),
+    }
+
     const columns = [
         { field: 'name', headerName: 'Name', width: 100 },
         { field: 'tableCount', headerName: 'Tables Count', width: 130 },
@@ -90,7 +98,7 @@ function Category() {
     
     return (
         <Fragment>
-            <PageTitle title="Category" titleIcon={<Shapes />} />
+            <PageTitle title="Category" titleIcon={<Shapes />} btn={btn} />
             <Card>
                 <CardContent>   
                     <Box sx={{p:2}}>

@@ -1,4 +1,4 @@
-import {constants, emptyListResponse} from "../utils/constants";
+import {constants, emptyListResponse, emptyMutationResponse} from "../utils/constants";
 import {POST} from "./api.service.wrapper";
 
 interface GetCategoriesInput {
@@ -62,6 +62,7 @@ export const GetCategory = async (uuid:string): Promise<any> => {
                         price
                         unit
                         duration
+                        freeMins
                         currencyName
                     }
                 }
@@ -76,3 +77,23 @@ export const GetCategory = async (uuid:string): Promise<any> => {
     const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
     return response?.data?.category.data || {}
 };
+
+export const SaveCategory = async (data:any): Promise<any> => {
+    const query = `
+        mutation SaveCategory($input: SaveCategoryInput!) {
+            saveCategory(input: $input) {
+                data {
+                    uuid
+                }
+                errors
+                status
+                errorMessage
+            }
+        }
+    `
+    const variables = {
+        input: data
+    }
+    const response:any = await POST(constants.GRAPHQL_SERVER, { query:query.trim(), variables });
+    return response?.data?.saveCategory || emptyMutationResponse
+}
