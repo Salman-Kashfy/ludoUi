@@ -47,8 +47,8 @@ function Dashboard() {
         });
     };
 
-    /* Starting Point */
-    useEffect(() => {
+    const loadDashboardStats = () => {
+        setStatsLoader(true);
         TableStats({companyUuid: companyContext.companyUuid}).then((res:any) => {
             if(res.status) {
                 setDashboardStats(res.data)
@@ -59,7 +59,11 @@ function Dashboard() {
         }).finally(() => {
             setStatsLoader(false)
         })
+    };
 
+    /* Starting Point */
+    useEffect(() => {
+        loadDashboardStats();
         loadCategories();
     }, [companyContext.companyUuid])
 
@@ -123,6 +127,7 @@ function Dashboard() {
                     tableUuid={tableUuid}
                     categoryPrices={categoryPrices}
                     handleDialogClose={closeBookingDialog}
+                    onBookingSuccess={loadDashboardStats}
                 />
                 <RechargeSession
                     open={rechargeSessionDialog}

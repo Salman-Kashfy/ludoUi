@@ -23,7 +23,7 @@ import { BookTableSession } from '../../services/table.session.service';
 import { useToast } from '../../utils/toast.tsx';
 import { useTableSession } from '../../hooks/TableSessionContext';
 
-const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices}:{open:boolean, handleDialogClose:() => void, tableUuid:string, categoryPrices: any[] }) => {
+const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices, onBookingSuccess}:{open:boolean, handleDialogClose:() => void, tableUuid:string, categoryPrices: any[], onBookingSuccess?: () => void }) => {
 
     const defaultValues = {
         tableUuid,
@@ -129,6 +129,9 @@ const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices}:{open:
             if(res.status) {
                 successToast('Session booked successfully')
                 addTableSession(tableUuid, res.data)
+                if (onBookingSuccess) {
+                    onBookingSuccess();
+                }
                 handleDialogClose()
             } else {
                 errorToast('Something went wrong!')
@@ -237,7 +240,6 @@ const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices}:{open:
                                     <IconButton 
                                         onClick={handleAddCustomer}
                                         sx={{ 
-                                            mt: 2.5,
                                             color: 'primary.main',
                                         }}
                                         title="Add new customer"
