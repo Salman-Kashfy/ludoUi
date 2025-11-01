@@ -23,7 +23,14 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
     } = {
         uuid: '',
         name: '',
-        categoryPrices: [],
+        categoryPrices: [{
+            uuid: '',
+            duration: '',
+            unit: 'minutes',
+            price: '',
+            freeMins: 0,
+            currencyName: record?.currencyName || ''
+        }],
     }
     const {control, handleSubmit, watch, reset} = useForm({
         mode: "onChange",
@@ -112,7 +119,7 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
                 {/* Category Prices Section */}
                 <Box sx={{ mt: 3, mb: 3 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                        <Typography variant="h6">Category Prices</Typography>
+                        <Typography variant="subtitle1">Set Prices</Typography>
                         <IconButton 
                             sx={{
                                 backgroundColor: 'primary.main',
@@ -150,17 +157,19 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
                                             : 'New Price (Click to edit)'
                                         }
                                     </Typography>
-                                    <IconButton
-                                        size="small"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            remove(index);
-                                        }}
-                                        sx={{ ml: 2, mr: 1 }}
-                                        color="error"
-                                    >
-                                        <Trash2 size={18} />
-                                    </IconButton>
+                                    {fields.length > 1 && (
+                                        <IconButton
+                                            size="small"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                remove(index);
+                                            }}
+                                            sx={{ ml: 2, mr: 1, }}
+                                            color="error"
+                                        >
+                                            <Trash2 size={18} />
+                                        </IconButton>
+                                    )}
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
