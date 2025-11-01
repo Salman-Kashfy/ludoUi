@@ -52,6 +52,7 @@ export const PERMISSIONS = {
     TABLE: {
         LIST: 'table:view',
         UPSERT: 'table:upsert',
+        DELETE: 'table:delete',
     },
 
 }
