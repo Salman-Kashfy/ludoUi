@@ -22,6 +22,8 @@ import Category from './pages/category/Category.tsx';
 import EditCategory from './pages/category/EditCategory';
 import CreateCategory from './pages/category/CreateCategory';
 import Table from './pages/table/Table';
+import CreateTable from './pages/table/CreateTable';
+import EditTable from './pages/table/EditTable';
 
 function App() {
     /**
@@ -55,6 +57,8 @@ function App() {
                                 <Route path={ROUTES.CATEGORY.EDIT()} element={<DashboardLayoutRoute isAuth={true} component={EditCategory} permissionName={PERMISSIONS.CATEGORY.UPSERT} />} />
                                 <Route path={ROUTES.CATEGORY.CREATE} element={<DashboardLayoutRoute isAuth={true} component={CreateCategory} permissionName={PERMISSIONS.CATEGORY.UPSERT} />} />
                                 <Route path={ROUTES.TABLE.LIST} element={<DashboardLayoutRoute isAuth={true} component={Table} permissionName={PERMISSIONS.TABLE.LIST} />} />
+                                <Route path={ROUTES.TABLE.CREATE} element={<DashboardLayoutRoute isAuth={true} component={CreateTable} permissionName={PERMISSIONS.TABLE.UPSERT} />} />
+                                <Route path={ROUTES.TABLE.EDIT()} element={<DashboardLayoutRoute isAuth={true} component={EditTable} permissionName={PERMISSIONS.TABLE.UPSERT} />} />
                                 {/* <Route path={ROUTES.FORBIDDEN} element={<DashboardLayoutRoute isAuth={true} component={PermissionDenied} permissionName={false} />} /> */}
                                 <Route path={ROUTES.AUTH.LOGIN} element={<AuthLayoutRoute isAuth={false} component={Signin} />} />
                                 <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<AuthLayoutRoute isAuth={false} component={ForgotPassword} />} />

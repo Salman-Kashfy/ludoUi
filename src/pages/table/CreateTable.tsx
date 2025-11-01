@@ -1,15 +1,16 @@
 import { Fragment, useState } from "react";
-import { Box, Card, CardContent } from "@mui/material";
+import { Card, CardContent } from "@mui/material";
 import PageTitle from "../../components/PageTitle";
-import { Shapes } from "lucide-react";
-import CategoryForm from "./CategoryForm";
-import { SaveCategory } from "../../services/category.service";
+import { GalleryHorizontal } from "lucide-react";
+import TableForm from "./TableForm";
+import { SaveTable } from "../../services/table.service";
 import ProgressBar from "../../components/ProgressBar";
 import { useToast } from "../../utils/toast";
 import { useNavigate } from "react-router-dom";
 import { ROUTES } from "../../utils/constants";
 
-function CreateCategory() {
+
+function CreateTable() {
     const navigate = useNavigate();
     const { successToast, errorToast } = useToast();
     const [loader, setLoader] = useState(false);
@@ -17,12 +18,12 @@ function CreateCategory() {
 
     const onSubmit = (data) => {
         setLoader(true);
-        SaveCategory(data).then((res) => {
+        SaveTable(data).then((res) => {
             if(res.status) {
                 successToast('Created successfully');
-                navigate(ROUTES.CATEGORY.EDIT(res.data.uuid));
+                navigate(ROUTES.TABLE.EDIT(res.data.uuid));
             } else {
-                errorToast(res.errorMessage || 'Failed to save category');
+                errorToast(res.errorMessage || 'Failed to save table');
             }
         }).finally(() => {
             setLoader(false);
@@ -31,15 +32,16 @@ function CreateCategory() {
 
     return (
         <Fragment>
-            <PageTitle title="Add Category" titleIcon={<Shapes />} />
+            <PageTitle title="Add Table" titleIcon={<GalleryHorizontal />} />
             <Card>
                 <ProgressBar formLoader={formLoader}/>
                 <CardContent>
-                    <CategoryForm formLoader={formLoader} loader={loader} callback={onSubmit}/>
+                    <TableForm formLoader={formLoader} loader={loader} callback={onSubmit}/>
                 </CardContent>
             </Card>
         </Fragment>
     )
 }
 
-export default CreateCategory;
+export default CreateTable
+

@@ -1,4 +1,4 @@
-import {constants, emptyListResponse} from "../utils/constants";
+import {constants, emptyListResponse, emptyMutationResponse} from "../utils/constants";
 import {POST} from "./api.service.wrapper";
 
 interface GetTablesInput {
@@ -12,7 +12,7 @@ export const GetTables = async (params: GetTablesInput): Promise<any> => {
                 data {
                     uuid
                     name
-                    status
+                    sortNo
                     category {
                         uuid
                         name
@@ -31,4 +31,49 @@ export const GetTables = async (params: GetTablesInput): Promise<any> => {
         ? { list: response?.data?.tables?.data }
         : emptyListResponse;
 };
+
+export const GetTable = async (uuid:string): Promise<any> => {
+    const query = `
+        query Table($uuid: ID!) {
+            table(uuid: $uuid) {
+                data {
+                    uuid
+                    name
+                    sortNo
+                    category {
+                        uuid
+                        name
+                    }
+                }
+            }
+        }
+    `;
+
+    const variables = {
+        uuid
+    }
+
+    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    return response?.data?.table?.data || {}
+};
+
+export const SaveTable = async (data:any): Promise<any> => {
+    const query = `
+        mutation SaveTable($input: SaveTableInput!) {
+            saveTable(input: $input) {
+                data {
+                    uuid
+                }
+                errors
+                status
+                errorMessage
+            }
+        }
+    `
+    const variables = {
+        input: data
+    }
+    const response:any = await POST(constants.GRAPHQL_SERVER, { query:query.trim(), variables });
+    return response?.data?.saveTable || emptyMutationResponse
+}
 

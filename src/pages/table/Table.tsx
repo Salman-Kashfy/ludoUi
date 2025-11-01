@@ -1,7 +1,7 @@
 import { GalleryHorizontal } from "lucide-react"
 import { Fragment, useState, useEffect, useContext } from "react"
 import PageTitle from "../../components/PageTitle"
-import { Box, Chip, IconButton, Card, CardContent } from "@mui/material";
+import { Box, IconButton, Card, CardContent } from "@mui/material";
 import { CompanyContext } from "../../hooks/CompanyContext"
 import { GetTables } from "../../services/table.service"
 import { useToast } from "../../utils/toast"
@@ -34,23 +34,7 @@ function Table() {
                 return category ? category.name : '-';
             }
         },
-        { 
-            field: 'status', 
-            headerName: 'Status', 
-            width: 150,
-            renderCell: (params: any) => {
-                const status = params.value;
-                const color = status === 'AVAILABLE' ? 'success' : status === 'OCCUPIED' ? 'error' : 'default';
-                return (
-                    <Chip 
-                        label={status || '-'} 
-                        color={color}
-                        size="small"
-                        variant="outlined"
-                    />
-                );
-            }
-        },
+        { field: 'sortNo', headerName: 'Sort No', width: 120 },
         { 
             field: 'action', 
             headerName: 'Action',
@@ -73,8 +57,8 @@ function Table() {
                 return {
                     id: e.uuid,
                     name: e.name,
-                    status: e.status,
                     category: e.category,
+                    sortNo: e.sortNo,
                     action: null // Placeholder, actual rendering happens in renderCell
                 }
             }));
