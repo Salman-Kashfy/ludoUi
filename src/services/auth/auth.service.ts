@@ -87,6 +87,7 @@ export const Logout = async () => {
 export const EmptyLocalStorage = async () => {
     await localStorage.removeItem(storageAdmin);
     await localStorage.removeItem(storageKey)
+    await localStorage.removeItem(storageCompany)
     return await localStorage.removeItem(storagePermissions)
 }
 
