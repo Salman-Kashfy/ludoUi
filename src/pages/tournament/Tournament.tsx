@@ -10,6 +10,7 @@ import {Pencil} from 'lucide-react';
 import { NavLink } from "react-router-dom"
 import { PERMISSIONS, ROUTES } from "../../utils/constants"
 import { hasPermission } from "../../utils/permissions";
+import dayjs from "dayjs";
 
 function Tournament() {
     const companyContext:any = useContext(CompanyContext)
@@ -42,8 +43,16 @@ function Tournament() {
 
     const columns = [
         { field: 'name', headerName: 'Name', width: 200 },
-        { field: 'date', headerName: 'Date', width: 150 },
-        { field: 'startTime', headerName: 'Start Time', width: 150 },
+        { field: 'date', headerName: 'Date', width: 150, renderCell: (params: any) => {
+            return dayjs(params.value).format('MMM DD, YYYY');
+        } },
+        { field: 'startTime', headerName: 'Start Time', width: 150, renderCell: (params: any) => {
+            const date = params.row.date;
+            const time = params.value;
+            // Combine date and time to create a proper datetime
+            const dateTime = dayjs(`${date} ${time}`);
+            return dateTime.isValid() ? dateTime.format('h:mm A') : time;
+        } },
         { field: 'playerLimit', headerName: 'Player Limit', width: 130 },
         { 
             field: 'status', 
