@@ -24,6 +24,7 @@ import CreateCategory from './pages/category/CreateCategory';
 import Table from './pages/table/Table';
 import CreateTable from './pages/table/CreateTable';
 import EditTable from './pages/table/EditTable';
+import Tournament from './pages/tournament/Tournament';
 
 function App() {
     /**
@@ -59,6 +60,7 @@ function App() {
                                 <Route path={ROUTES.TABLE.LIST} element={<DashboardLayoutRoute isAuth={true} component={Table} permissionName={PERMISSIONS.TABLE.LIST} />} />
                                 <Route path={ROUTES.TABLE.CREATE} element={<DashboardLayoutRoute isAuth={true} component={CreateTable} permissionName={PERMISSIONS.TABLE.UPSERT} />} />
                                 <Route path={ROUTES.TABLE.EDIT()} element={<DashboardLayoutRoute isAuth={true} component={EditTable} permissionName={PERMISSIONS.TABLE.UPSERT} />} />
+                                <Route path={ROUTES.TOURNAMENT.LIST} element={<DashboardLayoutRoute isAuth={true} component={Tournament} permissionName={PERMISSIONS.TOURNAMENT.LIST} />} />
                                 {/* <Route path={ROUTES.FORBIDDEN} element={<DashboardLayoutRoute isAuth={true} component={PermissionDenied} permissionName={false} />} /> */}
                                 <Route path={ROUTES.AUTH.LOGIN} element={<AuthLayoutRoute isAuth={false} component={Signin} />} />
                                 <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<AuthLayoutRoute isAuth={false} component={ForgotPassword} />} />

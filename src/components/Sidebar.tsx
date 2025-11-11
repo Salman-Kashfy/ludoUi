@@ -33,7 +33,7 @@ import {useTheme} from "@mui/material";
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import TrendingDownOutlinedIcon from '@mui/icons-material/TrendingDownOutlined';
 import AltRouteIcon from "@mui/icons-material/AltRoute";
-import { LayoutDashboard , Shapes, GalleryHorizontal} from 'lucide-react'; 
+import { LayoutDashboard , Shapes, GalleryHorizontal, Trophy} from 'lucide-react'; 
 
 const openedMixin = (theme: Theme): CSSObject => ({
     width: drawerWidth,
@@ -155,6 +155,20 @@ function SideBar({open, drawerWidth}) {
                                     <GalleryHorizontal strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
                                 </ListItemIcon>
                                 <ListItemText primary="Table" sx={[open ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
+                            </ListItemButton>
+                        </Tooltip>
+                    </ListItem>
+                    : <></>
+                }
+                { 
+                hasPermission(PERMISSIONS.TOURNAMENT.LIST) ?
+                    <ListItem key="tournament" disablePadding sx={{ display: 'block', }}>
+                        <Tooltip title="Tournament" placement={'right'} disableHoverListener={open} disableFocusListener={open}>
+                            <ListItemButton component={NavLink} to={ROUTES.TOURNAMENT.LIST} sx={[listBtnStyles, open ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
+                                <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, open ? {mr: 2} : {mr: 'auto'}]}>
+                                    <Trophy strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
+                                </ListItemIcon>
+                                <ListItemText primary="Tournament" sx={[open ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
                             </ListItemButton>
                         </Tooltip>
                     </ListItem>

@@ -41,6 +41,12 @@ export const ROUTES = {
         CREATE: '/table/create',
         EDIT: ((uuid = null) => '/table/'+(uuid || ':uuid')+'/edit'),
         VIEW: ((uuid = null) => '/table/'+(uuid || ':uuid')),
+    },
+    TOURNAMENT: {
+        LIST: '/tournaments',
+        CREATE: '/tournament/create',
+        EDIT: ((uuid = null) => '/tournament/'+(uuid || ':uuid')+'/edit'),
+        VIEW: ((uuid = null) => '/tournament/'+(uuid || ':uuid')),
     }
 }
 
@@ -53,6 +59,11 @@ export const PERMISSIONS = {
         LIST: 'table:view',
         UPSERT: 'table:upsert',
         DELETE: 'table:delete',
+    },
+    TOURNAMENT: {
+        LIST: 'tournament:view',
+        UPSERT: 'tournament:upsert',
+        DELETE: 'tournament:delete',
     },
 
 }
