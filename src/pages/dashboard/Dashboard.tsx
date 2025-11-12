@@ -1,4 +1,4 @@
-import {Fragment, useContext, useEffect, useState} from 'react'
+import {Fragment, useContext, useEffect, useState, SyntheticEvent} from 'react'
 import PageTitle from "../../components/PageTitle";
 import {Box, CircularProgress} from '@mui/material';
 import Grid from '@mui/material/Grid';
@@ -6,18 +6,25 @@ import {CompanyContext} from '../../hooks/CompanyContext';
 import {useBooking} from '../../hooks/BookingContext';
 import {useToast} from '../../utils/toast.tsx';
 import DashboardStat from "./DashboardStat";
-import { LayoutDashboard, Gamepad2, CircleOff, Trophy, Landmark } from 'lucide-react';
+import DashboardTournament from "./DashboardTournament";
+import { LayoutDashboard, Gamepad2, CircleOff, Trophy, Landmark, GalleryHorizontal } from 'lucide-react';
 import { TableStats } from '../../services/dashboard.service';
 import { GetCategories } from '../../services/category.service';
 import { CategorySection } from '../../components/CategorySection';
 import BookSession from '../table/BookSession';
 import RechargeSession from '../table/RechargeSession';
 import { TableSessionProvider } from '../../hooks/TableSessionContext';
+import Tabs from '@mui/material/Tabs';
+import Tab from '@mui/material/Tab';
+import { GetTournaments } from "../../services/tournament.service"
 
 function Dashboard() {
     const companyContext:any = useContext(CompanyContext)
     const { errorToast } = useToast()
     const { bookSessionDialog, tableUuid, categoryPrices, closeBookingDialog, rechargeSessionDialog, tableSessionUuid, rechargeCategoryPrices, closeRechargeDialog } = useBooking()
+    const [tab, setTab] = useState(0);
+    const [tournaments, setTournaments] = useState<any[]>([]);
+    const [tourLoader, setTourLoader] = useState<boolean>(false);
 
     /**
     * Dashboard Stats
@@ -65,6 +72,7 @@ function Dashboard() {
     useEffect(() => {
         loadDashboardStats();
         loadCategories();
+        loadTournaments();
     }, [companyContext.companyUuid])
 
     const updateTableSession = (tableUuid: string, updatedSession: any) => {
@@ -119,6 +127,37 @@ function Dashboard() {
         );
     };
 
+    /**
+    * Tournaments
+    * */
+
+    const handleTab = (_e: SyntheticEvent, newValue: number) => {
+        setTab(newValue);
+    };
+
+    const loadTournaments = () => {
+        setTourLoader(true);
+        GetTournaments({companyUuid: companyContext.companyUuid}).then((res:any) => {
+            setTournaments(res.list.map((e:any) => {
+                return {
+                    id: e.uuid,
+                    name: e.name,
+                    date: e.date,
+                    startTime: e.startTime,
+                    entryFee: e.entryFee,
+                    prizePool: e.prizePool,
+                    currencyName: e.currencyName,
+                    playerLimit: e.playerLimit,
+                    status: 'UPCOMING'
+                }
+            }));
+        }).catch(() => {
+            errorToast('Failed to load tournaments');
+        }).finally(() => {
+            setTourLoader(false);
+        });
+    };
+
     return (
         <TableSessionProvider updateTableSession={updateTableSession} addTableSession={addTableSession} rechargeTableSession={rechargeTableSession}>
             <Fragment>
@@ -153,19 +192,44 @@ function Dashboard() {
                         </Grid>
                     </Grid>
 
-                    {categoriesLoader ? (
-                        <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
-                            <CircularProgress />
-                        </Box>
-                    ) : (
-                        categories.map((category: any) => (
-                            <CategorySection 
-                                key={category.uuid} 
-                                category={category}
-                                onUpdate={loadCategories}
-                            />
-                        ))
-                    )}
+                    <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
+                        <Tabs value={tab} onChange={handleTab} centered>
+                            <Tab label="Tables" icon={<GalleryHorizontal strokeWidth={1}/>} iconPosition="start"/>
+                            <Tab label="Tournaments" icon={<Trophy strokeWidth={1}/>} iconPosition="start"/>
+                        </Tabs>
+                    </Box>
+                    <Box sx={{ display: tab === 0 ? 'block' : 'none' }}>
+                        {categoriesLoader ? (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                                <CircularProgress />
+                            </Box>
+                        ) : (
+                            categories.map((category: any) => (
+                                <CategorySection 
+                                    key={category.uuid} 
+                                    category={category}
+                                    onUpdate={loadCategories}
+                                />
+                            ))
+                        )}
+                    </Box>
+                    <Box sx={{ display: tab === 1 ? 'block' : 'none' }}>
+                        {tourLoader ? (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                                <CircularProgress />
+                            </Box>
+                        ) : (
+                            <Box sx={{ mt: 4 }}>
+                                <Grid container spacing={2}>
+                                    {tournaments.map((tournament: any) => (
+                                        <Grid size={6} key={tournament.id || tournament.uuid}>
+                                            <DashboardTournament tournament={tournament}/>
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                            </Box>
+                        )}
+                    </Box>
                 </Box>
             </Fragment>
         </TableSessionProvider>
