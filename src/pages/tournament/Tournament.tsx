@@ -19,7 +19,7 @@ function Tournament() {
     const [tournaments, setTournaments] = useState<any[]>([]);
     const btn = {
         to: ROUTES.TOURNAMENT.CREATE,
-        label: 'Add Tournament',
+        label: 'Create Tournament',
         color: 'primary',
         show: hasPermission(PERMISSIONS.TOURNAMENT.UPSERT),
     }
