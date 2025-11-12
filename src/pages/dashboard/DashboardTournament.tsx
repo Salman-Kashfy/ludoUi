@@ -44,15 +44,15 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
         border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'}`,
         overflow: 'hidden',
         position: 'relative',
-        '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '4px',
-            background: 'linear-gradient(90deg, #1976d2 0%, #42a5f5 50%, #90caf9 100%)',
-        },
+        // '&::before': {
+        //     content: '""',
+        //     position: 'absolute',
+        //     top: 0,
+        //     left: 0,
+        //     right: 0,
+        //     height: '4px',
+        //     background: 'linear-gradient(90deg, #1976d2 0%, #42a5f5 50%, #90caf9 100%)',
+        // },
     };
 
     return (
