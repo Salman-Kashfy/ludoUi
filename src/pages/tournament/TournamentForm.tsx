@@ -9,6 +9,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from "dayjs";
+import {decimalOnly, numberOnly} from "../../utils/validations";
+import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 
 function TournamentForm({record = {}, formLoader, callback, loader}:{record:any, formLoader:boolean, callback: (data: any) => void, loader:boolean}) {
     const companyContext:any = useContext(CompanyContext)
@@ -22,10 +24,12 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
         playerLimit: '',
     }
 
-    const {control, handleSubmit, reset} = useForm({
+    const {control, handleSubmit, reset, watch} = useForm({
         mode: "onChange",
         defaultValues
     })
+    
+    const dateValue = watch('date');
 
     const initializeForm = (data:any) => {
         const _data:any = {}
@@ -113,8 +117,24 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                                     message: "Start Time is required"
                                 },
                             }}
-                            render={({ field, fieldState: { error } }: any) => (
-                                <FormInput fullWidth={true} error={error} field={field} value={field.value || ''} label={'Start Time'} type="time"/>
+                            render={({ field, fieldState: { error } }) => (
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <TimePicker
+                                        label="Start Time"
+                                        closeOnSelect
+                                        value={field.value && dateValue ? dayjs(`${dateValue}T${field.value}`) : null}
+                                        onChange={(newValue) => field.onChange(newValue ? newValue.format('HH:mm:ss') : null)}
+                                        slotProps={{
+                                            textField: {
+                                                variant: 'outlined',
+                                                fullWidth: true,
+                                                error: !!error,
+                                                size: 'small',
+                                                helperText: error?.message,
+                                            },
+                                        }}
+                                    />
+                                </LocalizationProvider>
                             )}
                         />
                     </Grid>
@@ -131,7 +151,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                                 },
                             }}
                             render={({ field, fieldState: { error } }: any) => (
-                                <FormInput fullWidth={true} error={error} field={field} value={field.value || ''} label={'Entry Fee'} type="number" step="0.01"/>
+                                <FormInput fullWidth={true} error={error} field={field} value={field.value || ''} label={'Entry Fee'} onInput={decimalOnly}/>
                             )}
                         />
                     </Grid>
@@ -148,7 +168,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                                 },
                             }}
                             render={({ field, fieldState: { error } }: any) => (
-                                <FormInput fullWidth={true} error={error} field={field} value={field.value || ''} label={'Prize Pool'} type="number" step="0.01"/>
+                                <FormInput fullWidth={true} error={error} field={field} value={field.value || ''} label={'Prize Pool'} onInput={decimalOnly}/>
                             )}
                         />
                     </Grid>
@@ -162,14 +182,10 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                                 min: {
                                     value: 1,
                                     message: "Player Limit must be at least 1"
-                                },
-                                pattern: {
-                                    value: /^\d+$/,
-                                    message: "Player Limit must be a whole number"
                                 }
                             }}
                             render={({ field, fieldState: { error } }: any) => (
-                                <FormInput fullWidth={true} error={error} field={field} value={field.value || ''} label={'Player Limit'} type="number"/>
+                                <FormInput fullWidth={true} error={error} field={field} value={field.value || ''} label={'Player Limit'} onInput={numberOnly}/>
                             )}
                         />
                     </Grid>
