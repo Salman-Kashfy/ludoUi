@@ -1,5 +1,6 @@
-import { Card, CardContent, Box, Typography, Grid, Chip } from "@mui/material";
-import { Trophy, Calendar, Clock, DollarSign, Users, Sparkles } from "lucide-react";
+import { useState } from "react";
+import { Card, CardContent, Box, Typography, Grid, Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Tooltip } from "@mui/material";
+import { Trophy, Calendar, Clock, DollarSign, Users, Sparkles, UserPlus } from "lucide-react";
 import dayjs from "dayjs";
 import { useTheme } from "@mui/material/styles";
 
@@ -20,6 +21,15 @@ interface DashboardTournamentProps {
 
 export default function DashboardTournament({ tournament }: DashboardTournamentProps) {
     const theme = useTheme();
+    const [openModal, setOpenModal] = useState(false);
+    
+    const handleOpenModal = () => {
+        setOpenModal(true);
+    };
+    
+    const handleCloseModal = () => {
+        setOpenModal(false);
+    };
     
     // Format date
     const formattedDate = dayjs(tournament.date).format('MMM DD, YYYY');
@@ -57,7 +67,7 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
 
     return (
         <Card sx={cardStyle}>
-            <CardContent sx={{ p: 3.5, '&:last-child': { pb: 3.5 } }}>
+            <CardContent sx={{ p: 3.5, '&:last-child': { pb: 3.5 }, position: 'relative' }}>
                 {/* Tournament Name Header */}
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', mb: 3, gap: 2 }}>
                     <Box
@@ -112,6 +122,29 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                             />
                         )}
                     </Box>
+                    {/* Register Icon Button */}
+                    <Tooltip title="Register Player" arrow placement="top">
+                        <IconButton
+                            onClick={handleOpenModal}
+                            sx={{
+                                width: '44px',
+                                height: '44px',
+                                borderRadius: '100%',
+                                background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
+                                boxShadow: '0px 4px 12px rgba(25, 118, 210, 0.3)',
+                                color: '#fff',
+                                flexShrink: 0,
+                                transition: 'all 0.2s ease',
+                                '&:hover': {
+                                    background: 'linear-gradient(135deg, #1565c0 0%, #0d47a1 100%)',
+                                    boxShadow: '0px 6px 16px rgba(25, 118, 210, 0.4)',
+                                    transform: 'scale(1.05)',
+                                }
+                            }}
+                        >
+                            <UserPlus size={20} strokeWidth={1.5} />
+                        </IconButton>
+                    </Tooltip>
                 </Box>
 
                 {/* 3-Column Grid */}
@@ -331,6 +364,60 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                     </Box>
                 </Box>
             </CardContent>
+
+            {/* Player Registration Modal */}
+            <Dialog 
+                open={openModal} 
+                onClose={handleCloseModal}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: 1.5,
+                    pb: 2,
+                    borderBottom: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
+                }}>
+                    <Box
+                        sx={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '10px',
+                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <UserPlus size={20} color="#fff" strokeWidth={2} />
+                    </Box>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                        Player Registration
+                    </Typography>
+                </DialogTitle>
+                <DialogContent sx={{ pt: 3 }}>
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                            Tournament: <strong>{tournament.name}</strong>
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            Date: {formattedDate} at {formattedTime}
+                        </Typography>
+                    </Box>
+                    <Typography variant="body1" sx={{ mt: 2, color: 'text.secondary' }}>
+                        Player registration form will be implemented here.
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ px: 3, pb: 2.5, pt: 2, borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}` }}>
+                    <Button onClick={handleCloseModal} variant="outlined" sx={{ textTransform: 'none' }}>
+                        Cancel
+                    </Button>
+                    <Button onClick={handleCloseModal} variant="contained" sx={{ textTransform: 'none' }}>
+                        Register
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Card>
     );
 }
