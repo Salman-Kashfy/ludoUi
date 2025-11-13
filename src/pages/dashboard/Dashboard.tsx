@@ -140,12 +140,13 @@ function Dashboard() {
         GetTournaments({companyUuid: companyContext.companyUuid}).then((res:any) => {
             setTournaments(res.list.map((e:any) => {
                 return {
-                    id: e.uuid,
+                    uuid: e.uuid,
                     name: e.name,
                     date: e.date,
                     startTime: e.startTime,
                     entryFee: e.entryFee,
                     prizePool: e.prizePool,
+                    category: e.category,
                     currencyName: e.currencyName,
                     playerLimit: e.playerLimit,
                     status: 'UPCOMING'
