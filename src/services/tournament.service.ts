@@ -23,6 +23,10 @@ export const GetTournaments = async (params: GetTournamentsInput, paging?: any):
                     currencyName
                     playerLimit
                     status
+                    category {
+                        uuid
+                        name
+                    }
                     createdAt
                     updatedAt
                 }
@@ -61,6 +65,10 @@ export const GetTournament = async (uuid:string): Promise<any> => {
                     status
                     createdAt
                     updatedAt
+                    category {
+                        uuid
+                        name
+                    }
                 }
                 errors
                 status

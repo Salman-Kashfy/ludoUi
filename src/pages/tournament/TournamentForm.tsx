@@ -1,6 +1,6 @@
-import { Fragment, useContext } from "react";
+import { Fragment, useContext, useState } from "react";
 import { useEffect } from "react";
-import { Button, Grid, Box, FormHelperText } from "@mui/material";
+import { Button, Grid, Box, FormHelperText, Autocomplete } from "@mui/material";
 import { Controller, useForm } from "react-hook-form";
 import FormInput from "../../components/FormInput";
 import { isEmpty } from "lodash";
@@ -11,12 +11,17 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from "dayjs";
 import {decimalOnly, numberOnly} from "../../utils/validations";
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
+import { GetCategories } from "../../services/category.service";
 
 function TournamentForm({record = {}, formLoader, callback, loader}:{record:any, formLoader:boolean, callback: (data: any) => void, loader:boolean}) {
     const companyContext:any = useContext(CompanyContext)
+    const [categories, setCategories] = useState<any[]>([]);
+    const [categoryValue, setCategoryValue] = useState<{label: string, value: string} | null>(null);
+    
     const defaultValues = {
         uuid: '',
         name: '',
+        categoryUuid: '',
         date: '',
         startTime: '',
         entryFee: '',
@@ -24,17 +29,40 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
         playerLimit: '',
     }
 
-    const {control, handleSubmit, reset, watch} = useForm({
+    const {control, handleSubmit, reset, watch, setValue} = useForm({
         mode: "onChange",
         defaultValues
     })
     
     const dateValue = watch('date');
 
+    useEffect(() => {
+        GetCategories({companyUuid: companyContext.companyUuid}).then((res:any) => {
+            setCategories(res.list || []);
+        }).catch(() => {
+            // Handle error silently
+        });
+    }, [companyContext.companyUuid]);
+
     const initializeForm = (data:any) => {
         const _data:any = {}
         for (const key of Object.keys(defaultValues)) {
-            if (['entryFee', 'prizePool', 'playerLimit'].includes(key)) {
+            if (key === 'categoryUuid') {
+                let categoryUuid = '';
+                if (data.category) {
+                    categoryUuid = data.category.uuid || '';
+                } else if (data.categoryUuid) {
+                    categoryUuid = data.categoryUuid;
+                }
+                _data[key] = categoryUuid;
+                // Set category value for Autocomplete
+                if (categoryUuid && categories.length > 0) {
+                    const category = categories.find((cat: any) => cat.uuid === categoryUuid);
+                    if (category) {
+                        setCategoryValue({ label: category.name, value: category.uuid });
+                    }
+                }
+            } else if (['entryFee', 'prizePool', 'playerLimit'].includes(key)) {
                 _data[key] = Number(data[key])
             } else {
                 _data[key] = ['string', 'number'].includes(typeof data[key]) ? (data[key] || defaultValues[key as keyof typeof defaultValues]) : data[key]
@@ -43,15 +71,24 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
         reset(_data)
     }
 
+    const handleCategoryChange = (_event: any, newValue: {label: string, value: string} | null) => {
+        setCategoryValue(newValue);
+        setValue('categoryUuid', newValue ? newValue.value : '');
+    }
+
     useEffect(() => {
         if(!isEmpty(record)){
             initializeForm(record)
         }
-    }, [record]);
+    }, [record, categories]);
 
     const onSubmit = (data: any) => {
         if(!data['uuid']) delete data.uuid
         data.companyUuid = companyContext.companyUuid
+        // Use categoryUuid from categoryValue if available, otherwise from form data
+        if (categoryValue) {
+            data.categoryUuid = categoryValue.value;
+        }
         data.entryFee = Number(data.entryFee);
         data.prizePool = Number(data.prizePool);
         data.playerLimit = Number(data.playerLimit);
@@ -76,6 +113,41 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             }}
                             render={({ field, fieldState: { error } }: any) => (
                                 <FormInput fullWidth={true} error={error} field={field} value={field.value || ''} label={'Name'}/>
+                            )}
+                        />
+                    </Grid>
+                    <Grid size={4}>
+                        <Controller
+                            name="categoryUuid"
+                            control={control}
+                            rules={{
+                                required: {
+                                    value: true,
+                                    message: "Category is required"
+                                }
+                            }}
+                            render={({ fieldState: { error } }: any) => (
+                                <>
+                                    <Autocomplete
+                                        options={categories.map((cat: any) => ({ label: cat.name, value: cat.uuid }))}
+                                        value={categoryValue}
+                                        onChange={handleCategoryChange}
+                                        getOptionLabel={(option) => option.label || ''}
+                                        renderInput={(params) => (
+                                            <FormInput
+                                                fullWidth={true}
+                                                error={error}
+                                                label="Category"
+                                                params={params}
+                                                slotProps={{
+                                                    input: {
+                                                        ...params.InputProps,
+                                                    },
+                                                }}
+                                            />
+                                        )}
+                                    />
+                                </>
                             )}
                         />
                     </Grid>

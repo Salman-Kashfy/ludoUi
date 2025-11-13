@@ -53,7 +53,15 @@ function Tournament() {
             const dateTime = dayjs(`${date} ${time}`);
             return dateTime.isValid() ? dateTime.format('h:mm A') : time;
         } },
-        { field: 'playerLimit', headerName: 'Player Limit', width: 130 },
+        { 
+            field: 'category', 
+            headerName: 'Category', 
+            width: 150,
+            renderCell: (params: any) => {
+                const category = params.value;
+                return category ? category.name : '-';
+            }
+        },
         { 
             field: 'status', 
             headerName: 'Status', 
@@ -97,6 +105,7 @@ function Tournament() {
                     prizePool: e.prizePool,
                     currencyName: e.currencyName,
                     playerLimit: e.playerLimit,
+                    category: e.category,
                     status: e.status,
                     action: null // Placeholder, actual rendering happens in renderCell
                 }
