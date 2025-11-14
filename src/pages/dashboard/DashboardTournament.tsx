@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Card, CardContent, Box, Typography, Grid, Chip, Button, Dialog, DialogTitle, DialogContent, DialogActions, IconButton, Tooltip } from "@mui/material";
-import { UserPlus } from "lucide-react";
+import { Card, CardContent, Box, Typography, Grid, Chip, IconButton, Tooltip } from "@mui/material";
+import { Plus, Users } from "lucide-react";
 import dayjs from "dayjs";
 import { useTheme } from "@mui/material/styles";
+import PlayerRegistration from "../tournament/PlayerRegistration";
 
 interface DashboardTournamentProps {
     tournament: {
@@ -65,22 +66,14 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                             </Typography>
                         </Box>
                     </Box>
+                    <Tooltip title="Participants" arrow placement="top">
+                        <IconButton onClick={handleOpenModal} color="success" size="small">
+                            <Users size={18} strokeWidth={1.5} />
+                        </IconButton>
+                    </Tooltip>
                     <Tooltip title="Register Player" arrow placement="top">
-                        <IconButton
-                            onClick={handleOpenModal}
-                            size="small"
-                            sx={{
-                                width: '36px',
-                                height: '36px',
-                                borderRadius: '100%',
-                                backgroundColor: 'primary.main',
-                                color: '#fff',
-                                '&:hover': {
-                                    backgroundColor: 'primary.dark',
-                                }
-                            }}
-                        >
-                            <UserPlus size={18} strokeWidth={2} />
+                        <IconButton onClick={handleOpenModal} color="primary" size="small">
+                            <Plus size={18} strokeWidth={1.5} />
                         </IconButton>
                     </Tooltip>
                 </Box>
@@ -135,44 +128,15 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                 </Box>
             </CardContent>
 
-            {/* Player Registration Modal */}
-            <Dialog open={openModal} onClose={handleCloseModal} maxWidth="sm" fullWidth>
-                <DialogTitle sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: 1.5,
-                    pb: 2,
-                    borderBottom: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
-                }}>
-                    <Box
-                        sx={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '10px',
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                        }}
-                    >
-                        <UserPlus size={20} color="#fff" strokeWidth={2} />
-                    </Box>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>Player Registration</Typography>
-                </DialogTitle>
-                <DialogContent sx={{ pt: 3 }}>
-                    <Box sx={{ mb: 2 }}>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                            Tournament: <strong>{tournament.name}</strong>
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">Date: {formattedDate} at {formattedTime}</Typography>
-                    </Box>
-                    <Typography variant="body1" sx={{ mt: 2, color: 'text.secondary' }}>Player registration form will be implemented here.</Typography>
-                </DialogContent>
-                <DialogActions sx={{ px: 3, pb: 2.5, pt: 2, borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}` }}>
-                    <Button onClick={handleCloseModal} variant="outlined" sx={{ textTransform: 'none' }}>Cancel</Button>
-                    <Button onClick={handleCloseModal} variant="contained" sx={{ textTransform: 'none' }}>Register</Button>
-                </DialogActions>
-            </Dialog>
+            <PlayerRegistration 
+                open={openModal} 
+                onClose={handleCloseModal} 
+                tournament={{
+                    name: tournament.name,
+                    date: tournament.date,
+                    startTime: tournament.startTime
+                }}
+            />
         </Card>
     );
 }
