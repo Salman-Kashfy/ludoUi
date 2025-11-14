@@ -4,6 +4,7 @@ import { Plus, Users } from "lucide-react";
 import dayjs from "dayjs";
 import { useTheme } from "@mui/material/styles";
 import PlayerRegistration from "../tournament/PlayerRegistration";
+import TournamentPlayers from "../tournament/TournamentPlayers";
 
 interface DashboardTournamentProps {
     tournament: {
@@ -26,14 +27,23 @@ interface DashboardTournamentProps {
 
 export default function DashboardTournament({ tournament }: DashboardTournamentProps) {
     const theme = useTheme();
-    const [openModal, setOpenModal] = useState(false);
+    const [tourRegModal, setTourRegModal] = useState(false);
+    const [regPlayerModal, setRegPlayerModal] = useState(false);
     
-    const handleOpenModal = () => {
-        setOpenModal(true);
+    const handleOpenTourRegModal = () => {
+        setTourRegModal(true);
     };
     
-    const handleCloseModal = () => {
-        setOpenModal(false);
+    const handleCloseTourRegModal = () => {
+        setTourRegModal(false);
+    };
+
+    const handleOpenRegPlayerModal = () => {
+        setRegPlayerModal(true);
+    };
+
+    const handleCloseRegPlayerModal = () => {
+        setRegPlayerModal(false);
     };
     
     const formattedDate = dayjs(tournament.date).format('MMM DD, YYYY');
@@ -67,12 +77,12 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                         </Box>
                     </Box>
                     <Tooltip title="Participants" arrow placement="top">
-                        <IconButton onClick={handleOpenModal} color="success" size="small">
+                        <IconButton onClick={handleOpenRegPlayerModal} color="success" size="small">
                             <Users size={18} strokeWidth={1.5} />
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Register Player" arrow placement="top">
-                        <IconButton onClick={handleOpenModal} color="primary" size="small">
+                        <IconButton onClick={handleOpenTourRegModal} color="primary" size="small">
                             <Plus size={18} strokeWidth={1.5} />
                         </IconButton>
                     </Tooltip>
@@ -129,13 +139,18 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
             </CardContent>
 
             <PlayerRegistration 
-                open={openModal} 
-                onClose={handleCloseModal} 
+                open={tourRegModal} 
+                onClose={handleCloseTourRegModal} 
                 tournament={{
                     name: tournament.name,
                     date: tournament.date,
                     startTime: tournament.startTime
                 }}
+            />
+            <TournamentPlayers 
+                open={regPlayerModal} 
+                onClose={handleCloseRegPlayerModal} 
+                tournamentUuid={tournament.uuid || ''}
             />
         </Card>
     );

@@ -123,3 +123,29 @@ export const DeleteTournament = async (uuid:string): Promise<any> => {
     return response?.data?.deleteTournament || emptyMutationResponse
 }
 
+export const GetTournamentPlayers = async (tournamentUuid: string): Promise<any> => {
+    const query = `
+        query TournamentPlayers($tournamentUuid: ID!) {
+            tournamentPlayers(tournamentUuid: $tournamentUuid) {
+                list {
+                    customer {
+                        fullName
+                    }
+                    table {
+                        name
+                    }
+                }
+            }
+        }
+    `;
+
+    const variables = {
+        tournamentUuid
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    return response?.data?.tournamentPlayers?.list?.length
+        ? response?.data?.tournamentPlayers
+        : emptyListResponse;
+};
+
