@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useContext, Fragment } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, CircularProgress, IconButton, Autocomplete, Table, TableBody, TableRow, TableCell } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Plus } from "lucide-react";
+import { Controller, useForm } from "react-hook-form";
 import { PlayerRegistrationBill } from "../../services/tournament.service";
 import { GetCustomers } from "../../services/customer.service";
 import { useToast } from "../../utils/toast";
@@ -25,6 +26,17 @@ export default function PlayerRegistration({ open, onClose, tournament }: Player
     const { errorToast } = useToast();
     const companyContext: any = useContext(CompanyContext);
     const companyUuid = companyContext.companyUuid;
+    
+    const defaultValues = {
+        customerUuid: '',
+    };
+    
+    const { control, handleSubmit, watch, setValue, reset } = useForm({
+        mode: "onChange",
+        defaultValues
+    });
+    
+    const customerUuid = watch('customerUuid');
     
     const [loading, setLoading] = useState(false);
     const [billingData, setBillingData] = useState<any>(null);
@@ -66,7 +78,7 @@ export default function PlayerRegistration({ open, onClose, tournament }: Player
     }, [searchCustomer, debouncedFetchCustomer, companyUuid]);
 
     const loadBillingData = useCallback(async () => {
-        if (!open || !tournament.uuid || !customerId.value) return;
+        if (!open || !tournament.uuid || !customerUuid) return;
         
         setLoading(true);
         setBillingData(null);
@@ -75,7 +87,7 @@ export default function PlayerRegistration({ open, onClose, tournament }: Player
         try {
             const response = await PlayerRegistrationBill({
                 tournamentUuid: tournament.uuid,
-                customerUuid: customerId.value
+                customerUuid: customerUuid
             });
             
             if (response.status) {
@@ -89,28 +101,30 @@ export default function PlayerRegistration({ open, onClose, tournament }: Player
         } finally {
             setLoading(false);
         }
-    }, [open, tournament.uuid, customerId.value, errorToast]);
+    }, [open, tournament.uuid, customerUuid, errorToast]);
 
     useEffect(() => {
-        if (open && tournament.uuid && customerId.value) {
+        if (open && tournament.uuid && customerUuid) {
             loadBillingData();
         } else {
             setBillingData(null);
             setErrorMessage('');
         }
-    }, [open, tournament.uuid, customerId.value, loadBillingData]);
+    }, [open, tournament.uuid, customerUuid, loadBillingData]);
 
     useEffect(() => {
         if (open) {
+            reset(defaultValues);
             setCustomerId({label: '', value: ''});
             setCustomers([]);
             setSearchCustomer('');
             setBillingData(null);
             setErrorMessage('');
         }
-    }, [open]);
+    }, [open, reset]);
 
     const handleCustomerChange = (_event: any, value: { value: string, label: string } | null) => {
+        setValue('customerUuid', value?.value || '');
         setCustomerId({label: value?.label || '', value: value?.value || ''});
     };
 
@@ -118,9 +132,10 @@ export default function PlayerRegistration({ open, onClose, tournament }: Player
         console.log('Add customer clicked');
     };
 
-    const handleRegister = async () => {
+    const onSubmit = async (data: any) => {
         // Registration logic can be added here later
         // For now, just close the modal or show success message
+        console.log('Form data:', data);
     };
 
     const handleClose = () => {
@@ -129,121 +144,137 @@ export default function PlayerRegistration({ open, onClose, tournament }: Player
         setCustomerId({label: '', value: ''});
         setCustomers([]);
         setSearchCustomer('');
+        reset(defaultValues);
         onClose();
     };
 
     return (
         <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
-            <DialogTitle>
-                <Typography variant="h6" sx={{ fontWeight: 600 }}>Player Registration</Typography>
-            </DialogTitle>
-            <DialogContent sx={{ pt: 3 }}>
-                {errorMessage && (
-                    <Box sx={{ mb: 2, p: 2, backgroundColor: theme.palette.mode === 'dark' ? 'rgba(211, 47, 47, 0.1)' : 'rgba(211, 47, 47, 0.05)', borderRadius: 1 }}>
-                        <Typography variant="body1" color="error">
-                            {errorMessage}
-                        </Typography>
-                    </Box>
-                )}
-                
-                <Box sx={{ mb: 2 }}>
-                    <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
-                        <Box sx={{ flex: 1 }}>
-                            <Autocomplete
-                                id="customer-dd"
-                                options={customers}
-                                value={customerId}
-                                loading={customerLoader}
-                                onInput={(event:any) => setSearchCustomer(event.target.value)}
-                                getOptionLabel={(option) => option.label || ''}
-                                onChange={handleCustomerChange}
-                                filterOptions={(options, state) => {
-                                    const input = state.inputValue.trim();
-                                    return options.filter(
-                                        (option) =>
-                                            option.label.toLowerCase().includes(input.toLowerCase()) ||
-                                            option.label.includes(input.replace(/^0/, option.phoneCode)) ||
-                                            option.label.includes(input.replace(/^0/, ''))
-                                    );
-                                }}
-                                renderInput={(params) => <FormInput 
-                                    fullWidth={true} 
-                                    label={'Customer'} 
-                                    placeholder={'Search by name or phone number'} 
-                                    params={params}
-                                    slotProps={{
-                                        input: {
-                                            ...params.InputProps,
-                                            endAdornment: (
-                                                <Fragment>
-                                                    {customerLoader ? <CircularProgress color="primary" size={20} /> : null}
-                                                    {params.InputProps.endAdornment}
-                                                </Fragment>
-                                            ),
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <DialogTitle>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>Player Registration</Typography>
+                </DialogTitle>
+                <DialogContent sx={{ pt: 3 }}>
+                    {errorMessage && (
+                        <Box sx={{ mb: 2, p: 2, backgroundColor: theme.palette.mode === 'dark' ? 'rgba(211, 47, 47, 0.1)' : 'rgba(211, 47, 47, 0.05)', borderRadius: 1 }}>
+                            <Typography variant="body1" color="error">
+                                {errorMessage}
+                            </Typography>
+                        </Box>
+                    )}
+                    
+                    <Box sx={{ mb: 2 }}>
+                        <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', mt:2 }}>
+                            <Box sx={{ flex: 1 }}>
+                                <Controller
+                                    name="customerUuid"
+                                    control={control}
+                                    rules={{
+                                        required: {
+                                            value: true,
+                                            message: "Customer is required"
                                         },
                                     }}
-                                />}
-                            />
+                                    render={({ fieldState: { error } }) => (
+                                        <Autocomplete
+                                            id="customer-dd"
+                                            options={customers}
+                                            value={customerId}
+                                            loading={customerLoader}
+                                            onInput={(event:any) => setSearchCustomer(event.target.value)}
+                                            getOptionLabel={(option) => option.label || ''}
+                                            onChange={handleCustomerChange}
+                                            filterOptions={(options, state) => {
+                                                const input = state.inputValue.trim();
+                                                return options.filter(
+                                                    (option) =>
+                                                        option.label.toLowerCase().includes(input.toLowerCase()) ||
+                                                        option.label.includes(input.replace(/^0/, option.phoneCode)) ||
+                                                        option.label.includes(input.replace(/^0/, ''))
+                                                );
+                                            }}
+                                            renderInput={(params) => <FormInput 
+                                                fullWidth={true} 
+                                                label={'Customer'} 
+                                                placeholder={'Search by name or phone number'} 
+                                                params={params}
+                                                error={error}
+                                                slotProps={{
+                                                    input: {
+                                                        ...params.InputProps,
+                                                        endAdornment: (
+                                                            <Fragment>
+                                                                {customerLoader ? <CircularProgress color="primary" size={20} /> : null}
+                                                                {params.InputProps.endAdornment}
+                                                            </Fragment>
+                                                        ),
+                                                    },
+                                                }}
+                                            />}
+                                        />
+                                    )}
+                                />
+                            </Box>
+                            <IconButton 
+                                onClick={handleAddCustomer}
+                                sx={{ 
+                                    color: 'primary.main',
+                                }}
+                                title="Add new customer"
+                            >
+                                <Plus size={20} />
+                            </IconButton>
                         </Box>
-                        <IconButton 
-                            onClick={handleAddCustomer}
-                            sx={{ 
-                                color: 'primary.main',
-                            }}
-                            title="Add new customer"
-                        >
-                            <Plus size={20} />
-                        </IconButton>
                     </Box>
-                </Box>
-                
-                {loading ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-                        <CircularProgress size={24} />
-                    </Box>
-                ) : billingData ? (
-                    <Box sx={{ mt: 1.5, pt: 2, borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'}` }}>
-                        <Table size="small" sx={{ '& .MuiTableCell-root': { border: 'none', py: 1 } }}>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell sx={{ width: '40%', color: 'text.secondary', fontSize: '0.875rem', fontWeight: 500 }}>
-                                        Tournament
-                                    </TableCell>
-                                    <TableCell sx={{ fontSize: '0.875rem' }}>
-                                        {billingData.name}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell sx={{ width: '40%', color: 'text.secondary', fontSize: '0.875rem', fontWeight: 500 }}>
-                                        Entry Fee
-                                    </TableCell>
-                                    <TableCell sx={{ fontSize: '0.875rem' }}>
-                                        {billingData.currencyName} {billingData.entryFee?.toLocaleString() || '0'}
-                                    </TableCell>
-                                </TableRow>
-                                <TableRow>
-                                    <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>
-                                        Total
-                                    </TableCell>
-                                    <TableCell sx={{ fontSize: '1rem', fontWeight: 600, color: 'primary.main' }}>
-                                        {billingData.currencyName} {billingData.entryFee?.toLocaleString() || '0'}
-                                    </TableCell>
-                                </TableRow>
-                            </TableBody>
-                        </Table>
-                    </Box>
-                ) : customerId.value && !errorMessage ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-                        <CircularProgress size={24} />
-                    </Box>
-                ) : null}
-            </DialogContent>
-            <DialogActions sx={{p: 2}}>
-                <Button onClick={handleClose} color="error">Cancel</Button>
-                <Button onClick={handleRegister} variant="contained" disabled={loading || !customerId.value || !!errorMessage}>
-                    Register
-                </Button>
-            </DialogActions>
+                    
+                    {loading ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+                            <CircularProgress size={24} />
+                        </Box>
+                    ) : billingData ? (
+                        <Box sx={{ mt: 1.5, pt: 2, borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'}` }}>
+                            <Table size="small" sx={{ '& .MuiTableCell-root': { border: 'none', py: 1 } }}>
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell sx={{ width: '40%', color: 'text.secondary', fontSize: '0.875rem', fontWeight: 500 }}>
+                                            Tournament
+                                        </TableCell>
+                                        <TableCell sx={{ fontSize: '0.875rem' }}>
+                                            {billingData.name}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell sx={{ width: '40%', color: 'text.secondary', fontSize: '0.875rem', fontWeight: 500 }}>
+                                            Entry Fee
+                                        </TableCell>
+                                        <TableCell sx={{ fontSize: '0.875rem' }}>
+                                            {billingData.currencyName} {billingData.entryFee?.toLocaleString() || '0'}
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell sx={{ fontSize: '0.875rem', fontWeight: 600 }}>
+                                            Total
+                                        </TableCell>
+                                        <TableCell sx={{ fontSize: '1rem', fontWeight: 600, color: 'primary.main' }}>
+                                            {billingData.currencyName} {billingData.entryFee?.toLocaleString() || '0'}
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </Box>
+                    ) : customerUuid && !errorMessage ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
+                            <CircularProgress size={24} />
+                        </Box>
+                    ) : null}
+                </DialogContent>
+                <DialogActions sx={{p: 2}}>
+                    <Button onClick={handleClose} color="error">Cancel</Button>
+                    <Button type="submit" variant="contained" disabled={loading || !customerUuid || !!errorMessage}>
+                        Register
+                    </Button>
+                </DialogActions>
+            </form>
         </Dialog>
     );
 }
