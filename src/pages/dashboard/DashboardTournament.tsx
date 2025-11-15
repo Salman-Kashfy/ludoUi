@@ -122,7 +122,7 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                             </Typography>
                         )}
                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                            Entry: <strong>{currency} {tournament.entryFee?.toLocaleString() || '0'}</strong>
+                            Entry Fee: <strong>{currency} {tournament.entryFee?.toLocaleString() || '0'}</strong>
                         </Typography>
                     </Box>
                     {tournament.status && (
