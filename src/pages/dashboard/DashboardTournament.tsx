@@ -141,6 +141,7 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                 open={tourRegModal} 
                 onClose={handleCloseTourRegModal} 
                 tournament={{
+                    uuid: tournament.uuid || '',
                     name: tournament.name,
                     date: tournament.date,
                     startTime: tournament.startTime

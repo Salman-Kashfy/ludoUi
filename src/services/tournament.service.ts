@@ -149,3 +149,26 @@ export const GetTournamentPlayers = async (tournamentUuid: string): Promise<any>
         : emptyListResponse;
 };
 
+export const PlayerRegistrationBill = async (params: any): Promise<any> => {
+    const query = `
+        query PlayerRegistrationBill($params: PlayerRegistrationBillInput!) {
+            playerRegistrationBill(params: $params) {
+                data {
+                    name
+                    entryFee
+                    currencyName
+                }
+                status
+                errorMessage
+            }
+        }
+    `;
+
+    const variables = {
+        params
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    return response?.data?.playerRegistrationBill || emptyMutationResponse;
+};
+
