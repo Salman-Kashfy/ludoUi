@@ -149,6 +149,7 @@ function Dashboard() {
                     category: e.category,
                     currencyName: e.currencyName,
                     playerLimit: e.playerLimit,
+                    playerCount: e.playerCount,
                     status: 'UPCOMING'
                 }
             }));

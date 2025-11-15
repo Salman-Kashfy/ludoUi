@@ -17,6 +17,7 @@ interface DashboardTournamentProps {
         prizePool: number;
         currencyName?: string;
         playerLimit: number;
+        playerCount: number;
         status?: string;
         category: {
             uuid: string;
@@ -60,7 +61,7 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
     
     const cardStyle = {
         backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#ffffff',
-        marginBottom: 2,
+        marginBottom: 0,
         borderRadius: 2,
         border: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'}`,
     };
@@ -118,7 +119,7 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         {tournament.category && (
                             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                                Players: <strong>{tournament.playerLimit}</strong>
+                                Players: <strong>{tournament.playerCount}/{tournament.playerLimit}</strong>
                             </Typography>
                         )}
                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
