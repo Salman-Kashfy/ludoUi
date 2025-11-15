@@ -18,7 +18,7 @@ interface DashboardTournamentProps {
         currencyName?: string;
         playerLimit: number;
         status?: string;
-        category?: {
+        category: {
             uuid: string;
             name: string;
         };
@@ -71,9 +71,8 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                 <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flex: 1, minWidth: 0 }}>
                         <Box sx={{ flex: 1, minWidth: 0 }}>
-                            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1rem', mb: 0.5 }}>
-                                {tournament.name}
-                            </Typography>
+                            <Typography variant="h6" sx={{ fontWeight: 600, fontSize: '1rem', mb: 0 }}>{tournament.name}</Typography>
+                            <Typography variant="body2" color="text.secondary">{tournament.category.name}</Typography>
                         </Box>
                     </Box>
                     <Tooltip title="Participants" arrow placement="top">
@@ -119,7 +118,7 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                         {tournament.category && (
                             <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                                Category: <strong>{tournament.category.name}</strong>
+                                Players: <strong>{tournament.playerLimit}</strong>
                             </Typography>
                         )}
                         <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
