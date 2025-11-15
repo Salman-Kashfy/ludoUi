@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useContext, Fragment } from "react";
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, CircularProgress, IconButton, Autocomplete } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, CircularProgress, IconButton, Autocomplete, Table, TableBody, TableRow, TableCell } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Plus } from "lucide-react";
 import { PlayerRegistrationBill } from "../../services/tournament.service";
@@ -133,7 +133,7 @@ export default function PlayerRegistration({ open, onClose, tournament }: Player
     };
 
     return (
-        <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+        <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
             <DialogTitle>
                 <Typography variant="h6" sx={{ fontWeight: 600 }}>Player Registration</Typography>
             </DialogTitle>
@@ -198,32 +198,51 @@ export default function PlayerRegistration({ open, onClose, tournament }: Player
                 </Box>
                 
                 {loading ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
                         <CircularProgress size={24} />
                     </Box>
                 ) : billingData ? (
-                    <Box sx={{ mt: 2, p: 2, backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)', borderRadius: 1 }}>
-                        <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>Billing Information</Typography>
-                        <Box sx={{ mb: 1 }}>
-                            <Typography variant="body2" color="text.secondary">Tournament:</Typography>
-                            <Typography variant="body1" sx={{ fontWeight: 500 }}>{billingData.name}</Typography>
-                        </Box>
-                        <Box>
-                            <Typography variant="body2" color="text.secondary">Entry Fee:</Typography>
-                            <Typography variant="h6" sx={{ fontWeight: 600, color: 'primary.main' }}>
-                                {billingData.currencyName} {billingData.entryFee?.toLocaleString() || '0'}
-                            </Typography>
-                        </Box>
+                    <Box sx={{ mt: 1.5, pt: 2, borderTop: `1px solid ${theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.08)'}` }}>
+                        <Table size="small" sx={{ '& .MuiTableCell-root': { border: 'none', py: 1 } }}>
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell sx={{ width: '40%', color: 'text.secondary', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        Tournament
+                                    </TableCell>
+                                    <TableCell sx={{ fontSize: '0.875rem' }}>
+                                        {billingData.name}
+                                    </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell sx={{ width: '40%', color: 'text.secondary', fontSize: '0.875rem', fontWeight: 500 }}>
+                                        Entry Fee
+                                    </TableCell>
+                                    <TableCell sx={{ fontSize: '0.875rem' }}>
+                                        {billingData.currencyName} {billingData.entryFee?.toLocaleString() || '0'}
+                                    </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                    <TableCell sx={{ color: 'text.secondary', fontSize: '0.875rem', fontWeight: 600 }}>
+                                        Total
+                                    </TableCell>
+                                    <TableCell sx={{ fontSize: '1rem', fontWeight: 600, color: 'primary.main' }}>
+                                        {billingData.currencyName} {billingData.entryFee?.toLocaleString() || '0'}
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
                     </Box>
                 ) : customerId.value && !errorMessage ? (
-                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
                         <CircularProgress size={24} />
                     </Box>
                 ) : null}
             </DialogContent>
             <DialogActions sx={{p: 2}}>
                 <Button onClick={handleClose} color="error">Cancel</Button>
-                <Button onClick={handleRegister} variant="contained"  disabled={loading || !customerId.value || errorMessage} loading={loading}>Register</Button>
+                <Button onClick={handleRegister} variant="contained" disabled={loading || !customerId.value || !!errorMessage}>
+                    Register
+                </Button>
             </DialogActions>
         </Dialog>
     );
