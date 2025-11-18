@@ -174,3 +174,26 @@ export const PlayerRegistrationBill = async (params: any): Promise<any> => {
     return response?.data?.playerRegistrationBill || emptyMutationResponse;
 };
 
+export const PlayerRegistration = async (input: any): Promise<any> => {
+    const query = `
+        mutation PlayerRegistration($input: PlayerRegistrationInput!) {
+            playerRegistration(input: $input) {
+                data {
+                    uuid
+                    playerCount
+                }
+                errors
+                status
+                errorMessage
+            }
+        }
+    `;
+
+    const variables = {
+        input
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    return response?.data?.playerRegistration || emptyMutationResponse;
+};
+

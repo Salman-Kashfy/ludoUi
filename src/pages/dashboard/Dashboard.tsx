@@ -225,7 +225,18 @@ function Dashboard() {
                                 <Grid container spacing={2}>
                                     {tournaments.map((tournament: any) => (
                                         <Grid size={6} key={tournament.id || tournament.uuid}>
-                                            <DashboardTournament tournament={tournament}/>
+                                            <DashboardTournament 
+                                                tournament={tournament}
+                                                onPlayerRegistered={(tournamentUuid: string, playerCount: number) => {
+                                                    setTournaments((prevTournaments) =>
+                                                        prevTournaments.map((t: any) =>
+                                                            t.uuid === tournamentUuid
+                                                                ? { ...t, playerCount }
+                                                                : t
+                                                        )
+                                                    );
+                                                }}
+                                            />
                                         </Grid>
                                     ))}
                                 </Grid>
