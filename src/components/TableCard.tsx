@@ -131,7 +131,7 @@ export function TableCard({ table, categoryPrices }: TableCardProps) {
                     <Typography variant="subtitle1">{table.name}</Typography>
                     <Chip 
                         label={!activeSession ? 'available' : activeSession!.status} 
-                        color={!activeSession ? 'default' : activeSession!.status === TableSessionStatus.BOOKED ? 'success' : 'error'} 
+                        color={!activeSession ? 'default' : 'success'} 
                         size="small" 
                     />
                 </Box>
