@@ -127,6 +127,24 @@ function Dashboard() {
         );
     };
 
+    const removeTableSession = (tableUuid: string, sessionUuid: string) => {
+        setCategories(prevCategories => 
+            prevCategories.map((category: any) => ({
+                ...category,
+                tables: category.tables.map((table: any) => 
+                    table.uuid === tableUuid 
+                        ? {
+                            ...table,
+                            tableSessions: table.tableSessions.filter((session: any) => 
+                                session.uuid !== sessionUuid
+                            )
+                        }
+                        : table
+                )
+            }))
+        );
+    };
+
     /**
     * Tournaments
     * */
@@ -161,7 +179,7 @@ function Dashboard() {
     };
 
     return (
-        <TableSessionProvider updateTableSession={updateTableSession} addTableSession={addTableSession} rechargeTableSession={rechargeTableSession}>
+        <TableSessionProvider updateTableSession={updateTableSession} addTableSession={addTableSession} rechargeTableSession={rechargeTableSession} removeTableSession={removeTableSession}>
             <Fragment>
                 <BookSession
                     open={bookSessionDialog}

@@ -9,6 +9,7 @@ import { TableSessionStatus } from '../pages/table/types.ts';
 import { TableSession, Table, CategoryPrice } from '../pages/dashboard/types';
 import { CompanyContext } from '../hooks/CompanyContext';
 import { useTableSession } from '../hooks/TableSessionContext';
+import { MarkCompleted } from '../services/table.session.service';
 
 interface TableCardProps {
     table: Table;
@@ -21,7 +22,7 @@ export function TableCard({ table, categoryPrices, onUpdate }: TableCardProps) {
     const companyUuid = companyContext.companyUuid
     const { successToast, errorToast } = useToast();
     const { openBookingDialog, openRechargeDialog } = useBooking();
-    const { updateTableSession } = useTableSession();
+    const { updateTableSession, removeTableSession } = useTableSession();
     const [isLoading, setIsLoading] = useState(false);
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
     const activeSession: TableSession | null = table.tableSessions?.length > 0 ? first(table.tableSessions) || null : null;
@@ -89,17 +90,37 @@ export function TableCard({ table, categoryPrices, onUpdate }: TableCardProps) {
     const handleStop = async () => {
         if (!activeSession) return;
         setIsLoading(true);
-        try {
-            await StopTableSession({ tableSessionId: activeSession.uuid });
-            successToast('Table session stopped');
-            onUpdate();
-        } catch (error) {
-            errorToast('Failed to stop table session');
-        } finally {
-            setIsLoading(false);
-        }
+            StopTableSession({ tableSessionId: activeSession.uuid }).then((res:any) => {
+                if(res.status) {
+                    successToast('Table session stopped');
+                    updateTableSession(table.uuid, res.data);
+                } else {
+                    errorToast(res.errorMessage || 'Failed to stop table session');
+                }
+            }).catch((error:any) => {
+                console.log(error)  
+                errorToast('Failed to stop table session');
+            }).finally(() => {
+                setIsLoading(false);
+        });
     };
 
+    const handleComplete = async (tableSessionUuid:string) => {
+        setIsLoading(true);
+        MarkCompleted({ tableSessionUuid: tableSessionUuid }).then((res:any) => {
+            if(res.status) {
+                successToast('Session marked completed!');
+                removeTableSession(table.uuid, tableSessionUuid);
+            } else {
+                errorToast(res.errorMessage || 'Failed to mark session completed');
+            }
+        }).catch((error:any) => {
+            console.log(error)
+            errorToast('Failed to mark session completed');
+        }).finally(() => {
+            setIsLoading(false);
+        });
+    };
 
     return (
         <Card sx={{ minWidth: 200 }}>
@@ -139,7 +160,7 @@ export function TableCard({ table, categoryPrices, onUpdate }: TableCardProps) {
                         <Button variant="contained" color="success" size="small" startIcon={<Play size={16} />} onClick={() => startSession(activeSession.uuid)} disabled={isLoading} fullWidth>Start</Button>
                     ) : activeSession && elapsedTime !== '00:00:00' ? (
                         <Button variant="contained" color="error" size="small" startIcon={<Square size={16} />} onClick={handleStop} disabled={isLoading} fullWidth>Stop</Button>
-                    ) : <Button variant="contained" color="success" size="small" startIcon={<CircleCheckBig size={16} />} onClick={handleStop} disabled={isLoading} fullWidth>Mark Completed</Button>}
+                    ) : <Button variant="contained" color="success" size="small" startIcon={<CircleCheckBig size={16} />} onClick={() => handleComplete(activeSession.uuid)} disabled={isLoading} fullWidth>Mark Completed</Button>}
                 </Box>
             </CardContent>
         </Card>

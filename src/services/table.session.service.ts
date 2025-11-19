@@ -113,3 +113,27 @@ export const RechargeTableSession = async (input: RechargeTableSessionInput): Pr
     const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
     return response?.data?.rechargeTableSession || emptyMutationResponse;
 };
+
+export const MarkCompleted = async (input: any): Promise<any> => {
+    const query = `
+        mutation MarkCompleted($input: MarkCompletedInput!) {
+            markCompleted(input: $input) {
+                data {
+                    uuid
+                    startTime
+                    status
+                }
+                errors
+                status
+                errorMessage
+            }
+        }
+    `;
+
+    const variables = {
+        input
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    return response?.data?.markCompleted || emptyMutationResponse;
+};
