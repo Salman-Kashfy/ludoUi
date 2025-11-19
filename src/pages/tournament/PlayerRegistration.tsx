@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback, useContext, Fragment } from "react";
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, CircularProgress, IconButton, Autocomplete, Table, TableBody, TableRow, TableCell } from "@mui/material";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Box, Typography, CircularProgress, IconButton, Autocomplete, Table, TableBody, TableRow, TableCell, Select, InputLabel, MenuItem, FormHelperText, FormControl } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { Plus } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { PlayerRegistrationBill } from "../../services/tournament.service";
+import { PlayerRegistrationBill, PlayerRegistration as PlayerRegistrationMutation } from "../../services/tournament.service";
 import { GetCustomers } from "../../services/customer.service";
 import { useToast } from "../../utils/toast";
 import { CompanyContext } from "../../hooks/CompanyContext";
 import FormInput from "../../components/FormInput";
 import { debounce } from "@mui/material/utils";
+import { PAYMENT_METHOD } from "../../utils/constants";
 
 interface PlayerRegistrationProps {
     open: boolean;
@@ -19,16 +20,18 @@ interface PlayerRegistrationProps {
         date: string;
         startTime: string;
     };
+    onSuccess?: (playerCount: number) => void;
 }
 
-export default function PlayerRegistration({ open, onClose, tournament }: PlayerRegistrationProps) {
+export default function PlayerRegistration({ open, onClose, tournament, onSuccess }: PlayerRegistrationProps) {
     const theme = useTheme();
-    const { errorToast } = useToast();
+    const { successToast, errorToast } = useToast();
     const companyContext: any = useContext(CompanyContext);
     const companyUuid = companyContext.companyUuid;
     
     const defaultValues = {
         customerUuid: '',
+        paymentMethod: '',
     };
     
     const { control, handleSubmit, watch, setValue, reset } = useForm({
@@ -37,8 +40,10 @@ export default function PlayerRegistration({ open, onClose, tournament }: Player
     });
     
     const customerUuid = watch('customerUuid');
+    const paymentMethod = watch('paymentMethod');
     
     const [loading, setLoading] = useState(false);
+    const [registrationLoader, setRegistrationLoader] = useState(false);
     const [billingData, setBillingData] = useState<any>(null);
     const [errorMessage, setErrorMessage] = useState<string>('');
     
@@ -132,10 +137,34 @@ export default function PlayerRegistration({ open, onClose, tournament }: Player
         console.log('Add customer clicked');
     };
 
-    const onSubmit = async (data: any) => {
-        // Registration logic can be added here later
-        // For now, just close the modal or show success message
-        console.log('Form data:', data);
+    const onSubmit = async () => {
+        setRegistrationLoader(true);
+        const input = {
+            customerUuid: customerId.value,
+            tournamentUuid: tournament.uuid,
+            paymentMethod: {
+                name: null,
+                paymentScheme: paymentMethod,
+            },
+        };
+        
+        try {
+            const response = await PlayerRegistrationMutation(input);
+            if (response.status) {
+                successToast('Player registered successfully');
+                if (onSuccess && response.data?.playerCount !== undefined) {
+                    onSuccess(response.data.playerCount);
+                }
+                handleClose();
+            } else {
+                errorToast(response.errorMessage || 'Failed to register player');
+            }
+        } catch (error: any) {
+            console.log(error.message);
+            errorToast('Failed to register player');
+        } finally {
+            setRegistrationLoader(false);
+        }
     };
 
     const handleClose = () => {
@@ -267,10 +296,34 @@ export default function PlayerRegistration({ open, onClose, tournament }: Player
                             <CircularProgress size={24} />
                         </Box>
                     ) : null}
+                    
+                    {billingData && customerUuid && (
+                        <Box sx={{mt: 2}}>
+                            <Controller name="paymentMethod" control={control}
+                                rules={{
+                                    required: {
+                                        value: true,
+                                        message: "Payment method is required"
+                                    },
+                                }}
+                                render={({field, fieldState: {error}}) => (
+                                    <FormControl variant={'standard'} fullWidth={true} error={!!error}>
+                                        <InputLabel>Payment method</InputLabel>
+                                        <Select label="Payment method" {...field} value={field.value || ''} error={!!error}>
+                                            {Object.keys(PAYMENT_METHOD).map((key:string) => {
+                                                return (<MenuItem value={key} key={key}>{PAYMENT_METHOD[key as keyof typeof PAYMENT_METHOD]}</MenuItem>)
+                                            })}
+                                        </Select>
+                                        {error && <FormHelperText sx={{ml: 0}}>{error.message}</FormHelperText>}
+                                    </FormControl>
+                                )}
+                            />
+                        </Box>
+                    )}
                 </DialogContent>
                 <DialogActions sx={{p: 2}}>
-                    <Button onClick={handleClose} color="error">Cancel</Button>
-                    <Button type="submit" variant="contained" disabled={loading || !customerUuid || !!errorMessage}>
+                    <Button onClick={handleClose} color="error" disabled={registrationLoader}>Cancel</Button>
+                    <Button type="submit" variant="contained" disabled={loading || registrationLoader || !customerUuid || !!errorMessage || !paymentMethod}>
                         Register
                     </Button>
                 </DialogActions>
