@@ -15,9 +15,10 @@ interface TableCardProps {
     table: Table;
     categoryPrices: CategoryPrice[];
     onUpdate: () => void;
+    onComplete?: () => void;
 }
 
-export function TableCard({ table, categoryPrices, onUpdate }: TableCardProps) {
+export function TableCard({ table, categoryPrices, onUpdate, onComplete }: TableCardProps) {
     const companyContext:any = useContext(CompanyContext)
     const companyUuid = companyContext.companyUuid
     const { successToast, errorToast } = useToast();
@@ -111,6 +112,9 @@ export function TableCard({ table, categoryPrices, onUpdate }: TableCardProps) {
             if(res.status) {
                 successToast('Session marked completed!');
                 removeTableSession(table.uuid, tableSessionUuid);
+                if (onComplete) {
+                    onComplete();
+                }
             } else {
                 errorToast(res.errorMessage || 'Failed to mark session completed');
             }

@@ -229,6 +229,7 @@ function Dashboard() {
                                     key={category.uuid} 
                                     category={category}
                                     onUpdate={loadCategories}
+                                    onComplete={loadDashboardStats}
                                 />
                             ))
                         )}
