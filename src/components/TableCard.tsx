@@ -9,21 +9,21 @@ import { TableSessionStatus } from '../pages/table/types.ts';
 import { TableSession, Table, CategoryPrice } from '../pages/dashboard/types';
 import { CompanyContext } from '../hooks/CompanyContext';
 import { useTableSession } from '../hooks/TableSessionContext';
+import { useDashboard } from '../hooks/DashboardContext';
 import { MarkCompleted } from '../services/table.session.service';
 
 interface TableCardProps {
     table: Table;
     categoryPrices: CategoryPrice[];
-    onUpdate: () => void;
-    onComplete?: () => void;
 }
 
-export function TableCard({ table, categoryPrices, onUpdate, onComplete }: TableCardProps) {
+export function TableCard({ table, categoryPrices }: TableCardProps) {
     const companyContext:any = useContext(CompanyContext)
     const companyUuid = companyContext.companyUuid
     const { successToast, errorToast } = useToast();
     const { openBookingDialog, openRechargeDialog } = useBooking();
     const { updateTableSession, removeTableSession } = useTableSession();
+    const { loadDashboardStats } = useDashboard();
     const [isLoading, setIsLoading] = useState(false);
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
     const activeSession: TableSession | null = table.tableSessions?.length > 0 ? first(table.tableSessions) || null : null;
@@ -112,9 +112,7 @@ export function TableCard({ table, categoryPrices, onUpdate, onComplete }: Table
             if(res.status) {
                 successToast('Session marked completed!');
                 removeTableSession(table.uuid, tableSessionUuid);
-                if (onComplete) {
-                    onComplete();
-                }
+                loadDashboardStats();
             } else {
                 errorToast(res.errorMessage || 'Failed to mark session completed');
             }

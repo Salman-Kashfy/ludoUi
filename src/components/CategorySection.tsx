@@ -5,10 +5,9 @@ import { Category } from '../pages/dashboard/types';
 interface CategorySectionProps {
     category: Category;
     onUpdate: () => void;
-    onComplete?: () => void;
 }
 
-export function CategorySection({ category, onUpdate, onComplete }: CategorySectionProps) {
+export function CategorySection({ category, onUpdate }: CategorySectionProps) {
     return (
         <Box sx={{ mb: 4 }}>
             <Typography variant="subtitle1" sx={{ fontWeight: 500, mb:2 }} gutterBottom>
@@ -21,8 +20,6 @@ export function CategorySection({ category, onUpdate, onComplete }: CategorySect
                         <TableCard 
                             table={table} 
                             categoryPrices={category.categoryPrices || []}
-                            onUpdate={onUpdate}
-                            onComplete={onComplete}
                         />
                     </Grid>
                 ))}

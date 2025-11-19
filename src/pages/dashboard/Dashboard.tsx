@@ -14,6 +14,7 @@ import { CategorySection } from '../../components/CategorySection';
 import BookSession from '../table/BookSession';
 import RechargeSession from '../table/RechargeSession';
 import { TableSessionProvider } from '../../hooks/TableSessionContext';
+import { DashboardProvider } from '../../hooks/DashboardContext';
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import { GetTournaments } from "../../services/tournament.service"
@@ -179,8 +180,9 @@ function Dashboard() {
     };
 
     return (
-        <TableSessionProvider updateTableSession={updateTableSession} addTableSession={addTableSession} rechargeTableSession={rechargeTableSession} removeTableSession={removeTableSession}>
-            <Fragment>
+        <DashboardProvider loadDashboardStats={loadDashboardStats}>
+            <TableSessionProvider updateTableSession={updateTableSession} addTableSession={addTableSession} rechargeTableSession={rechargeTableSession} removeTableSession={removeTableSession}>
+                <Fragment>
                 <BookSession
                     open={bookSessionDialog}
                     tableUuid={tableUuid}
@@ -229,7 +231,6 @@ function Dashboard() {
                                     key={category.uuid} 
                                     category={category}
                                     onUpdate={loadCategories}
-                                    onComplete={loadDashboardStats}
                                 />
                             ))
                         )}
@@ -252,8 +253,9 @@ function Dashboard() {
                         )}
                     </Box>
                 </Box>
-            </Fragment>
-        </TableSessionProvider>
+                </Fragment>
+            </TableSessionProvider>
+        </DashboardProvider>
     )
 }
 
