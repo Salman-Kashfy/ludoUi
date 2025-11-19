@@ -1,6 +1,6 @@
 import { useState, useEffect, useContext, Fragment } from 'react';
 import { Card, CardContent, Typography, Button, Box, Chip, IconButton } from '@mui/material';
-import { Play, Square, Zap } from 'lucide-react';
+import { Play, Square, Zap, CircleCheckBig } from 'lucide-react';
 import { StartTableSession, StopTableSession } from '../services/table.session.service';
 import { useToast } from '../utils/toast.tsx';
 import { useBooking } from '../hooks/BookingContext';
@@ -137,9 +137,9 @@ export function TableCard({ table, categoryPrices, onUpdate }: TableCardProps) {
                         <Button variant="contained" color="primary" size="small" onClick={() => openBookingDialog(table.uuid, categoryPrices)} disabled={isLoading} fullWidth>Book</Button>
                     ) : activeSession.status === TableSessionStatus.BOOKED ? (
                         <Button variant="contained" color="success" size="small" startIcon={<Play size={16} />} onClick={() => startSession(activeSession.uuid)} disabled={isLoading} fullWidth>Start</Button>
-                    ) : activeSession ? (
+                    ) : activeSession && elapsedTime !== '00:00:00' ? (
                         <Button variant="contained" color="error" size="small" startIcon={<Square size={16} />} onClick={handleStop} disabled={isLoading} fullWidth>Stop</Button>
-                    ) : null}
+                    ) : <Button variant="contained" color="success" size="small" startIcon={<CircleCheckBig size={16} />} onClick={handleStop} disabled={isLoading} fullWidth>Mark Completed</Button>}
                 </Box>
             </CardContent>
         </Card>

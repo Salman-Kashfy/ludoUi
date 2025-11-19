@@ -95,3 +95,26 @@ export const DeleteTable = async (uuid:string): Promise<any> => {
     return response?.data?.deleteTable || emptyMutationResponse
 }
 
+export const MarkCompleted = async (input: any): Promise<any> => {
+    const query = `
+        mutation MarkCompleted($input: MarkCompletedInput!) {
+            markCompleted(input: $input) {
+                data {
+                    uuid
+                    customerId
+                }
+                errors
+                status
+                errorMessage
+            }
+        }
+    `;
+
+    const variables = {
+        input
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    return response?.data?.markCompleted || emptyMutationResponse;
+};
+
