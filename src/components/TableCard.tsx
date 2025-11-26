@@ -91,10 +91,11 @@ export function TableCard({ table, categoryPrices }: TableCardProps) {
     const handleStop = async () => {
         if (!activeSession) return;
         setIsLoading(true);
-            StopTableSession({ tableSessionId: activeSession.uuid }).then((res:any) => {
+            StopTableSession({ tableSessionUuid: activeSession.uuid }).then((res:any) => {
                 if(res.status) {
                     successToast('Table session stopped');
-                    updateTableSession(table.uuid, res.data);
+                    removeTableSession(table.uuid, activeSession.uuid);
+                    loadDashboardStats();
                 } else {
                     errorToast(res.errorMessage || 'Failed to stop table session');
                 }
