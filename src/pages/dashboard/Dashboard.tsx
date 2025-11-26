@@ -164,6 +164,7 @@ function Dashboard() {
                     startTime: e.startTime,
                     entryFee: e.entryFee,
                     prizePool: e.prizePool,
+                    totalRounds: e.totalRounds,
                     category: e.category,
                     currencyName: e.currencyName,
                     playerLimit: e.playerLimit,

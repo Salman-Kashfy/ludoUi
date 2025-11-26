@@ -16,6 +16,7 @@ interface DashboardTournamentProps {
         startTime: string;
         entryFee: number;
         prizePool: number;
+        totalRounds: number;
         currencyName?: string;
         playerLimit: number;
         playerCount: number;
@@ -90,7 +91,7 @@ export default function DashboardTournament({ tournament, onPlayerRegistered }: 
                     </Tooltip>
                 </Box>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{xs:12, sm:3}}>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontSize: '0.7rem' }}>
                             Date
                         </Typography>
@@ -98,7 +99,7 @@ export default function DashboardTournament({ tournament, onPlayerRegistered }: 
                             {formattedDate}
                         </Typography>
                     </Grid>
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{xs:12, sm:3}}>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontSize: '0.7rem' }}>
                             Time
                         </Typography>
@@ -106,12 +107,20 @@ export default function DashboardTournament({ tournament, onPlayerRegistered }: 
                             {formattedTime}
                         </Typography>
                     </Grid>
-                    <Grid item xs={12} sm={4}>
+                    <Grid size={{xs:12, sm:3}}>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontSize: '0.7rem' }}>
                             Prize Pool
                         </Typography>
                         <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.85rem', color: 'success.main' }}>
                             {currency} {tournament.prizePool?.toLocaleString() || '0'}
+                        </Typography>
+                    </Grid>
+                    <Grid size={{xs:12, sm:3}}>
+                        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontSize: '0.7rem' }}>
+                            Total Rounds
+                        </Typography>
+                        <Typography variant="body2" sx={{ fontWeight: 600, fontSize: '0.85rem', color: 'success.main' }}>
+                            {tournament.totalRounds || '0'}
                         </Typography>
                     </Grid>
                 </Grid>
