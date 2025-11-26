@@ -178,6 +178,16 @@ function Dashboard() {
         });
     };
 
+    const updateTournamentPlayerCount = (tournamentUuid: string, playerCount: number) => {
+        setTournaments(prevTournaments =>
+            prevTournaments.map((tournament: any) =>
+                tournament.uuid === tournamentUuid
+                    ? { ...tournament, playerCount }
+                    : tournament
+            )
+        );
+    };
+
     return (
         <DashboardProvider loadDashboardStats={loadDashboardStats}>
             <TableSessionProvider updateTableSession={updateTableSession} addTableSession={addTableSession} rechargeTableSession={rechargeTableSession} removeTableSession={removeTableSession}>
@@ -256,7 +266,10 @@ function Dashboard() {
                             >
                                 {tournaments.map((tournament: any) => (
                                     <Box key={tournament.id || tournament.uuid}>
-                                        <DashboardTournament tournament={tournament}/>
+                                        <DashboardTournament 
+                                            tournament={tournament}
+                                            onPlayerRegistered={updateTournamentPlayerCount}
+                                        />
                                     </Box>
                                 ))}
                             </Box>
