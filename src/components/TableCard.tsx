@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, Fragment } from 'react';
+import { useState, useEffect, useContext, Fragment, useRef } from 'react';
 import { Card, CardContent, Typography, Button, Box, Chip, IconButton } from '@mui/material';
 import { Play, Square, Zap, CircleCheckBig } from 'lucide-react';
 import { StartTableSession, StopTableSession } from '../services/table.session.service';
@@ -26,50 +26,69 @@ export function TableCard({ table, categoryPrices }: TableCardProps) {
     const { loadDashboardStats } = useDashboard();
     const [isLoading, setIsLoading] = useState(false);
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
+    const [timeElapsed, setTimeElapsed] = useState(false);
+    const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const activeSession: TableSession | null = table.tableSessions?.length > 0 ? first(table.tableSessions) || null : null;
 
     useEffect(() => {
-        let interval: ReturnType<typeof setInterval> | null = null;
+        // Clear any existing interval
+        if (intervalRef.current) {
+            clearInterval(intervalRef.current);
+            intervalRef.current = null;
+        }
       
         if (activeSession?.status === TableSessionStatus.ACTIVE && activeSession.startTime) {
-          interval = setInterval(() => {
-            // Convert both to UTC timestamps
+            // Initialize elapsed state based on server UTC time
             const startTimeUTC = new Date(activeSession.startTime).getTime();
             const currentTimeUTC = Date.now();
-      
-            // Calculate difference (future = positive, past = negative)
-            const diff = startTimeUTC - currentTimeUTC;
-      
-            if (diff <= 0) {
-              // Start time reached or passed → stop at 00:00:00
-              setElapsedTime('00:00:00');
-              if (interval) {
-                clearInterval(interval);
-                interval = null;
-              }
+            const initialElapsed = startTimeUTC <= currentTimeUTC;
+            setTimeElapsed(initialElapsed);
+
+            if (!initialElapsed) {
+                intervalRef.current = setInterval(() => {
+                    // Convert both to UTC timestamps
+                    const startTimeUTC = new Date(activeSession.startTime).getTime();
+                    const currentTimeUTC = Date.now();
+            
+                    // Calculate difference (future = positive, past = negative)
+                    const diff = startTimeUTC - currentTimeUTC;
+            
+                    if (diff <= 0) {
+                        // Start time reached or passed → stop at 00:00:00
+                        setElapsedTime('00:00:00');
+                        setTimeElapsed(true);
+                        if (intervalRef.current) {
+                            clearInterval(intervalRef.current);
+                            intervalRef.current = null;
+                        }
+                    } else {
+                        // Convert diff (ms) → hours/mins/secs
+                        const hours = Math.floor(diff / 3600000);
+                        const minutes = Math.floor((diff % 3600000) / 60000);
+                        const seconds = Math.floor((diff % 60000) / 1000);
+            
+                        setElapsedTime(
+                            `${hours.toString().padStart(2, '0')}:${minutes
+                                .toString()
+                                .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+                        );
+                    }
+                }, 1000);
             } else {
-              // Convert diff (ms) → hours/mins/secs
-              const hours = Math.floor(diff / 3600000);
-              const minutes = Math.floor((diff % 3600000) / 60000);
-              const seconds = Math.floor((diff % 60000) / 1000);
-      
-              setElapsedTime(
-                `${hours.toString().padStart(2, '0')}:${minutes
-                  .toString()
-                  .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-              );
+                setElapsedTime('00:00:00');
             }
-          }, 1000);
         } else {
-          setElapsedTime('00:00:00');
+            setElapsedTime('00:00:00');
+            setTimeElapsed(false);
         }
       
         return () => {
-          if (interval) {
-            clearInterval(interval);
-          }
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+                intervalRef.current = null;
+            }
         };
-      }, [activeSession]);      
+    }, [activeSession]);      
 
     const startSession = async (tableSessionUuid: string) => {
         setIsLoading(true);
@@ -146,7 +165,7 @@ export function TableCard({ table, categoryPrices }: TableCardProps) {
                         <IconButton 
                             size="small" 
                             onClick={() => openRechargeDialog(table.uuid, activeSession.uuid, categoryPrices)}
-                            disabled={!activeSession || isLoading || elapsedTime === '00:00:00'}
+                            disabled={!activeSession || isLoading || timeElapsed}
                             color="warning"
                             title="Recharge Session"
                         >
@@ -162,7 +181,7 @@ export function TableCard({ table, categoryPrices }: TableCardProps) {
                         <Button variant="contained" color="primary" size="small" onClick={() => openBookingDialog(table.uuid, categoryPrices)} disabled={isLoading} fullWidth>Book</Button>
                     ) : activeSession.status === TableSessionStatus.BOOKED ? (
                         <Button variant="contained" color="success" size="small" startIcon={<Play size={16} />} onClick={() => startSession(activeSession.uuid)} disabled={isLoading} fullWidth>Start</Button>
-                    ) : activeSession && elapsedTime !== '00:00:00' ? (
+                    ) : activeSession && !timeElapsed ? (
                         <Button variant="contained" color="error" size="small" startIcon={<Square size={16} />} onClick={handleStop} disabled={isLoading} fullWidth>Stop</Button>
                     ) : <Button variant="contained" color="success" size="small" startIcon={<CircleCheckBig size={16} />} onClick={() => handleComplete(activeSession.uuid)} disabled={isLoading} fullWidth>Mark Completed</Button>}
                 </Box>
