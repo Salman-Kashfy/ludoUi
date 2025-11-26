@@ -25,9 +25,10 @@ interface DashboardTournamentProps {
             name: string;
         };
     };
+    onPlayerRegistered?: (tournamentUuid: string, playerCount: number) => void;
 }
 
-export default function DashboardTournament({ tournament }: DashboardTournamentProps) {
+export default function DashboardTournament({ tournament, onPlayerRegistered }: DashboardTournamentProps) {
     const theme = useTheme();
     const [tourRegModal, setTourRegModal] = useState(false);
     const [regPlayerModal, setRegPlayerModal] = useState(false);
@@ -147,6 +148,11 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                     name: tournament.name,
                     date: tournament.date,
                     startTime: tournament.startTime
+                }}
+                onSuccess={(playerCount: number) => {
+                    if (onPlayerRegistered && tournament.uuid) {
+                        onPlayerRegistered(tournament.uuid, playerCount);
+                    }
                 }}
             />
             <TournamentPlayers 
