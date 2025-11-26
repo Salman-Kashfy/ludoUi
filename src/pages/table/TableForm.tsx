@@ -1,6 +1,7 @@
 import { Fragment } from "react/jsx-runtime";
 import { useEffect, useContext, useState } from "react";
-import { Button, Grid, Box, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+import { Button, Box, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+import Grid from '@mui/material/Grid';
 import { Controller, useForm } from "react-hook-form";
 import FormInput from "../../components/FormInput";
 import { isEmpty } from "lodash";
@@ -67,7 +68,7 @@ function TableForm({record, formLoader, callback, loader}:{record:any, formLoade
         <Fragment>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Grid container spacing={3} sx={{mb:3}}>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <Controller name="name" control={control}
                             rules={{
                                 required: {
@@ -84,7 +85,7 @@ function TableForm({record, formLoader, callback, loader}:{record:any, formLoade
                             )}
                         />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <Controller
                             name="categoryUuid"
                             control={control}
@@ -113,7 +114,7 @@ function TableForm({record, formLoader, callback, loader}:{record:any, formLoade
                             )}
                         />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <Controller name="sortNo" control={control}
                             rules={{
                                 required: {

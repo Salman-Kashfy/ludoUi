@@ -1,4 +1,3 @@
-import {useEffect} from 'react'
 import crmLogo from "../assets/cloudfitnest.png";
 import crmIcon from "../assets/cloudfitnest-icon.png";
 import Divider from "@mui/material/Divider";
@@ -10,7 +9,7 @@ import ListItemText from "@mui/material/ListItemText";
 import {CSSObject, styled, Theme} from "@mui/material/styles";
 import {AppBarProps as MuiAppBarProps} from "@mui/material/AppBar/AppBar";
 import MuiDrawer from "@mui/material/Drawer";
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import DonutLargeIcon from '@mui/icons-material/DonutLarge';
 import Tooltip from '@mui/material/Tooltip';
 import {ROUTES,PERMISSIONS} from "../utils/constants";
@@ -95,8 +94,15 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     }),
 );
 
-function SideBar({open, drawerWidth}) {
+interface SidebarProps {
+    open: boolean;
+    drawerWidth: number;
+    isMobile: boolean;
+}
+
+function SideBar({open, drawerWidth, isMobile}: SidebarProps) {
     const theme = useTheme()
+    const location = useLocation();
     const drawerPaperProps = {
         sx: {
             scrollbarWidth: 'none',
@@ -107,40 +113,50 @@ function SideBar({open, drawerWidth}) {
     const iconStyles = {color: theme.palette.mode === 'dark' ? '#00f5ff' : '#444', fontSize: '1.2rem'}
     const labelTypography = {fontSize: '0.875rem'}
     const listBtnStyles = {height: 36, px: 2.5}
+    const effectiveOpen = open;
+    const matchesRoute = (matcher: string) => location.pathname === matcher || location.pathname.startsWith(`${matcher}/`);
 
-    useEffect(() => {
+    if (isMobile) {
+        return null;
+    }
 
-    },[open, drawerWidth])
-
-    return (
-        <Drawer variant="permanent" open={open} PaperProps={drawerPaperProps}>
+    const drawerContent = (
+        <>
             <DrawerHeader sx={{justifyContent: 'center'}}>
-                <img src={open ? crmLogo : crmIcon} style={{ height: '25px', filter: theme.palette.mode === 'dark' ? 'invert(1)' : '' }}/>
+                <img src={effectiveOpen ? crmLogo : crmIcon} style={{ height: '25px', filter: theme.palette.mode === 'dark' ? 'invert(1)' : '' }}/>
             </DrawerHeader>
 
             <List>
                 {/*<Typography variant="subtitle2" sx={{color:grey[500], pl:1.5, fontSize: '12px'}}>MAIN</Typography>*/}
                 <ListItem key="dashboard" disablePadding sx={{ display: 'block', }}>
-                    <Tooltip title="Dashboard" placement={'right'} disableHoverListener={open} disableFocusListener={open}>
-                        <ListItemButton component={NavLink} to={ROUTES.DASHBOARD} sx={[listBtnStyles, open ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
-                            <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, open ? {mr: 2} : {mr: 'auto'}]}>
+                    <Tooltip title="Dashboard" placement={'right'} disableHoverListener={effectiveOpen} disableFocusListener={effectiveOpen}>
+                        <ListItemButton
+                            component={NavLink}
+                            to={ROUTES.DASHBOARD}
+                            selected={matchesRoute(ROUTES.DASHBOARD)}
+                            sx={[listBtnStyles, effectiveOpen ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
+                            <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, effectiveOpen ? {mr: 2} : {mr: 'auto'}]}>
                                 {/* <GridViewOutlinedIcon sx={iconStyles}/> */}
                                 <LayoutDashboard strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
                             </ListItemIcon>
-                            <ListItemText primary="Dashboard" sx={[open ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
+                            <ListItemText primary="Dashboard" sx={[effectiveOpen ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
                         </ListItemButton>
                     </Tooltip>
                 </ListItem>
                 { 
                 hasPermission(PERMISSIONS.CATEGORY.LIST) ?
                     <ListItem key="category" disablePadding sx={{ display: 'block', }}>
-                        <Tooltip title="Category" placement={'right'} disableHoverListener={open} disableFocusListener={open}>
-                            <ListItemButton component={NavLink} to={ROUTES.CATEGORY.LIST} sx={[listBtnStyles, open ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
-                                <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, open ? {mr: 2} : {mr: 'auto'}]}>
+                        <Tooltip title="Category" placement={'right'} disableHoverListener={effectiveOpen} disableFocusListener={effectiveOpen}>
+                            <ListItemButton
+                                component={NavLink}
+                                to={ROUTES.CATEGORY.LIST}
+                                selected={matchesRoute(ROUTES.CATEGORY.LIST) || matchesRoute('/category')}
+                                sx={[listBtnStyles, effectiveOpen ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
+                                <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, effectiveOpen ? {mr: 2} : {mr: 'auto'}]}>
                                     {/* <GridViewOutlinedIcon sx={iconStyles}/> */}
                                     <Shapes strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
                                 </ListItemIcon>
-                                <ListItemText primary="Category" sx={[open ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
+                                <ListItemText primary="Category" sx={[effectiveOpen ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
                             </ListItemButton>
                         </Tooltip>
                     </ListItem>
@@ -149,12 +165,16 @@ function SideBar({open, drawerWidth}) {
                 { 
                 hasPermission(PERMISSIONS.TABLE.LIST) ?
                     <ListItem key="table" disablePadding sx={{ display: 'block', }}>
-                        <Tooltip title="Table" placement={'right'} disableHoverListener={open} disableFocusListener={open}>
-                            <ListItemButton component={NavLink} to={ROUTES.TABLE.LIST} sx={[listBtnStyles, open ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
-                                <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, open ? {mr: 2} : {mr: 'auto'}]}>
+                        <Tooltip title="Table" placement={'right'} disableHoverListener={effectiveOpen} disableFocusListener={effectiveOpen}>
+                            <ListItemButton
+                                component={NavLink}
+                                to={ROUTES.TABLE.LIST}
+                                selected={matchesRoute(ROUTES.TABLE.LIST) || matchesRoute('/table')}
+                                sx={[listBtnStyles, effectiveOpen ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
+                                <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, effectiveOpen ? {mr: 2} : {mr: 'auto'}]}>
                                     <GalleryHorizontal strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
                                 </ListItemIcon>
-                                <ListItemText primary="Table" sx={[open ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
+                                <ListItemText primary="Table" sx={[effectiveOpen ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
                             </ListItemButton>
                         </Tooltip>
                     </ListItem>
@@ -163,18 +183,28 @@ function SideBar({open, drawerWidth}) {
                 { 
                 hasPermission(PERMISSIONS.TOURNAMENT.LIST) ?
                     <ListItem key="tournament" disablePadding sx={{ display: 'block', }}>
-                        <Tooltip title="Tournament" placement={'right'} disableHoverListener={open} disableFocusListener={open}>
-                            <ListItemButton component={NavLink} to={ROUTES.TOURNAMENT.LIST} sx={[listBtnStyles, open ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
-                                <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, open ? {mr: 2} : {mr: 'auto'}]}>
+                        <Tooltip title="Tournament" placement={'right'} disableHoverListener={effectiveOpen} disableFocusListener={effectiveOpen}>
+                            <ListItemButton
+                                component={NavLink}
+                                to={ROUTES.TOURNAMENT.LIST}
+                                selected={matchesRoute(ROUTES.TOURNAMENT.LIST) || matchesRoute('/tournament')}
+                                sx={[listBtnStyles, effectiveOpen ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
+                                <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, effectiveOpen ? {mr: 2} : {mr: 'auto'}]}>
                                     <Trophy strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
                                 </ListItemIcon>
-                                <ListItemText primary="Tournament" sx={[open ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
+                                <ListItemText primary="Tournament" sx={[effectiveOpen ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
                             </ListItemButton>
                         </Tooltip>
                     </ListItem>
                     : <></>
                 }
             </List>
+        </>
+    );
+
+    return (
+        <Drawer variant="permanent" open={open} PaperProps={drawerPaperProps} sx={{ display: { xs: 'none', md: 'block' } }}>
+            {drawerContent}
         </Drawer>
     )
 }

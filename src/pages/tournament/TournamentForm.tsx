@@ -1,6 +1,7 @@
 import { Fragment, useContext, useState } from "react";
 import { useEffect } from "react";
-import { Button, Grid, Box, FormHelperText, Autocomplete } from "@mui/material";
+import { Button, Box, FormHelperText, Autocomplete } from "@mui/material";
+import Grid from '@mui/material/Grid';
 import { Controller, useForm } from "react-hook-form";
 import FormInput from "../../components/FormInput";
 import { isEmpty } from "lodash";
@@ -99,7 +100,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
         <Fragment>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Grid container spacing={3} sx={{mb:3}}>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <Controller name="name" control={control}
                             rules={{
                                 required: {
@@ -116,7 +117,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <Controller
                             name="categoryUuid"
                             control={control}
@@ -151,7 +152,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <Controller name="date" control={control}
                             rules={{
                                 required: {
@@ -181,7 +182,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <Controller name="startTime" control={control}
                             rules={{
                                 required: {
@@ -210,7 +211,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <Controller name="entryFee" control={control}
                             rules={{
                                 required: {
@@ -227,7 +228,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <Controller name="prizePool" control={control}
                             rules={{
                                 required: {
@@ -244,7 +245,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <Controller name="playerLimit" control={control}
                             rules={{
                                 required: {

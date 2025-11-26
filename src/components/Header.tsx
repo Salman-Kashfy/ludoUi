@@ -2,22 +2,25 @@ import {useNavigate} from "react-router";
 import {Logout, EmptyLocalStorage, GetAuthCompany, SetAuthCompany} from '../services/auth/auth.service'
 import {UserContext} from '../hooks/UserContext';
 import {CompanyContext} from '../hooks/CompanyContext';
-import MuiAppBar from '@mui/material/AppBar';
-import {Paper, Divider, Toolbar, IconButton, ListItemIcon, Typography, Box, Menu, Tooltip, Avatar, MenuItem, Button, useTheme, Autocomplete, TextField} from '@mui/material';
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
+import {Paper, Divider, Toolbar, IconButton, ListItemIcon, Typography, Box, Menu, Tooltip, Avatar, MenuItem, Button, Autocomplete, TextField} from '@mui/material';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
 import { NavLink } from 'react-router-dom';
 import {useContext, useEffect, useState} from "react";
 import MenuIcon from "@mui/icons-material/Menu";
 import PowerSettingsNewOutlinedIcon from '@mui/icons-material/PowerSettingsNewOutlined';
 import {styled} from "@mui/material/styles";
-import LightModeOutlinedIcon from '@mui/icons-material/LightModeOutlined';
-import DarkModeIcon from '@mui/icons-material/DarkMode';
 import {PERMISSIONS, ROLE, ROUTES} from "../utils/constants";
 import {hasPermission} from "../utils/permissions";
 import { EllipsisVertical, Sun, MoonStar } from "lucide-react";
 import { GetCompanies } from "../services/company.service";
+import crmLogo from "../assets/cloudfitnest.png";
 
 const drawerWidth = 240
+
+interface AppBarProps extends MuiAppBarProps {
+    open?: boolean;
+}
 
 const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== 'open',
@@ -43,7 +46,7 @@ const AppBar = styled(MuiAppBar, {
 }));
 
 
-function Header({open, drawerWidth, handleDrawerOpen, isDarkMode, handleThemeChange}:any) {
+function Header({open, drawerWidth, handleDrawerOpen, isDarkMode, handleThemeChange, isMobile, mobileOpen}:any) {
     const userContext:any = useContext(UserContext)
     const companyContext:any = useContext(CompanyContext)
     const navigate = useNavigate()
@@ -121,15 +124,52 @@ function Header({open, drawerWidth, handleDrawerOpen, isDarkMode, handleThemeCha
         })
     }
 
+    const isDrawerOpen = isMobile ? mobileOpen : open;
+    const collapsedWidth = 65;
+    const desktopWidth = `calc(100% - ${isDrawerOpen ? drawerWidth : collapsedWidth}px)`;
+    const desktopMargin = `${isDrawerOpen ? drawerWidth : collapsedWidth}px`;
+
     return userContext?.user ? (
-        <AppBar position="fixed" open={open} elevation={0} sx={{ width: `calc(100% - ${ open ? drawerWidth : 65}px)`, ml: `${ open ? drawerWidth : 65}px`}}>
+        <AppBar
+            position="fixed"
+            open={!isMobile && open}
+            elevation={0}
+            sx={{
+                width: isMobile ? '100%' : desktopWidth,
+                ml: isMobile ? 0 : desktopMargin
+            }}
+        >
             <Toolbar>
-                <IconButton
-                    aria-label="open drawer"
-                    onClick={handleDrawerOpen}
-                    edge="start">
-                    { open ? <MenuIcon /> : <MenuOpenIcon /> }
-                </IconButton>
+                { !isMobile && (
+                    <IconButton
+                        aria-label="open drawer"
+                        onClick={handleDrawerOpen}
+                        edge="start">
+                        { isDrawerOpen ? <MenuOpenIcon /> : <MenuIcon /> }
+                    </IconButton>
+                )}
+                { isMobile && (
+                    <Box
+                    component={NavLink}
+                    to={ROUTES.DASHBOARD}
+                    sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        mr: 2,
+                        textDecoration: 'none'
+                    }}
+                >
+                    <img
+                        src={crmLogo}
+                        alt="Logo"
+                        style={{
+                            height: 26,
+                            filter: isDarkMode ? 'invert(1)' : 'none'
+                        }}
+                    />
+                </Box>
+                ) }
+                
                 <Box sx={{ flexGrow: 1, justifyContent:'center', display: { xs: 'none', md: 'flex' } }}>
                     {menus.map((menu) => (
                         <Button key={menu.name} size="small" sx={{ mx: 0.5, display: menu.permission ? (hasPermission(menu.permission) ? 'inline-flex' : 'none') : 'inline-flex' }} component={NavLink} to={menu.route}>{menu.name}</Button>

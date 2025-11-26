@@ -71,13 +71,18 @@ export const StartTableSession = async (input:StartTableSessionInput): Promise<a
     return response?.data?.startTableSession || emptyMutationResponse;
 };
 
-export const StopTableSession = async (input:StopTableSessionInput): Promise<any> => {
+export const StopTableSession = async (input:any): Promise<any> => {
     const query = `
-        mutation StopTableSession($params: StopTableSessionInput!) {
-            stopTableSession(params: $params) {
-                uuid
-                startTime
-                endTime
+        mutation StopTableSession($input: StopTableSessionInput!) {
+            stopTableSession(input: $input) {
+                data {
+                    uuid
+                    startTime
+                    endTime
+                }
+                status
+                errors
+                errorMessage
             }
         }
     `;
