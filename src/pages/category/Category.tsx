@@ -1,7 +1,7 @@
 import { Shapes } from "lucide-react"
 import { Fragment, useState, useEffect, useContext } from "react"
 import PageTitle from "../../components/PageTitle"
-import { Box, Chip, IconButton, Stack, Card, CardContent } from "@mui/material";
+import { Box, Chip, IconButton, Stack, Card, CardContent, Typography, CircularProgress } from "@mui/material";
 import { CompanyContext } from "../../hooks/CompanyContext"
 import { GetCategories } from "../../services/category.service"
 import { useToast } from "../../utils/toast"
@@ -10,12 +10,17 @@ import {Pencil} from 'lucide-react';
 import { NavLink } from "react-router-dom"
 import { PERMISSIONS, ROUTES } from "../../utils/constants"
 import { hasPermission } from "../../utils/permissions";
+import ResponsiveTableContainer from "../../components/ResponsiveTableContainer";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 function Category() {
     const companyContext:any = useContext(CompanyContext)
     const { errorToast } = useToast()
     const [loading, setLoading] = useState(true);
     const [categories, setCategories] = useState<any[]>([]);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const btn = {
         to: ROUTES.CATEGORY.CREATE,
         label: 'Add Category',
@@ -96,22 +101,88 @@ function Category() {
         loadCategories();
     }, [companyContext.companyUuid]);
     
+    const renderMobileList = () => {
+        if (loading) {
+            return (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                    <CircularProgress />
+                </Box>
+            );
+        }
+
+        if (!categories.length) {
+            return (
+                <Typography variant="body2" color="text.secondary" sx={{ px: 2, pb: 2 }}>
+                    No categories found.
+                </Typography>
+            );
+        }
+
+        return (
+            <Stack spacing={2} sx={{ p: 2 }}>
+                {categories.map((category) => (
+                    <Card key={category.id} variant="outlined">
+                        <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Box>
+                                    <Typography variant="subtitle1" fontWeight={600}>{category.name}</Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        {category.tableCount} table{category.tableCount === 1 ? '' : 's'}
+                                    </Typography>
+                                </Box>
+                                <IconButton
+                                    color="info"
+                                    size="small"
+                                    component={NavLink}
+                                    to={ROUTES.CATEGORY.EDIT(category.id)}
+                                >
+                                    <Pencil size={20} strokeWidth={1.5} />
+                                </IconButton>
+                            </Box>
+                            <Stack direction="row" flexWrap="wrap" gap={0.5}>
+                                {(category.categoryPrices || []).map((price: any, idx: number) => {
+                                    const label = `${price.duration}${price.unit.charAt(0)}${price.freeMins ? ` + ${price.freeMins}m free` : ''} • ${price.currencyName} ${price.price}`;
+                                    return (
+                                        <Chip
+                                            key={`${category.id}-${idx}`}
+                                            label={label}
+                                            size="small"
+                                            color="primary"
+                                            variant="outlined"
+                                        />
+                                    );
+                                })}
+                            </Stack>
+                        </CardContent>
+                    </Card>
+                ))}
+            </Stack>
+        );
+    };
+
     return (
         <Fragment>
             <PageTitle title="Category" titleIcon={<Shapes />} btn={btn} />
-            <Card>
-                <CardContent>   
-                    <Box sx={{p:2}}>
-                        <DataGrid
-                            rows={categories}
-                            columns={columns}
-                            loading={loading}
-                            sx={{ border: 0 }}
-                            hideFooter
-                        />
-                    </Box>
-                </CardContent>
-            </Card>
+            {isMobile ? (
+                renderMobileList()
+            ) : (
+                <Card>
+                    <CardContent>
+                        <ResponsiveTableContainer>
+                            <Box sx={{ p: 2 }}>
+                                <DataGrid
+                                    rows={categories}
+                                    columns={columns}
+                                    loading={loading}
+                                    sx={{ border: 0 }}
+                                    hideFooter
+                                    autoHeight
+                                />
+                            </Box>
+                        </ResponsiveTableContainer>
+                    </CardContent>
+                </Card>
+            )}
         </Fragment>
     )
 }

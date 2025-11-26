@@ -108,7 +108,7 @@ const RechargeSession = ({open, handleDialogClose, tableUuid, tableSessionUuid, 
                     <DialogTitle>Recharge Session</DialogTitle>
                     <DialogContent>
                         <Grid container spacing={2}>
-                            <Grid size={12}>
+                            <Grid item xs={12}>
                                 <Controller
                                     name="categoryPriceUuid"
                                     control={control}
@@ -208,7 +208,7 @@ const RechargeSession = ({open, handleDialogClose, tableUuid, tableSessionUuid, 
                             )}
                             
                             {billingLoader && (
-                                <Grid size={12}>
+                                <Grid item xs={12}>
                                     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                                         <CircularProgress size={30} />
                                     </Box>

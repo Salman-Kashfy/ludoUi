@@ -125,18 +125,19 @@ export function TableCard({ table, categoryPrices }: TableCardProps) {
     };
 
     return (
-        <Card sx={{ minWidth: 200 }}>
+        <Card sx={{ width: '100%' }}>
             <CardContent>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                    <Typography variant="subtitle1">{table.name}</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, gap: 1 }}>
+                    <Typography variant="subtitle1" sx={{ fontSize: { xs: '0.95rem', md: '1rem' } }}>{table.name}</Typography>
                     <Chip 
                         label={!activeSession ? 'available' : activeSession!.status} 
                         color={!activeSession ? 'default' : 'success'} 
-                        size="small" 
+                        size="small"
+                        sx={{ textTransform: 'capitalize', fontSize: '0.65rem', px: 0.5 }}
                     />
                 </Box>
                 
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: { xs: 1, md: 2 } }}>
                     <Typography variant="body2" color={activeSession ? "primary" : "text.secondary"} sx={{ fontFamily: 'monospace', minHeight: '20px' }}>
                         {activeSession ? elapsedTime : '00:00:00'}
                     </Typography>

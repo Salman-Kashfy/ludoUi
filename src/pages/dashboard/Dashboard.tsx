@@ -1,7 +1,6 @@
 import {Fragment, useContext, useEffect, useState, SyntheticEvent} from 'react'
 import PageTitle from "../../components/PageTitle";
 import {Box, CircularProgress} from '@mui/material';
-import Grid from '@mui/material/Grid';
 import {CompanyContext} from '../../hooks/CompanyContext';
 import {useBooking} from '../../hooks/BookingContext';
 import {useToast} from '../../utils/toast.tsx';
@@ -198,21 +197,24 @@ function Dashboard() {
                     handleDialogClose={closeRechargeDialog}
                 />
                 <PageTitle title="Dashboard" titleIcon={<LayoutDashboard />} />
-                <Box sx={{p:2}}>
-                    <Grid container spacing={2} sx={{mb:4}}>
-                        <Grid size={3}>
-                            <DashboardStat value={dashboardStats.availableTables} title={'Available Tables'} icon={<Gamepad2 color='#fff' strokeWidth={1.6} size={24} />} iconBg={'primary.main'} loading={statsLoader}/>
-                        </Grid>
-                        <Grid size={3}>
-                            <DashboardStat value={dashboardStats.occupiedTables} title={'Occupied Tables'} icon={<CircleOff color='#fff' strokeWidth={1.6} size={24} />} iconBg={'triadic.main'} loading={statsLoader}/>
-                        </Grid>
-                        <Grid size={3}>
-                            <DashboardStat value={dashboardStats.activeTournaments} title={'Active Tournaments'} icon={<Trophy color='#fff' strokeWidth={1.6} size={24} />} iconBg={'success.main'} loading={statsLoader}/>
-                        </Grid>
-                        <Grid size={3}>
-                            <DashboardStat value={dashboardStats.todaysRevenue} title={'Today\'s Revenue'} icon={<Landmark color='#fff' strokeWidth={1.6} size={24} />} iconBg={'warning.main'} loading={statsLoader}/>
-                        </Grid>
-                    </Grid>
+                <Box sx={{ p: { xs: 1.5, md: 2 } }}>
+                    <Box
+                        sx={{
+                            display: 'grid',
+                            gridTemplateColumns: {
+                                xs: 'repeat(2, minmax(0, 1fr))',
+                                sm: 'repeat(2, minmax(0, 1fr))',
+                                md: 'repeat(4, minmax(0, 1fr))'
+                            },
+                            gap: 2,
+                            mb: 4
+                        }}
+                    >
+                        <DashboardStat value={dashboardStats.availableTables} title={'Available Tables'} icon={<Gamepad2 color='#fff' strokeWidth={1.6} size={24} />} iconBg={'primary.main'} loading={statsLoader}/>
+                        <DashboardStat value={dashboardStats.occupiedTables} title={'Occupied Tables'} icon={<CircleOff color='#fff' strokeWidth={1.6} size={24} />} iconBg={'triadic.main'} loading={statsLoader}/>
+                        <DashboardStat value={dashboardStats.activeTournaments} title={'Active Tournaments'} icon={<Trophy color='#fff' strokeWidth={1.6} size={24} />} iconBg={'success.main'} loading={statsLoader}/>
+                        <DashboardStat value={dashboardStats.todaysRevenue} title={'Today\'s Revenue'} icon={<Landmark color='#fff' strokeWidth={1.6} size={24} />} iconBg={'warning.main'} loading={statsLoader}/>
+                    </Box>
 
                     <Box sx={{ width: '100%', bgcolor: 'background.paper' }}>
                         <Tabs value={tab} onChange={handleTab} centered>
@@ -241,14 +243,22 @@ function Dashboard() {
                                 <CircularProgress />
                             </Box>
                         ) : (
-                            <Box sx={{ mt: 4 }}>
-                                <Grid container spacing={2}>
-                                    {tournaments.map((tournament: any) => (
-                                        <Grid size={6} key={tournament.id || tournament.uuid}>
-                                            <DashboardTournament tournament={tournament}/>
-                                        </Grid>
-                                    ))}
-                                </Grid>
+                            <Box
+                                sx={{
+                                    mt: 4,
+                                    display: 'grid',
+                                    gap: 2,
+                                    gridTemplateColumns: {
+                                        xs: '1fr',
+                                        md: 'repeat(2, minmax(0, 1fr))'
+                                    }
+                                }}
+                            >
+                                {tournaments.map((tournament: any) => (
+                                    <Box key={tournament.id || tournament.uuid}>
+                                        <DashboardTournament tournament={tournament}/>
+                                    </Box>
+                                ))}
                             </Box>
                         )}
                     </Box>

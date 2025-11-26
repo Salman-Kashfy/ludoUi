@@ -5,8 +5,15 @@ import SkeletonLoader from "../../components/SkeletonLoader";
 
 function DashboardStat({title, value, icon, iconBg, loading}:{title: string, value: number, icon: React.ReactNode, iconBg: string, loading: boolean}) {
     const theme = useTheme()
-    const iconDimension = {width: '45px', height: '45px', borderRadius: '4px'}
-    const iconStyle = {...iconDimension, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: iconBg }
+    const iconDimension = {width: { xs: 32, md: 42 }, height: { xs: 32, md: 42 }, borderRadius: '8px'}
+    const iconStyle = {
+        ...iconDimension,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: iconBg,
+        flexShrink: 0
+    }
     const cardStyle = {backgroundColor: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#ffffff'}
     const skeletonStyles = {
         statValue: {width: '18px', height: '29px'},
@@ -14,12 +21,12 @@ function DashboardStat({title, value, icon, iconBg, loading}:{title: string, val
     }
     return (
         <Card sx={cardStyle}>
-            <CardContent sx={{ padding: 1.5, paddingBottom: '12px !important' }}>
-                <Box display="flex" justifyContent="flex-start" gap={2}>
+            <CardContent sx={{ padding: { xs: 1.25, md: 1.5 }, paddingBottom: '12px !important' }}>
+                <Box display="flex" justifyContent="flex-start" gap={{ xs: 1.25, md: 2 }} alignItems="center">
                     {
                         loading ? <SkeletonLoader params={iconDimension}/> : <Box sx={iconStyle}>{icon}</Box>
                     }
-                    <Box>
+                    <Box sx={{ minWidth: 0 }}>
                         { loading ?
                             <>
                                 <SkeletonLoader params={skeletonStyles.statValue} sx={{mb:1}}/>

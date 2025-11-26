@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Card, CardContent, Box, Typography, Grid, Chip, IconButton, Tooltip } from "@mui/material";
+import { Card, CardContent, Box, Typography, Chip, IconButton, Tooltip } from "@mui/material";
+import Grid from '@mui/material/Grid';
 import { Plus, Users } from "lucide-react";
 import dayjs from "dayjs";
 import { useTheme } from "@mui/material/styles";
@@ -88,7 +89,7 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                     </Tooltip>
                 </Box>
                 <Grid container spacing={2}>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={4}>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontSize: '0.7rem' }}>
                             Date
                         </Typography>
@@ -96,7 +97,7 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                             {formattedDate}
                         </Typography>
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={4}>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontSize: '0.7rem' }}>
                             Time
                         </Typography>
@@ -104,7 +105,7 @@ export default function DashboardTournament({ tournament }: DashboardTournamentP
                             {formattedTime}
                         </Typography>
                     </Grid>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={4}>
                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 0.5, fontSize: '0.7rem' }}>
                             Prize Pool
                         </Typography>

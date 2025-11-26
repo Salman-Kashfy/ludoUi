@@ -1,5 +1,6 @@
 import { Fragment } from "react/jsx-runtime";
-import { Button, Grid, Box, Accordion, AccordionSummary, AccordionDetails, Typography, IconButton, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+import { Button, Box, Accordion, AccordionSummary, AccordionDetails, Typography, IconButton, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+import Grid from '@mui/material/Grid';
 import { Controller, useForm, useFieldArray } from "react-hook-form";
 import FormInput from "../../components/FormInput";
 import { useEffect, useContext } from "react";
@@ -97,7 +98,7 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
         <Fragment>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Grid container spacing={3} sx={{mb:3}}>
-                    <Grid size={4}>
+                    <Grid item xs={12} sm={6} md={4}>
                         <Controller name="name" control={control}
                             rules={{
                                 required: {
@@ -173,7 +174,7 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
                                 </AccordionSummary>
                                 <AccordionDetails>
                                     <Grid container spacing={2}>
-                                        <Grid size={3}>
+                                        <Grid item xs={12} sm={6} lg={3}>
                                             <Controller
                                                 name={`categoryPrices.${index}.duration`}
                                                 control={control}
@@ -199,7 +200,7 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
                                                 )}
                                             />
                                         </Grid>
-                                        <Grid size={3}>
+                                        <Grid item xs={12} sm={6} lg={3}>
                                             <Controller
                                                 name={`categoryPrices.${index}.unit`}
                                                 control={control}
@@ -225,7 +226,7 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
                                                 )}
                                             />
                                         </Grid>
-                                        <Grid size={3}>
+                                        <Grid item xs={12} sm={6} lg={3}>
                                             <Controller
                                                 name={`categoryPrices.${index}.price`}
                                                 control={control}
@@ -251,7 +252,7 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
                                                 )}
                                             />
                                         </Grid>
-                                        <Grid size={3}>
+                                        <Grid item xs={12} sm={6} lg={3}>
                                             <Controller
                                                 name={`categoryPrices.${index}.freeMins`}
                                                 control={control}

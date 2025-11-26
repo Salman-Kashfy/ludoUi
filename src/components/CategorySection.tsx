@@ -1,4 +1,4 @@
-import { Typography, Box, Grid } from '@mui/material';
+import { Typography, Box } from '@mui/material';
 import { TableCard } from './TableCard';
 import { Category } from '../pages/dashboard/types';
 
@@ -14,16 +14,27 @@ export function CategorySection({ category, onUpdate }: CategorySectionProps) {
                 {category.name}
             </Typography>
             
-            <Grid container spacing={1}>
+            <Box
+                sx={{
+                    display: 'grid',
+                    gap: 2,
+                    gridTemplateColumns: {
+                        xs: 'repeat(2, minmax(0, 1fr))',
+                        sm: 'repeat(2, minmax(0, 1fr))',
+                        md: 'repeat(3, minmax(0, 1fr))',
+                        lg: 'repeat(4, minmax(0, 1fr))',
+                    }
+                }}
+            >
                 {category.tables.map((table) => (
-                    <Grid size={3} key={table.uuid}>
+                    <Box key={table.uuid}>
                         <TableCard 
                             table={table} 
                             categoryPrices={category.categoryPrices || []}
                         />
-                    </Grid>
+                    </Box>
                 ))}
-            </Grid>
+            </Box>
         </Box>
     );
 }

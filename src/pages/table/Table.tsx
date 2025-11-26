@@ -1,7 +1,7 @@
 import { GalleryHorizontal } from "lucide-react"
 import { Fragment, useState, useEffect, useContext } from "react"
 import PageTitle from "../../components/PageTitle"
-import { Box, IconButton, Card, CardContent } from "@mui/material";
+import { Box, IconButton, Card, CardContent, Typography, Stack, Divider, Chip, CircularProgress } from "@mui/material";
 import { CompanyContext } from "../../hooks/CompanyContext"
 import { GetTables, DeleteTable } from "../../services/table.service"
 import { useToast } from "../../utils/toast"
@@ -10,7 +10,10 @@ import {Pencil, Trash2} from 'lucide-react';
 import { NavLink } from "react-router-dom"
 import { PERMISSIONS, ROUTES } from "../../utils/constants"
 import { hasPermission } from "../../utils/permissions";
+import ResponsiveTableContainer from "../../components/ResponsiveTableContainer";
 import AppDialog from "../../components/AppDialog";
+import { useTheme } from "@mui/material/styles";
+import useMediaQuery from "@mui/material/useMediaQuery";
 
 function Table() {
     const companyContext:any = useContext(CompanyContext)
@@ -21,6 +24,8 @@ function Table() {
     const [deleteTableUuid, setDeleteTableUuid] = useState<string>('');
     const [deleteTableName, setDeleteTableName] = useState<string>('');
     const [deleteLoading, setDeleteLoading] = useState(false);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
     const btn = {
         to: ROUTES.TABLE.CREATE,
         label: 'Add Table',
@@ -120,23 +125,98 @@ function Table() {
             setDeleteTableName('');
         }
     };
+
+    const handleDeleteClick = (table: any) => {
+        setDeleteTableUuid(table.id);
+        setDeleteTableName(table.name);
+        setDeleteDialogOpen(true);
+    };
+
+    const renderMobileList = () => {
+        if (loading) {
+            return (
+                <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                    <CircularProgress />
+                </Box>
+            );
+        }
+
+        if (!tables.length) {
+            return (
+                <Typography variant="body2" color="text.secondary" sx={{ px: 2, pb: 2 }}>
+                    No tables found.
+                </Typography>
+            );
+        }
+
+        return (
+            <Stack spacing={2} sx={{ p: 2 }}>
+                {tables.map((table) => (
+                    <Card key={table.id} variant="outlined">
+                        <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Box>
+                                    <Typography variant="subtitle1" fontWeight={600}>{table.name}</Typography>
+                                    <Typography variant="caption" color="text.secondary">
+                                        Sort No: {table.sortNo ?? '-'}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{ display: 'flex', gap: 0.5 }}>
+                                    <IconButton color="info" size="small" component={NavLink} to={ROUTES.TABLE.EDIT(table.id)}>
+                                        <Pencil size={20} strokeWidth={1.5} />
+                                    </IconButton>
+                                    {hasPermission(PERMISSIONS.TABLE.DELETE) && (
+                                        <IconButton
+                                            color="error"
+                                            size="small"
+                                            onClick={() => handleDeleteClick(table)}
+                                        >
+                                            <Trash2 size={18} />
+                                        </IconButton>
+                                    )}
+                                </Box>
+                            </Box>
+                            <Divider />
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Typography variant="body2" color="text.secondary">
+                                    Category
+                                </Typography>
+                                {table.category ? (
+                                    <Chip label={table.category.name} size="small" color="primary" variant="outlined" />
+                                ) : (
+                                    <Typography variant="caption" color="text.secondary">-</Typography>
+                                )}
+                            </Box>
+                        </CardContent>
+                    </Card>
+                ))}
+            </Stack>
+        );
+    };
     
     return (
         <Fragment>
             <PageTitle title="Table" titleIcon={<GalleryHorizontal />} btn={btn} />
-            <Card>
-                <CardContent>   
-                    <Box sx={{p:2, width: '99%'}}>
-                        <DataGrid
-                            rows={tables}
-                            columns={columns}
-                            loading={loading}
-                            sx={{ border: 0 }}
-                            hideFooter
-                        />
-                    </Box>
-                </CardContent>
-            </Card>
+            {isMobile ? (
+                renderMobileList()
+            ) : (
+                <Card>
+                    <CardContent>
+                        <ResponsiveTableContainer>
+                            <Box sx={{ p: 2 }}>
+                                <DataGrid
+                                    rows={tables}
+                                    columns={columns}
+                                    loading={loading}
+                                    sx={{ border: 0 }}
+                                    hideFooter
+                                    autoHeight
+                                />
+                            </Box>
+                        </ResponsiveTableContainer>
+                    </CardContent>
+                </Card>
+            )}
             <AppDialog
                 open={deleteDialogOpen}
                 handleDialogClose={handleCloseDeleteDialog}

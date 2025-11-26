@@ -25,7 +25,7 @@ interface PageTitleProps {
 const PageTitle = ({ title, titleIcon, btn, backTo = '', input = ''}: PageTitleProps) => {
     const theme = useTheme()
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', p: 2, borderRadius: '6px 6px 0 0', backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : '#fff', borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#333' : '#e0e0e0'}` }}>
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2, justifyContent: 'space-between', p: 2, borderRadius: '6px 6px 0 0', backgroundColor: theme.palette.mode === 'dark' ? '#1e1e1e' : '#fff', borderBottom: `1px solid ${theme.palette.mode === 'dark' ? '#333' : '#e0e0e0'}` }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 {titleIcon && (
                     <Box sx={{ mr: 1, display: 'flex', alignItems: 'center' }}>
@@ -44,7 +44,7 @@ const PageTitle = ({ title, titleIcon, btn, backTo = '', input = ''}: PageTitleP
                     {title}
                 </Typography>
             </Box>
-            <Box>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
                 {(Array.isArray(btn) ? btn : btn ? [btn] : [])
                     .filter(button => button.show)
                     .map((button, index) => (
@@ -77,7 +77,7 @@ const PageTitle = ({ title, titleIcon, btn, backTo = '', input = ''}: PageTitleP
                                 to={button.to}
                                 startIcon={button.startIcon}
                                 onClick={button.onClick}
-                                sx={{ ml: 1 }}
+                                sx={{ ml: 0 }}
                             >
                                 {button.label}
                             </LoadingButton>

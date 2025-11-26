@@ -158,7 +158,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices, onBook
                     <DialogTitle>Book Session</DialogTitle>
                     <DialogContent>
                         <Grid container spacing={2}>
-                            <Grid size={12}>
+                            <Grid item xs={12}>
                                 <Controller
                                     name="categoryPriceUuid"
                                     control={control}
@@ -192,7 +192,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices, onBook
                                     )}
                                 />
                             </Grid>
-                            <Grid size={12}>
+                            <Grid item xs={12}>
                                 <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
                                     <Box sx={{ flex: 1 }}>
                                         <Controller name="customerUuid" control={control}
@@ -314,7 +314,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices, onBook
                             )}
                             
                             {billingLoader && (
-                                <Grid size={12}>
+                                <Grid item xs={12}>
                                     <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                                         <CircularProgress size={30} />
                                     </Box>
