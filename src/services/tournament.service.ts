@@ -23,6 +23,7 @@ export const GetTournaments = async (params: GetTournamentsInput, paging?: any):
                     currencyName
                     playerCount
                     playerLimit
+                    totalRounds
                     status
                     category {
                         uuid
@@ -62,6 +63,7 @@ export const GetTournament = async (uuid:string): Promise<any> => {
                     entryFee
                     prizePool
                     currencyName
+                    groupSize
                     playerCount
                     playerLimit
                     status

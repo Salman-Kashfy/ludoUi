@@ -1,6 +1,6 @@
 import { Fragment, useContext, useState } from "react";
 import { useEffect } from "react";
-import { Button, Box, FormHelperText, Autocomplete } from "@mui/material";
+import { Button, Box, FormHelperText, Autocomplete, RadioGroup, FormControlLabel, Radio, FormLabel, FormControl, Typography } from "@mui/material";
 import Grid from '@mui/material/Grid';
 import { Controller, useForm } from "react-hook-form";
 import FormInput from "../../components/FormInput";
@@ -10,13 +10,14 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import dayjs from "dayjs";
-import {decimalOnly, numberOnly} from "../../utils/validations";
+import {decimalOnly} from "../../utils/validations";
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { GetCategories } from "../../services/category.service";
 
 function TournamentForm({record = {}, formLoader, callback, loader}:{record:any, formLoader:boolean, callback: (data: any) => void, loader:boolean}) {
     const companyContext:any = useContext(CompanyContext)
     const [categories, setCategories] = useState<any[]>([]);
+    const [_totalRounds, setTotalRounds] = useState<number>(0);
     const [categoryValue, setCategoryValue] = useState<{label: string, value: string} | null>(null);
     
     const defaultValues = {
@@ -28,6 +29,8 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
         entryFee: '',
         prizePool: '',
         playerLimit: '',
+        groupSize: '',
+        totalRounds: 0,
     }
 
     const {control, handleSubmit, reset, watch, setValue} = useForm({
@@ -36,6 +39,9 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
     })
     
     const dateValue = watch('date');
+    const groupSize = watch('groupSize');
+    const playerLimit = watch('playerLimit');
+    const totalRounds = watch('totalRounds');
 
     useEffect(() => {
         GetCategories({companyUuid: companyContext.companyUuid}).then((res:any) => {
@@ -44,6 +50,14 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
             // Handle error silently
         });
     }, [companyContext.companyUuid]);
+
+    useEffect(() => {
+        if(groupSize && playerLimit) {
+            setTotalRounds(Math.ceil(Math.log(Number(playerLimit)) / Math.log(Number(groupSize))));
+        }else {
+            setTotalRounds(0);
+        }
+    }, [groupSize,playerLimit]);
 
     const initializeForm = (data:any) => {
         const _data:any = {}
@@ -63,7 +77,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                         setCategoryValue({ label: category.name, value: category.uuid });
                     }
                 }
-            } else if (['entryFee', 'prizePool', 'playerLimit'].includes(key)) {
+            } else if (['entryFee', 'prizePool', 'playerLimit', 'groupSize', 'totalRounds'].includes(key)) {
                 _data[key] = Number(data[key])
             } else {
                 _data[key] = ['string', 'number'].includes(typeof data[key]) ? (data[key] || defaultValues[key as keyof typeof defaultValues]) : data[key]
@@ -93,6 +107,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
         data.entryFee = Number(data.entryFee);
         data.prizePool = Number(data.prizePool);
         data.playerLimit = Number(data.playerLimit);
+        data.groupSize = Number(data.groupSize);
         callback(data);
     }
 
@@ -100,7 +115,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
         <Fragment>
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Grid container spacing={3} sx={{mb:3}}>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid size={{xs:12, sm:6, md:3}}>
                         <Controller name="name" control={control}
                             rules={{
                                 required: {
@@ -117,7 +132,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid size={{xs:12, sm:6, md:3}}>
                         <Controller
                             name="categoryUuid"
                             control={control}
@@ -152,7 +167,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid size={{xs:12, sm:6, md:3}}>
                         <Controller name="date" control={control}
                             rules={{
                                 required: {
@@ -182,7 +197,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid size={{xs:12, sm:6, md:3}}>
                         <Controller name="startTime" control={control}
                             rules={{
                                 required: {
@@ -211,7 +226,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid size={{xs:12, sm:6, md:3}}>
                         <Controller name="entryFee" control={control}
                             rules={{
                                 required: {
@@ -228,7 +243,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid size={{xs:12, sm:6, md:3}}>
                         <Controller name="prizePool" control={control}
                             rules={{
                                 required: {
@@ -245,7 +260,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                             )}
                         />
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
+                    <Grid size={{xs:12, sm:6, md:3}}>
                         <Controller name="playerLimit" control={control}
                             rules={{
                                 required: {
@@ -258,11 +273,58 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                                 }
                             }}
                             render={({ field, fieldState: { error } }: any) => (
-                                <FormInput fullWidth={true} error={error} field={field} value={field.value || ''} label={'Player Limit'} onInput={numberOnly}/>
+                                <FormControl fullWidth error={!!error}>
+                                    <FormLabel component="legend">Player Limit</FormLabel>
+                                    <RadioGroup
+                                        row
+                                        value={field.value ? String(field.value) : ''}
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                    >
+                                        <FormControlLabel value="16" control={<Radio />} label="16" />
+                                        <FormControlLabel value="32" control={<Radio />} label="32" />
+                                        <FormControlLabel value="64" control={<Radio />} label="64" />
+                                    </RadioGroup>
+                                    {error && <FormHelperText sx={{ ml: 0 }}>{error.message}</FormHelperText>}
+                                </FormControl>
+                            )}
+                        />
+                    </Grid>
+                    <Grid size={{xs:12, sm:6, md:3}}>
+                        <Controller name="groupSize" control={control}
+                            rules={{
+                                required: {
+                                    value: true,
+                                    message: "Group Size is required"
+                                },
+                                validate: (value) => {
+                                    const numValue = Number(value);
+                                    if ([2, 4].includes(numValue)) {
+                                        return true;
+                                    }
+                                    return "Group Size must be 2 or 4";
+                                }
+                            }}
+                            render={({ field, fieldState: { error } }: any) => (
+                                <FormControl fullWidth error={!!error}>
+                                    <FormLabel component="legend">Group Size</FormLabel>
+                                    <RadioGroup
+                                        row
+                                        value={field.value ? String(field.value) : ''}
+                                        onChange={(e) => field.onChange(Number(e.target.value))}
+                                    >
+                                        <FormControlLabel value="2" control={<Radio />} label="2" />
+                                        <FormControlLabel value="4" control={<Radio />} label="4" />
+                                    </RadioGroup>
+                                    {error && <FormHelperText sx={{ ml: 0 }}>{error.message}</FormHelperText>}
+                                </FormControl>
                             )}
                         />
                     </Grid>
                 </Grid>
+
+                {groupSize && playerLimit && Number(_totalRounds) !== Number(totalRounds) ? (
+                    <Typography variant="body1">Total Rounds: {_totalRounds}</Typography>
+                ) : <Typography variant="body1">Total Rounds: {totalRounds}</Typography>}
 
                 <Box>
                     <Button type="submit" variant="contained" color="primary" disabled={formLoader || loader} loading={loader}>Save</Button>
