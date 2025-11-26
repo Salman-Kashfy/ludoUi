@@ -99,6 +99,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
 
     const onSubmit = (data: any) => {
         if(!data['uuid']) delete data.uuid
+        delete data.totalRounds
         data.companyUuid = companyContext.companyUuid
         // Use categoryUuid from categoryValue if available, otherwise from form data
         if (categoryValue) {
@@ -114,7 +115,7 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
     return (
         <Fragment>
             <form onSubmit={handleSubmit(onSubmit)}>
-                <Grid container spacing={3} sx={{mb:3}}>
+                <Grid container spacing={3} sx={{mb:1}}>
                     <Grid size={{xs:12, sm:6, md:3}}>
                         <Controller name="name" control={control}
                             rules={{
@@ -322,9 +323,16 @@ function TournamentForm({record = {}, formLoader, callback, loader}:{record:any,
                     </Grid>
                 </Grid>
 
-                {groupSize && playerLimit && Number(_totalRounds) !== Number(totalRounds) ? (
-                    <Typography variant="body1">Total Rounds: {_totalRounds}</Typography>
-                ) : <Typography variant="body1">Total Rounds: {totalRounds}</Typography>}
+                {(groupSize && playerLimit) && (
+                    <Box sx={{mb:2}}>
+                        <Typography variant="subtitle2" sx={{display: 'inline-block', mr:1}}>
+                            Total Rounds: 
+                        </Typography>
+                        <Typography variant="subtitle2" sx={{display: 'inline-block', color: 'primary.main'}}>
+                            {Number(_totalRounds) !== Number(totalRounds) ? _totalRounds : totalRounds}
+                        </Typography>
+                    </Box>
+                )}
 
                 <Box>
                     <Button type="submit" variant="contained" color="primary" disabled={formLoader || loader} loading={loader}>Save</Button>
