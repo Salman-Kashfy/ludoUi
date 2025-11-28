@@ -47,6 +47,7 @@ export const ROUTES = {
         CREATE: '/tournament/create',
         EDIT: ((uuid = null) => '/tournament/'+(uuid || ':uuid')+'/edit'),
         VIEW: ((uuid = null) => '/tournament/'+(uuid || ':uuid')),
+        ROUND_DETAILS: ((uuid = null) => '/tournament-round/'+(uuid || ':uuid')),
     }
 }
 

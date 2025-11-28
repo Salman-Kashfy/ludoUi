@@ -169,7 +169,10 @@ function Dashboard() {
                     currencyName: e.currencyName,
                     playerLimit: e.playerLimit,
                     playerCount: e.playerCount,
-                    status: 'UPCOMING'
+                    status: e.status,
+                    currentRound: e.currentRound,
+                    startedAt: e.startedAt,
+                    completedAt: e.completedAt,
                 }
             }));
         }).catch(() => {
@@ -179,14 +182,18 @@ function Dashboard() {
         });
     };
 
-    const updateTournamentPlayerCount = (tournamentUuid: string, playerCount: number) => {
+    const patchTournament = (tournamentUuid: string, updates: Record<string, any>) => {
         setTournaments(prevTournaments =>
             prevTournaments.map((tournament: any) =>
                 tournament.uuid === tournamentUuid
-                    ? { ...tournament, playerCount }
+                    ? { ...tournament, ...updates }
                     : tournament
             )
         );
+    };
+
+    const updateTournamentPlayerCount = (tournamentUuid: string, playerCount: number) => {
+        patchTournament(tournamentUuid, { playerCount });
     };
 
     return (
@@ -270,6 +277,7 @@ function Dashboard() {
                                         <DashboardTournament 
                                             tournament={tournament}
                                             onPlayerRegistered={updateTournamentPlayerCount}
+                                            onTournamentUpdated={patchTournament}
                                         />
                                     </Box>
                                 ))}
