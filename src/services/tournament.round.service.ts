@@ -6,7 +6,7 @@ interface TournamentRoundsInput {
     round: number;
 }
 
-export const GetTournamentRounds = async (params: TournamentRoundsInput): Promise<any> => {
+export const TournamentRounds = async (params: TournamentRoundsInput): Promise<any> => {
     const query = `
         query TournamentRounds($params: TournamentRoundFilter!) {
             tournamentRounds(params: $params) {
@@ -199,24 +199,11 @@ export const CompleteTournamentRound = async (input: any): Promise<any> => {
             completeTournamentRound(input: $input) {
                 status
                 errorMessage
-                tournament {
+                data {
                     uuid
                     status
                     currentRound
                     completedAt
-                }
-                winners {
-                    id
-                    round
-                    table {
-                        uuid
-                        name
-                    }
-                    customer {
-                        uuid
-                        fullName
-                        phone
-                    }
                 }
             }
         }

@@ -54,185 +54,113 @@ export default function TournamentRoundDetails() {
     const loadTournamentRounds = async (round: number, forceRefresh: boolean = false) => {
         if (!uuid) return;
         
-        // Skip if data already exists and not forcing refresh
-        if (!forceRefresh && roundsData[round] && roundsData[round].entries && roundsData[round].entries.length > 0) {
-            return;
-        }
+        if (!forceRefresh && roundsData[round]?.entries?.length > 0) return;
         
-        // Mark round as loading
-        setRoundsData(prev => ({
-            ...prev,
-            [round]: { ...prev[round], loading: true }
-        }));
+        setRoundsData(prev => ({ ...prev, [round]: { ...prev[round], loading: true } }));
 
         try {
-            // Fetch tournament round data dynamically from service
-            const roundResponse = await TournamentRound(uuid, round);
+            const response = await TournamentRound(uuid, round);
+            if (!response?.status) throw new Error(response?.errorMessage || 'Failed to fetch round data');
             
-            if (!roundResponse?.status) {
-                throw new Error(roundResponse?.errorMessage || 'Failed to fetch round data');
-            }
-            
-            const roundData = roundResponse?.data;
-            const tables = roundData?.tables || [];
-            
-            if (tables.length > 0) {
-                // Transform tables into entries format
-                const entries = tables.map((tableData: any) => ({
-                    tableId: tableData.tableId,
-                    table: tableData.table,
-                    customers: tableData.players.map((player: any) => ({
-                        uuid: player.customerUuid || player.customer?.uuid,
+            const { round: roundInfo, tables = [] } = response.data || {};
+            const roundRecord = roundInfo ? { uuid: roundInfo.uuid, id: roundInfo.id, round: roundInfo.round } : null;
+
+            const entries = tables.map((tableData: any) => ({
+                table: tableData.table,
+                customers: tableData.players.map((player: any) => ({
+                    uuid: player.customerUuid || player.customer?.uuid,
+                    customerId: player.customerId,
+                    phone: player.customer?.phone,
+                    fullName: player.customer?.fullName,
+                    isWinner: player.isWinner
+                }))
+            }));
+
+            const winners = tables.flatMap((tableData: any) =>
+                tableData.players
+                    .filter((p: any) => p.isWinner)
+                    .map((player: any) => ({
                         customerId: player.customerId,
-                        phone: player.customer?.phone,
-                        fullName: player.customer?.fullName,
-                        isWinner: player.isWinner
+                        customer: player.customer,
+                        table: tableData.table
                     }))
-                }));
+            );
 
-                // Get winners from tables
-                const winners: any[] = [];
-                tables.forEach((tableData: any) => {
-                    tableData.players.forEach((player: any) => {
-                        if (player.isWinner) {
-                            winners.push({
-                                customerId: player.customerId,
-                                customer: player.customer,
-                                table: tableData.table,
-                                tableId: tableData.tableId
-                            });
-                        }
-                    });
-                });
+            const existingWinners = new Set<string>(
+                winners.map((w: any) => w.customer?.uuid || w.customerUuid).filter(Boolean)
+            );
 
-                // Initialize selected winners from existing winners
-                const existingWinners = new Set<string>();
-                winners.forEach((winner: any) => {
-                    const customerId = winner.customerId;
-                    if (customerId) {
-                        existingWinners.add(String(customerId));
-                    }
-                });
-
-                // Get round record from round data
-                const roundRecord = roundData?.round ? {
-                    uuid: roundData.round.uuid,
-                    id: roundData.round.id,
-                    round: roundData.round.round
-                } : null;
-
-                setRoundsData(prev => ({
-                    ...prev,
-                    [round]: {
-                        entries,
-                        winners,
-                        record: roundRecord,
-                        loading: false,
-                        players: tables.flatMap((tableData: any) => tableData.players)
-                    }
-                }));
-
-                setSelectedWinners(prev => ({
-                    ...prev,
-                    [round]: existingWinners
-                }));
-            } else {
-                // No tables found - set empty data
-                setRoundsData(prev => ({
-                    ...prev,
-                    [round]: {
-                        entries: [],
-                        winners: [],
-                        record: roundData?.round ? {
-                            uuid: roundData.round.uuid,
-                            id: roundData.round.id,
-                            round: roundData.round.round
-                        } : null,
-                        loading: false,
-                        players: []
-                    }
-                }));
-                setSelectedWinners(prev => ({
-                    ...prev,
-                    [round]: new Set<string>()
-                }));
-            }
-        } catch (error: any) {
-            console.log(error?.message);
-            errorToast('Failed to load rounds');
             setRoundsData(prev => ({
                 ...prev,
-                [round]: { ...prev[round], loading: false }
+                [round]: {
+                    entries,
+                    winners,
+                    record: roundRecord,
+                    loading: false,
+                    players: tables.flatMap((t: any) => t.players)
+                }
             }));
+
+            setSelectedWinners(prev => ({ ...prev, [round]: existingWinners }));
+        } catch (error: any) {
+            errorToast('Failed to load rounds');
+            setRoundsData(prev => ({ ...prev, [round]: { ...prev[round], loading: false } }));
         }
     };
 
     const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
         const roundNumber = newValue + 1;
         setSelectedRound(roundNumber);
-        // Reset winner selection toggle when switching rounds
         setShowWinnerSelection(false);
-        // Always fetch fresh data dynamically when switching tabs
         loadTournamentRounds(roundNumber, true);
     };
 
-    const handleWinnerToggle = (tableIndex: number, customerId: string | number) => {
+    const handleWinnerToggle = (tableIndex: number, customerUuid: string) => {
         const round = selectedRound;
         setSelectedWinners(prev => {
             const current = new Set(prev[round] || []);
             const tableEntry = roundsData[round]?.entries?.[tableIndex];
 
-            if (tableEntry?.customers) {
-                tableEntry.customers.forEach((c: any) => {
-                    if (c.customerId) {
-                        current.delete(String(c.customerId));
-                    }
-                });
-            }
+            // Remove all customers from this table
+            tableEntry?.customers?.forEach((c: any) => {
+                if (c.uuid) current.delete(c.uuid);
+            });
 
-            current.add(String(customerId));
+            // Add selected customer
+            if (customerUuid) current.add(customerUuid);
 
-            return {
-                ...prev,
-                [round]: current
-            };
+            return { ...prev, [round]: current };
         });
     };
 
     const handleCompleteRound = async () => {
         if (!uuid) return;
         const round = selectedRound;
-        const winners = selectedWinners[round] || new Set<string>();
+        const winnerCustomerUuid = selectedWinners[round] || new Set<string>();
         
-        if (winners.size === 0) {
+        if (winnerCustomerUuid.size === 0) {
             errorToast('Please select at least one winner');
             return;
         }
 
         setCompleteRoundLoader(true);
         try {
-            const winnerCustomerIds = Array.from(winners).map(id => parseInt(id, 10));
             const response = await CompleteTournamentRound({
                 tournamentUuid: uuid,
-                round: round,
-                winnerCustomerIds: winnerCustomerIds
+                round,
+                winnerCustomerUuid: Array.from(winnerCustomerUuid)
             });
             
             if (response.status) {
                 successToast('Round completed successfully');
                 if (response.tournament) {
-                    setTournament((prev: any) => ({
-                        ...prev,
-                        ...response.tournament
-                    }));
+                    setTournament((prev: any) => ({ ...prev, ...response.tournament }));
                 }
-                // Reload the round data to show updated winners (force refresh)
                 await loadTournamentRounds(round, true);
             } else {
                 errorToast(response.errorMessage || 'Failed to complete round');
             }
         } catch (error: any) {
-            console.log(error?.message);
             errorToast('Failed to complete round');
         } finally {
             setCompleteRoundLoader(false);
@@ -281,19 +209,15 @@ export default function TournamentRoundDetails() {
     const getSelectedWinnerForTable = (tableIndex: number) => {
         const tableEntry = currentRoundData.entries?.[tableIndex];
         if (!tableEntry?.customers) return '';
-        const selected = tableEntry.customers.find((c: any) =>
-            selectedWinnersForRound.has(String(c.customerId))
-        );
-        if (selected) return String(selected.customerId);
+        const selected = tableEntry.customers.find((c: any) => selectedWinnersForRound.has(c.uuid));
+        if (selected) return selected.uuid;
         const existingWinner = tableEntry.customers.find((c: any) => c.isWinner);
-        return existingWinner ? String(existingWinner.customerId) : '';
+        return existingWinner?.uuid || '';
     };
-    const allTablesHaveWinners = (currentRoundData.entries || []).every((entry: any) => {
-        const tableCustomers = entry?.customers || [];
-        return tableCustomers.some((c: any) => 
-            selectedWinnersForRound.has(String(c.customerId)) || c.isWinner
-        );
-    });
+
+    const allTablesHaveWinners = (currentRoundData.entries || []).every((entry: any) =>
+        entry?.customers?.some((c: any) => selectedWinnersForRound.has(c.uuid) || c.isWinner)
+    );
     const canCompleteRound = isRoundActive && !hasWinners && selectedWinnersForRound.size > 0 && allTablesHaveWinners;
     const canStartNextRound = tournament?.status === TournamentStatus.ACTIVE
         && remainingRounds > 0
@@ -458,7 +382,7 @@ export default function TournamentRoundDetails() {
                                         const customers = entry?.customers || entry?.table?.customers || [];
                                         return (
                                             <Grid
-                                                key={entry.tableId || entry?.table?.uuid || index}
+                                                key={entry?.table?.uuid || index}
                                                 size={{xs:12, sm:6, md:3}}
                                             >
                                                 <Box
@@ -471,7 +395,7 @@ export default function TournamentRoundDetails() {
                                                     }}
                                                 >
                                                     <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1.5, color: 'primary.main' }}>
-                                                        {entry?.table?.name || `Table ${entry.tableId || index + 1}`}
+                                                        {entry?.table?.name}
                                                     </Typography>
                                                     {customers.length === 0 ? (
                                                         <Typography variant="body2" color="text.secondary">
@@ -485,17 +409,14 @@ export default function TournamentRoundDetails() {
                                                                     onChange={(e) => handleWinnerToggle(index, e.target.value)}
                                                                 >
                                                                     {customers.map((customer: any, idx: number) => {
-                                                                        const customerId = customer.customerId;
                                                                         const customerName = customer.fullName || `Player ${idx + 1}`;
-                                                                        const phone = customer.phone || 'N/A';
-                                                                        const isWinner = customer.isWinner;
                                                                         const tooltipContent = (
                                                                             <Box>
                                                                                 <Typography variant="body2" sx={{ fontWeight: 600, mb: 0.5 }}>
                                                                                     {customerName}
                                                                                 </Typography>
                                                                                 <Typography variant="caption">
-                                                                                    Phone: {phone}
+                                                                                    Phone: {customer.phone || 'N/A'}
                                                                                 </Typography>
                                                                             </Box>
                                                                         );
@@ -503,22 +424,15 @@ export default function TournamentRoundDetails() {
                                                                         return (
                                                                             <FormControlLabel
                                                                                 key={customer.uuid || idx}
-                                                                                value={String(customerId)}
+                                                                                value={customer.uuid}
                                                                                 control={<Radio size="small" />}
                                                                                 label={
                                                                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                                                         <Tooltip title={tooltipContent} arrow>
-                                                                                            <Typography variant="body2">
-                                                                                                {customerName}
-                                                                                            </Typography>
+                                                                                            <Typography variant="body2">{customerName}</Typography>
                                                                                         </Tooltip>
-                                                                                        {isWinner && (
-                                                                                            <Chip 
-                                                                                                label="Winner" 
-                                                                                                color="success" 
-                                                                                                size="small"
-                                                                                                sx={{ height: '20px', fontSize: '0.7rem' }}
-                                                                                            />
+                                                                                        {customer.isWinner && (
+                                                                                            <Chip label="Winner" color="success" size="small" sx={{ height: '20px', fontSize: '0.7rem' }} />
                                                                                         )}
                                                                                     </Box>
                                                                                 }
@@ -602,7 +516,7 @@ export default function TournamentRoundDetails() {
                                                     <Typography variant="body2" sx={{ fontWeight: 600 }}>
                                                         {winner.customer?.fullName || winner.customer?.phone || `Winner ${idx + 1}`}
                                                     </Typography>
-                                                    {winner.table?.name && (
+                                                    {winner.table.name && (
                                                         <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
                                                             Table: {winner.table.name}
                                                         </Typography>
@@ -616,7 +530,7 @@ export default function TournamentRoundDetails() {
                                     <Grid container spacing={2}>
                                         {(currentRoundData.entries || []).map((entry: any, tableIdx: number) => {
                                             const tableWinner = entry?.customers?.find((c: any) => 
-                                                selectedWinnersForRound.has(String(c.customerId))
+                                                selectedWinnersForRound.has(c.uuid)
                                             );
                                             if (!tableWinner) return null;
                                             

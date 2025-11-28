@@ -10,7 +10,7 @@ import TournamentPlayers from "../tournament/TournamentPlayers";
 import { TournamentStatus } from "./types";
 import { useToast } from "../../utils/toast";
 import { ROUTES } from "../../utils/constants";
-import { StartTournament, GetTournamentRounds, StartNextTournamentRound } from "../../services/tournament.round.service";
+import { StartTournament, TournamentRounds, StartNextTournamentRound } from "../../services/tournament.round.service";
 import { TournamentRoundPlayers } from "../../services/tournament.round.player.service";
 
 interface DashboardTournamentProps {
@@ -125,7 +125,7 @@ export default function DashboardTournament({ tournament, onPlayerRegistered, on
         setRoundsLoading(true);
         setRoundWinnersLoading(true);
         try {
-            const response = await GetTournamentRounds({
+            const response = await TournamentRounds({
                 tournamentUuid: tournament.uuid,
                 round: targetRound
             });
