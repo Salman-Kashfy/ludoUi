@@ -24,7 +24,11 @@ export const GetTournaments = async (params: GetTournamentsInput, paging?: any):
                     playerCount
                     playerLimit
                     totalRounds
+                    groupSize
                     status
+                    currentRound
+                    startedAt
+                    completedAt
                     category {
                         uuid
                         name
@@ -66,7 +70,11 @@ export const GetTournament = async (uuid:string): Promise<any> => {
                     groupSize
                     playerCount
                     playerLimit
+                    totalRounds
                     status
+                    currentRound
+                    startedAt
+                    completedAt
                     createdAt
                     updatedAt
                     category {
@@ -131,14 +139,23 @@ export const GetTournamentPlayers = async (tournamentUuid: string): Promise<any>
     const query = `
         query TournamentPlayers($tournamentUuid: ID!) {
             tournamentPlayers(tournamentUuid: $tournamentUuid) {
+                status
                 list {
+                    customerId
                     customer {
+                        uuid
+                        firstName
+                        lastName
                         fullName
+                        phone
                     }
                     table {
+                        uuid
                         name
                     }
                 }
+                errors
+                errorMessage
             }
         }
     `;
@@ -148,9 +165,7 @@ export const GetTournamentPlayers = async (tournamentUuid: string): Promise<any>
     };
 
     const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
-    return response?.data?.tournamentPlayers?.list?.length
-        ? response?.data?.tournamentPlayers
-        : emptyListResponse;
+    return response?.data?.tournamentPlayers || emptyListResponse;
 };
 
 export const PlayerRegistrationBill = async (params: any): Promise<any> => {

@@ -1,0 +1,236 @@
+import { constants, emptyListResponse, emptyMutationResponse } from "../utils/constants";
+import { POST } from "./api.service.wrapper";
+
+interface TournamentRoundsInput {
+    tournamentUuid: string;
+    round: number;
+}
+
+export const GetTournamentRounds = async (params: TournamentRoundsInput): Promise<any> => {
+    const query = `
+        query TournamentRounds($params: TournamentRoundFilter!) {
+            tournamentRounds(params: $params) {
+                list {
+                    id
+                    uuid
+                    round
+                    status
+                    playerCount
+                    tableCount
+                    table {
+                        uuid
+                        name
+                        customers {
+                            uuid
+                            phone
+                            isWinner
+                        }
+                    }
+                }
+            }
+        }
+    `;
+
+    const variables = {
+        params
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables });
+    return response?.data?.tournamentRounds || emptyListResponse;
+};
+
+export const GetAllTournamentRounds = async (tournamentUuid: string): Promise<any> => {
+    const query = `
+        query TournamentAllRounds($tournamentUuid: ID!) {
+            tournamentAllRounds(tournamentUuid: $tournamentUuid) {
+                list {
+                    id
+                    uuid
+                    round
+                    status
+                    playerCount
+                    tableCount
+                    startedAt
+                    completedAt
+                    table {
+                        uuid
+                        name
+                        customers {
+                            uuid
+                            phone
+                            isWinner
+                        }
+                    }
+                }
+            }
+        }
+    `;
+
+    const variables = {
+        tournamentUuid
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables });
+    return response?.data?.tournamentAllRounds || emptyListResponse;
+};
+
+export const GetTournamentRound = async (tournamentUuid: string, round: number): Promise<any> => {
+    const query = `
+        query GetTournamentRound($tournamentUuid: ID!, $round: Int!) {
+            getTournamentRound(tournamentUuid: $tournamentUuid, round: $round) {
+                status
+                data {
+                    round {
+                        id
+                        uuid
+                        round
+                        playerCount
+                        tableCount
+                        status
+                        startedAt
+                    }
+                    tables {
+                        tableId
+                        table {
+                            id
+                            uuid
+                            name
+                        }
+                        players {
+                            id
+                            customerId
+                            customerUuid
+                            isWinner
+                            customer {
+                                uuid
+                                firstName
+                                lastName
+                                fullName
+                                phone
+                            }
+                        }
+                    }
+                }
+                errors
+                errorMessage
+            }
+        }
+    `;
+
+    const variables = {
+        tournamentUuid,
+        round
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables });
+    return response?.data?.getTournamentRound || emptyMutationResponse;
+};
+
+export const StartTournament = async (input: any): Promise<any> => {
+    const query = `
+        mutation StartTournament($input: StartTournamentInput!) {
+            startTournament(input: $input) {
+                data {
+                    tournament {
+                        uuid
+                        status
+                        currentRound
+                        startedAt
+                    }
+                    round {
+                        uuid
+                        round
+                        playerCount
+                        tableCount
+                        startedAt
+                        status
+                    }
+                }
+                errors
+                status
+                errorMessage
+            }
+        }
+    `;
+
+    const variables = {
+        input
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables });
+    return response?.data?.startTournament || emptyMutationResponse;
+};
+
+export const StartNextTournamentRound = async (input: any): Promise<any> => {
+    const query = `
+        mutation StartNextTournamentRound($input: StartNextTournamentRoundInput!) {
+            startNextTournamentRound(input: $input) {
+                data {
+                    tournament {
+                        uuid
+                        status
+                        currentRound
+                        startedAt
+                        completedAt
+                    }
+                    round {
+                        uuid
+                        round
+                        playerCount
+                        tableCount
+                        startedAt
+                        status
+                    }
+                }
+                errors
+                status
+                errorMessage
+            }
+        }
+    `;
+
+    const variables = {
+        input
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables });
+    return response?.data?.startNextTournamentRound || emptyMutationResponse;
+};
+
+export const CompleteTournamentRound = async (input: any): Promise<any> => {
+    const query = `
+        mutation CompleteTournamentRound($input: CompleteTournamentRoundInput!) {
+            completeTournamentRound(input: $input) {
+                status
+                errorMessage
+                tournament {
+                    uuid
+                    status
+                    currentRound
+                    completedAt
+                }
+                winners {
+                    id
+                    round
+                    table {
+                        uuid
+                        name
+                    }
+                    customer {
+                        uuid
+                        fullName
+                        phone
+                    }
+                }
+            }
+        }
+    `;
+
+    const variables = {
+        input
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables });
+    return response?.data?.completeTournamentRound || emptyMutationResponse;
+};
+
