@@ -84,11 +84,13 @@ export default function DashboardTournament({ tournament, onPlayerRegistered }: 
                             <Users size={18} strokeWidth={1.5} />
                         </IconButton>
                     </Tooltip>
-                    <Tooltip title="Register Player" arrow placement="top">
-                        <IconButton onClick={handleOpenTourRegModal} color="primary" size="small">
-                            <Plus size={18} strokeWidth={1.5} />
-                        </IconButton>
-                    </Tooltip>
+                    {tournament.playerCount !== tournament.playerLimit && (
+                        <Tooltip title="Register Player" arrow placement="top">
+                            <IconButton onClick={handleOpenTourRegModal} color="primary" size="small">
+                                <Plus size={18} strokeWidth={1.5} />
+                            </IconButton>
+                        </Tooltip>
+                    )}
                 </Box>
                 <Grid container spacing={2}>
                     <Grid size={{xs:12, sm:3}}>
