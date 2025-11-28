@@ -11,7 +11,7 @@ import { TournamentStatus } from "./types";
 import { useToast } from "../../utils/toast";
 import { ROUTES } from "../../utils/constants";
 import { StartTournament, GetTournamentRounds, StartNextTournamentRound } from "../../services/tournament.round.service";
-import { GetTournamentRoundPlayers } from "../../services/tournament.round.player.service";
+import { TournamentRoundPlayers } from "../../services/tournament.round.player.service";
 
 interface DashboardTournamentProps {
     tournament: {
@@ -143,8 +143,8 @@ export default function DashboardTournament({ tournament, onPlayerRegistered, on
 
             if (roundRecord?.uuid) {
                 const [playersResponse, winnersResponse] = await Promise.all([
-                    GetTournamentRoundPlayers({ tournamentRoundUuid: roundRecord.uuid }),
-                    GetTournamentRoundPlayers({ tournamentRoundUuid: roundRecord.uuid, winnersOnly: true })
+                    TournamentRoundPlayers({ tournamentRoundUuid: roundRecord.uuid }),
+                    TournamentRoundPlayers({ tournamentRoundUuid: roundRecord.uuid, winnersOnly: true })
                 ]);
                 const playersList = playersResponse?.list || [];
                 normalizedEntries = groupPlayersByTable(playersList);

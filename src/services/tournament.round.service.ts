@@ -74,14 +74,13 @@ export const GetAllTournamentRounds = async (tournamentUuid: string): Promise<an
     return response?.data?.tournamentAllRounds || emptyListResponse;
 };
 
-export const GetTournamentRound = async (tournamentUuid: string, round: number): Promise<any> => {
+export const TournamentRound = async (tournamentUuid: string, round: number): Promise<any> => {
     const query = `
-        query GetTournamentRound($tournamentUuid: ID!, $round: Int!) {
-            getTournamentRound(tournamentUuid: $tournamentUuid, round: $round) {
+        query TournamentRound($tournamentUuid: ID!, $round: Int!) {
+            tournamentRound(tournamentUuid: $tournamentUuid, round: $round) {
                 status
                 data {
                     round {
-                        id
                         uuid
                         round
                         playerCount
@@ -90,14 +89,11 @@ export const GetTournamentRound = async (tournamentUuid: string, round: number):
                         startedAt
                     }
                     tables {
-                        tableId
                         table {
-                            id
                             uuid
                             name
                         }
                         players {
-                            id
                             customerId
                             customerUuid
                             isWinner
@@ -123,7 +119,7 @@ export const GetTournamentRound = async (tournamentUuid: string, round: number):
     };
 
     const response = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables });
-    return response?.data?.getTournamentRound || emptyMutationResponse;
+    return response?.data?.tournamentRound || emptyMutationResponse;
 };
 
 export const StartTournament = async (input: any): Promise<any> => {

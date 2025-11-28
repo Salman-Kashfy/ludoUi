@@ -9,7 +9,7 @@ export interface TournamentRoundPlayerFilter {
     winnersOnly?: boolean;
 }
 
-export const GetTournamentRoundPlayers = async (params: TournamentRoundPlayerFilter): Promise<any> => {
+export const TournamentRoundPlayers = async (params: TournamentRoundPlayerFilter): Promise<any> => {
     const query = `
         query TournamentRoundPlayers($params: TournamentRoundPlayerFilter!) {
             tournamentRoundPlayers(params: $params) {

@@ -7,7 +7,7 @@ import { useParams } from "react-router-dom";
 import PageTitle from "../../components/PageTitle";
 import { useToast } from "../../utils/toast";
 import { GetTournament } from "../../services/tournament.service";
-import { StartNextTournamentRound, CompleteTournamentRound, GetTournamentRound } from "../../services/tournament.round.service";
+import { StartNextTournamentRound, CompleteTournamentRound, TournamentRound } from "../../services/tournament.round.service";
 import { TournamentStatus } from "../dashboard/types";
 import ProgressBar from "../../components/ProgressBar";
 
@@ -67,7 +67,7 @@ export default function TournamentRoundDetails() {
 
         try {
             // Fetch tournament round data dynamically from service
-            const roundResponse = await GetTournamentRound(uuid, round);
+            const roundResponse = await TournamentRound(uuid, round);
             
             if (!roundResponse?.status) {
                 throw new Error(roundResponse?.errorMessage || 'Failed to fetch round data');
