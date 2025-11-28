@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { Card, CardContent, Box, Typography, Chip, IconButton, Tooltip } from "@mui/material";
 import Grid from '@mui/material/Grid';
-import { Plus, Users } from "lucide-react";
+import { Plus, Users, Play, CirclePlay } from "lucide-react";
 import dayjs from "dayjs";
 import { useTheme } from "@mui/material/styles";
 import PlayerRegistration from "../tournament/PlayerRegistration";
 import TournamentPlayers from "../tournament/TournamentPlayers";
+import { TournamentStatus } from "./types";
 
 interface DashboardTournamentProps {
     tournament: {
@@ -84,13 +85,29 @@ export default function DashboardTournament({ tournament, onPlayerRegistered }: 
                             <Users size={18} strokeWidth={1.5} />
                         </IconButton>
                     </Tooltip>
-                    {tournament.playerCount !== tournament.playerLimit && (
+                    {tournament.playerCount !== tournament.playerLimit ?
                         <Tooltip title="Register Player" arrow placement="top">
                             <IconButton onClick={handleOpenTourRegModal} color="primary" size="small">
                                 <Plus size={18} strokeWidth={1.5} />
                             </IconButton>
-                        </Tooltip>
-                    )}
+                        </Tooltip>    
+                    : 
+                        <Fragment>
+                            { tournament.status === TournamentStatus.UPCOMING ?
+                            <Tooltip title="Start Tournament" arrow placement="top">
+                                <IconButton color="primary" size="small">
+                                    <Play size={18} strokeWidth={1.5} />
+                                </IconButton>
+                            </Tooltip>    
+                            : 
+                            <Tooltip title="View Matches" arrow placement="top">
+                                <IconButton color="primary" size="small">
+                                    <CirclePlay size={18} strokeWidth={1.5} />
+                                </IconButton>
+                            </Tooltip>
+                            }
+                        </Fragment>
+                    }
                 </Box>
                 <Grid container spacing={2}>
                     <Grid size={{xs:12, sm:3}}>

@@ -31,3 +31,10 @@ export interface Category {
     tables: Table[];
     categoryPrices?: CategoryPrice[];
 }
+
+export enum TournamentStatus {
+    UPCOMING = 'UPCOMING',
+    ACTIVE = 'ACTIVE',
+    COMPLETED = 'COMPLETED',
+    CANCELLED = 'CANCELLED',
+}
