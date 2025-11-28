@@ -1,5 +1,5 @@
 import { Fragment, useState } from "react";
-import { Card, CardContent, Box, Typography, Chip, IconButton, Tooltip } from "@mui/material";
+import { Card, CardContent, Box, Typography, Chip, IconButton, Tooltip, Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mui/material";
 import Grid from '@mui/material/Grid';
 import { Plus, Users, Play, CirclePlay } from "lucide-react";
 import dayjs from "dayjs";
@@ -34,6 +34,7 @@ export default function DashboardTournament({ tournament, onPlayerRegistered }: 
     const theme = useTheme();
     const [tourRegModal, setTourRegModal] = useState(false);
     const [regPlayerModal, setRegPlayerModal] = useState(false);
+    const [startTournamentModal, setStartTournamentModal] = useState(false);
     
     const handleOpenTourRegModal = () => {
         setTourRegModal(true);
@@ -49,6 +50,19 @@ export default function DashboardTournament({ tournament, onPlayerRegistered }: 
 
     const handleCloseRegPlayerModal = () => {
         setRegPlayerModal(false);
+    };
+
+    const handleOpenStartTournamentModal = () => {
+        setStartTournamentModal(true);
+    };
+
+    const handleCloseStartTournamentModal = () => {
+        setStartTournamentModal(false);
+    };
+
+    const handleStartTournament = () => {
+        alert('Tournament started!');
+        handleCloseStartTournamentModal();
     };
     
     const formattedDate = dayjs(tournament.date).format('MMM DD, YYYY');
@@ -95,7 +109,7 @@ export default function DashboardTournament({ tournament, onPlayerRegistered }: 
                         <Fragment>
                             { tournament.status === TournamentStatus.UPCOMING ?
                             <Tooltip title="Start Tournament" arrow placement="top">
-                                <IconButton color="primary" size="small">
+                                <IconButton onClick={handleOpenStartTournamentModal} color="primary" size="small">
                                     <Play size={18} strokeWidth={1.5} />
                                 </IconButton>
                             </Tooltip>    
@@ -188,6 +202,22 @@ export default function DashboardTournament({ tournament, onPlayerRegistered }: 
                 onClose={handleCloseRegPlayerModal} 
                 tournamentUuid={tournament.uuid || ''}
             />
+            <Dialog open={startTournamentModal} onClose={handleCloseStartTournamentModal} maxWidth="xs" fullWidth>
+                <DialogTitle>
+                    <Typography variant="h6" sx={{ fontWeight: 600 }}>Start Tournament</Typography>
+                </DialogTitle>
+                <DialogContent>
+                    <Typography variant="body1">Lets the game begin ?</Typography>
+                </DialogContent>
+                <DialogActions sx={{ p: 2 }}>
+                    <Button onClick={handleCloseStartTournamentModal} color="error">
+                        Cancel
+                    </Button>
+                    <Button onClick={handleStartTournament} variant="contained" color="primary">
+                        Start
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Card>
     );
 }
