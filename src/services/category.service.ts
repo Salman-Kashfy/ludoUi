@@ -17,6 +17,7 @@ export const GetCategories = async (params: GetCategoriesInput): Promise<any> =>
                     tables {
                         uuid
                         name
+                        status
                         tableSessions {
                             uuid
                             startTime

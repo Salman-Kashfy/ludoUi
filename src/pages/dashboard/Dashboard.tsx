@@ -145,6 +145,19 @@ function Dashboard() {
         );
     };
 
+    const updateTable = (tableUuid: string, updates: Record<string, any>) => {
+        setCategories(prevCategories => 
+            prevCategories.map((category: any) => ({
+                ...category,
+                tables: category.tables.map((table: any) => 
+                    table.uuid === tableUuid 
+                        ? { ...table, ...updates }
+                        : table
+                )
+            }))
+        );
+    };
+
     /**
     * Tournaments
     * */
@@ -198,7 +211,7 @@ function Dashboard() {
 
     return (
         <DashboardProvider loadDashboardStats={loadDashboardStats}>
-            <TableSessionProvider updateTableSession={updateTableSession} addTableSession={addTableSession} rechargeTableSession={rechargeTableSession} removeTableSession={removeTableSession}>
+            <TableSessionProvider updateTableSession={updateTableSession} addTableSession={addTableSession} rechargeTableSession={rechargeTableSession} removeTableSession={removeTableSession} updateTable={updateTable}>
                 <Fragment>
                 <BookSession
                     open={bookSessionDialog}
