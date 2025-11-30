@@ -5,7 +5,7 @@ import { StartTableSession, StopTableSession } from '../services/table.session.s
 import { useToast } from '../utils/toast.tsx';
 import { useBooking } from '../hooks/BookingContext';
 import { first, isEmpty } from 'lodash';
-import { TableSessionStatus } from '../pages/table/types.ts';
+import { TableSessionStatus, TableStatus } from '../pages/table/types.ts';
 import { TableSession, Table, CategoryPrice } from '../pages/dashboard/types';
 import { CompanyContext } from '../hooks/CompanyContext';
 import { useTableSession } from '../hooks/TableSessionContext';
@@ -22,7 +22,7 @@ export function TableCard({ table, categoryPrices }: TableCardProps) {
     const companyUuid = companyContext.companyUuid
     const { successToast, errorToast } = useToast();
     const { openBookingDialog, openRechargeDialog } = useBooking();
-    const { updateTableSession, removeTableSession } = useTableSession();
+    const { updateTableSession, removeTableSession, updateTable } = useTableSession();
     const { loadDashboardStats } = useDashboard();
     const [isLoading, setIsLoading] = useState(false);
     const [elapsedTime, setElapsedTime] = useState('00:00:00');
@@ -114,6 +114,7 @@ export function TableCard({ table, categoryPrices }: TableCardProps) {
                 if(res.status) {
                     successToast('Table session stopped');
                     removeTableSession(table.uuid, activeSession.uuid);
+                    updateTable(table.uuid, { status: TableStatus.ACTIVE });
                     loadDashboardStats();
                 } else {
                     errorToast(res.errorMessage || 'Failed to stop table session');
@@ -132,6 +133,7 @@ export function TableCard({ table, categoryPrices }: TableCardProps) {
             if(res.status) {
                 successToast('Session marked completed!');
                 removeTableSession(table.uuid, tableSessionUuid);
+                updateTable(table.uuid, { status: TableStatus.ACTIVE });
                 loadDashboardStats();
             } else {
                 errorToast(res.errorMessage || 'Failed to mark session completed');
@@ -150,8 +152,8 @@ export function TableCard({ table, categoryPrices }: TableCardProps) {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, gap: 1 }}>
                     <Typography variant="subtitle1" sx={{ fontSize: { xs: '0.95rem', md: '1rem' } }}>{table.name}</Typography>
                     <Chip 
-                        label={!activeSession ? 'available' : activeSession!.status} 
-                        color={!activeSession ? 'default' : 'success'} 
+                        label={(!activeSession ? (table.status === TableStatus.BOOKED ? 'booked' : 'available') : activeSession!.status)} 
+                        color={(!activeSession ? (table.status === TableStatus.BOOKED ? 'success' : 'default') : 'success')} 
                         size="small"
                         sx={{ textTransform: 'capitalize', fontSize: '0.65rem', px: 0.5 }}
                     />
@@ -178,7 +180,7 @@ export function TableCard({ table, categoryPrices }: TableCardProps) {
 
                 <Box sx={{ display: 'flex', gap: 1 }}>
                     {isEmpty(activeSession) ? (
-                        <Button variant="contained" color="primary" size="small" onClick={() => openBookingDialog(table.uuid, categoryPrices)} disabled={isLoading} fullWidth>Book</Button>
+                        <Button variant="contained" color="primary" size="small" onClick={() => openBookingDialog(table.uuid, categoryPrices)} disabled={isLoading || table.status === TableStatus.BOOKED} fullWidth>Book</Button>
                     ) : activeSession.status === TableSessionStatus.BOOKED ? (
                         <Button variant="contained" color="success" size="small" startIcon={<Play size={16} />} onClick={() => startSession(activeSession.uuid)} disabled={isLoading} fullWidth>Start</Button>
                     ) : activeSession && !timeElapsed ? (

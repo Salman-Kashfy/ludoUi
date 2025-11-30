@@ -5,6 +5,7 @@ interface TableSessionContextType {
     addTableSession: (tableUuid: string, newSession: any) => void;
     rechargeTableSession: (tableUuid: string, rechargedSession: any) => void;
     removeTableSession: (tableUuid: string, sessionUuid: string) => void;
+    updateTable: (tableUuid: string, updates: Record<string, any>) => void;
 }
 
 const TableSessionContext = createContext<TableSessionContextType | undefined>(undefined);
@@ -15,11 +16,12 @@ interface TableSessionProviderProps {
     addTableSession: (tableUuid: string, newSession: any) => void;
     rechargeTableSession: (tableUuid: string, rechargedSession: any) => void;
     removeTableSession: (tableUuid: string, sessionUuid: string) => void;
+    updateTable: (tableUuid: string, updates: Record<string, any>) => void;
 }
 
-export function TableSessionProvider({ children, updateTableSession, addTableSession, rechargeTableSession, removeTableSession }: TableSessionProviderProps) {
+export function TableSessionProvider({ children, updateTableSession, addTableSession, rechargeTableSession, removeTableSession, updateTable }: TableSessionProviderProps) {
     return (
-        <TableSessionContext.Provider value={{ updateTableSession, addTableSession, rechargeTableSession, removeTableSession }}>
+        <TableSessionContext.Provider value={{ updateTableSession, addTableSession, rechargeTableSession, removeTableSession, updateTable }}>
             {children}
         </TableSessionContext.Provider>
     );

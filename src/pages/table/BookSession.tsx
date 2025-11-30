@@ -125,7 +125,6 @@ const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices, onBook
             paymentMethod:{ paymentScheme: paymentMethod },
         }
         BookTableSession(input).then((res) => {
-            console.log('BookTableSession response', res.data)
             if(res.status) {
                 successToast('Session booked successfully')
                 addTableSession(tableUuid, res.data)
@@ -134,7 +133,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices, onBook
                 }
                 handleDialogClose()
             } else {
-                errorToast('Something went wrong!')
+                errorToast(res.errorMessage || 'Something went wrong!')
             }
         }).catch((e) => {
             console.log(e.message)
