@@ -1,5 +1,4 @@
-import { constants } from "../utils/constants";
-import { emptyListResponse } from "../utils/constants";
+import { constants, emptyListResponse, emptyMutationResponse } from "../utils/constants";
 import { POST } from "./api.service.wrapper";
 
 export const GetCustomers = async ({page = 1, limit = constants.PER_PAGE}, params = {}): Promise<any> => {
@@ -32,4 +31,30 @@ export const GetCustomers = async ({page = 1, limit = constants.PER_PAGE}, param
     return response?.data?.customers?.list?.length
         ? response?.data?.customers
         : emptyListResponse;
+};
+
+export const CreateCustomer = async (data: any): Promise<any> => {
+    const query = `
+        mutation CreateCustomer($input: SaveCustomerInput!) {
+            saveCustomer(input: $input) {
+                data {
+                    uuid
+                    firstName
+                    lastName
+                    phoneCode
+                    phoneNumber
+                    fullName
+                    phone
+                }
+                errors
+                status
+                errorMessage
+            }
+        }
+    `;
+    const variables = {
+        input: data
+    };
+    const response: any = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables });
+    return response?.data?.saveCustomer || emptyMutationResponse;
 };

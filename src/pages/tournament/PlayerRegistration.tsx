@@ -8,6 +8,7 @@ import { GetCustomers } from "../../services/customer.service";
 import { useToast } from "../../utils/toast";
 import { CompanyContext } from "../../hooks/CompanyContext";
 import FormInput from "../../components/FormInput";
+import CreateCustomer from "../../components/CreateCustomer";
 import { debounce } from "@mui/material/utils";
 import { PAYMENT_METHOD } from "../../utils/constants";
 
@@ -51,6 +52,7 @@ export default function PlayerRegistration({ open, onClose, tournament, onSucces
     const [customerId, setCustomerId] = useState<{label: string, value: string}>({label: '', value: ''});
     const [customerLoader, setCustomerLoader] = useState(false);
     const [searchCustomer, setSearchCustomer] = useState("");
+    const [createCustomerDialogOpen, setCreateCustomerDialogOpen] = useState(false);
 
     const fetchCustomers = useCallback(({searchCustomer, companyUuid}:{searchCustomer:string, companyUuid:string}) => {
         setCustomerLoader(true);
@@ -134,7 +136,25 @@ export default function PlayerRegistration({ open, onClose, tournament, onSucces
     };
 
     const handleAddCustomer = () => {
-        console.log('Add customer clicked');
+        setCreateCustomerDialogOpen(true);
+    };
+
+    const handleCustomerCreated = (newCustomer: any) => {
+        // Add the new customer to the list
+        const customerOption = {
+            value: newCustomer.uuid,
+            label: `${newCustomer.firstName} ${newCustomer.lastName} (${newCustomer.phone || `${newCustomer.phoneCode}${newCustomer.phoneNumber}`})`,
+            phoneCode: newCustomer.phoneCode || '',
+        };
+        setCustomers((prev) => [customerOption, ...prev]);
+        // Select the newly created customer
+        setCustomerId(customerOption);
+        setValue('customerUuid', newCustomer.uuid);
+        setCreateCustomerDialogOpen(false);
+    };
+
+    const handleCreateCustomerDialogClose = () => {
+        setCreateCustomerDialogOpen(false);
     };
 
     const onSubmit = async () => {
@@ -178,12 +198,18 @@ export default function PlayerRegistration({ open, onClose, tournament, onSucces
     };
 
     return (
-        <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <DialogTitle>
-                    <Typography variant="h6" sx={{ fontWeight: 600 }}>Player Registration</Typography>
-                </DialogTitle>
-                <DialogContent sx={{ pt: 3 }}>
+        <Fragment>
+            <CreateCustomer
+                open={createCustomerDialogOpen}
+                handleDialogClose={handleCreateCustomerDialogClose}
+                onCustomerCreated={handleCustomerCreated}
+            />
+            <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
+                <form onSubmit={handleSubmit(onSubmit)}>
+                    <DialogTitle>
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>Player Registration</Typography>
+                    </DialogTitle>
+                    <DialogContent sx={{ pt: 3 }}>
                     {errorMessage && (
                         <Box sx={{ mb: 2, p: 2, backgroundColor: theme.palette.mode === 'dark' ? 'rgba(211, 47, 47, 0.1)' : 'rgba(211, 47, 47, 0.05)', borderRadius: 1 }}>
                             <Typography variant="body1" color="error">
@@ -329,6 +355,7 @@ export default function PlayerRegistration({ open, onClose, tournament, onSucces
                 </DialogActions>
             </form>
         </Dialog>
+        </Fragment>
     );
 }
 

@@ -45,12 +45,67 @@ export const isValidURL = (url:string) => {
 export const numberOnly = (e:any, max = null, leadingZero = true) => {
     let value = e.target.value.replace(/[^0-9]/g, '')
     if (max && value.length > max) {
-        value = value.slice(0, 2);
+        value = value.slice(0, max);
     }   
     if(!leadingZero){
         value = value.replace(/^0+/, '');
     }
     e.target.value = value
+}
+
+export const phoneNumberOnly = (e:any, max: number | null = null) => {
+    // Get current value and remove non-numeric characters
+    let value = e.target.value.replace(/[^0-9]/g, '');
+    
+    // If max is set and value exceeds it, truncate to max length
+    // This prevents further input beyond the limit without clearing existing digits
+    if (max !== null && value.length > max) {
+        value = value.slice(0, max);
+    }
+    
+    e.target.value = value;
+}
+
+export const phoneCodeOnly = (e:any, max: number | null = null) => {
+    let value = e.target.value;
+    
+    // Allow only + and numbers
+    value = value.replace(/[^+0-9]/g, '');
+    
+    // If user starts typing a number (not +), automatically prepend +
+    if (value && !value.startsWith('+') && /^[0-9]/.test(value)) {
+        value = '+' + value;
+    }
+    
+    // Ensure + is only at the start
+    if (value.includes('+')) {
+        const plusIndex = value.indexOf('+');
+        if (plusIndex > 0) {
+            // Remove + if it's not at the start
+            value = value.replace(/\+/g, '');
+            // Add + at the start if we have numbers
+            if (value) {
+                value = '+' + value;
+            }
+        } else {
+            // Keep + at start, remove any other +
+            value = '+' + value.substring(1).replace(/\+/g, '');
+        }
+    }
+    
+    // Remove leading zeros after +
+    if (value.startsWith('+')) {
+        const afterPlus = value.substring(1);
+        const cleanedAfterPlus = afterPlus.replace(/^0+/, '');
+        value = '+' + cleanedAfterPlus;
+    }
+    
+    // Apply max length limit
+    if (max && value.length > max) {
+        value = value.slice(0, max);
+    }
+    
+    e.target.value = value;
 }
 
 export const isValidEmail = (email:string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
