@@ -1,4 +1,4 @@
-import { Fragment, useState, useContext, useEffect } from 'react';
+import { Fragment, useState, useContext } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import Grid from '@mui/material/Grid';
 import Dialog from '@mui/material/Dialog';
@@ -7,20 +7,20 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
+import FormControl from '@mui/material/FormControl';
+import { MuiTelInput } from 'mui-tel-input';
 import FormInput from './FormInput';
 import { CompanyContext } from '../hooks/CompanyContext';
-import { CreateCustomer as CreateCustomerService } from '../services/customer.service';
+import { SaveCustomer as SaveCustomerService } from '../services/customer.service';
 import { useToast } from '../utils/toast';
-import { phoneCodeOnly, phoneNumberOnly } from '../utils/validations';
-import { getPhoneNumberMaxLength, validatePhoneNumber } from '../utils/phoneValidation';
 
-interface CreateCustomerProps {
+interface SaveCustomerProps {
     open: boolean;
     handleDialogClose: () => void;
     onCustomerCreated: (customer: any) => void;
 }
 
-const CreateCustomer = ({ open, handleDialogClose, onCustomerCreated }: CreateCustomerProps) => {
+const SaveCustomer = ({ open, handleDialogClose, onCustomerCreated }: SaveCustomerProps) => {
     const companyContext: any = useContext(CompanyContext);
     const { successToast, errorToast } = useToast();
     const [loading, setLoading] = useState(false);
@@ -28,32 +28,49 @@ const CreateCustomer = ({ open, handleDialogClose, onCustomerCreated }: CreateCu
     const defaultValues = {
         firstName: '',
         lastName: '',
-        phoneCode: '',
-        phoneNumber: '',
+        phone: '',
         companyUuid: companyContext.companyUuid,
     };
 
-    const { control, handleSubmit, reset, watch, getValues, trigger } = useForm({
+    const { control, handleSubmit, reset } = useForm({
         mode: "onChange",
         defaultValues
     });
-
-    const phoneCode = watch('phoneCode');
-    const phoneNumber = watch('phoneNumber');
-
-    // Trigger phone number validation when phone code changes
-    useEffect(() => {
-        if (phoneCode && phoneNumber) {
-            trigger('phoneNumber');
-        }
-    }, [phoneCode, trigger]);
 
     const onSubmit = async (data: any) => {
         setLoading(true);
         try {
             // Ensure companyUuid is always current
             data.companyUuid = companyContext.companyUuid;
-            const response = await CreateCustomerService(data);
+            
+            // Extract phone code and phone number from MuiTelInput format
+            // MuiTelInput returns phone in E.164 format (e.g., +923001234567)
+            if (data.phone) {
+                // Parse the phone number to extract country code and number
+                const phoneValue = data.phone;
+                // Use libphonenumber-js to parse
+                const { parsePhoneNumber } = await import('libphonenumber-js');
+                try {
+                    const phoneNumber = parsePhoneNumber(phoneValue);
+                    data.phoneCode = phoneNumber.countryCallingCode ? `+${phoneNumber.countryCallingCode}` : '';
+                    data.phoneNumber = phoneNumber.nationalNumber || '';
+                } catch (e) {
+                    // Fallback: simple parsing if libphonenumber fails
+                    const match = phoneValue.match(/^\+(\d{1,4})(.+)$/);
+                    if (match) {
+                        data.phoneCode = `+${match[1]}`;
+                        data.phoneNumber = match[2];
+                    } else {
+                        data.phoneCode = '';
+                        data.phoneNumber = phoneValue.replace(/[^0-9]/g, '');
+                    }
+                }
+            }
+            
+            // Remove phone field as API expects phoneCode and phoneNumber separately
+            delete data.phone;
+            
+            const response = await SaveCustomerService(data);
             if (response.status) {
                 successToast('Customer created successfully');
                 onCustomerCreated(response.data);
@@ -83,7 +100,7 @@ const CreateCustomer = ({ open, handleDialogClose, onCustomerCreated }: CreateCu
                     <DialogTitle>Create Customer</DialogTitle>
                     <DialogContent>
                         <Grid container spacing={2} sx={{ mt: 1 }}>
-                            <Grid item xs={12} sm={6}>
+                            <Grid  size={{ xs: 12, sm: 6 }}>
                                 <Controller
                                     name="firstName"
                                     control={control}
@@ -109,7 +126,7 @@ const CreateCustomer = ({ open, handleDialogClose, onCustomerCreated }: CreateCu
                                     )}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={6}>
+                            <Grid  size={{ xs: 12, sm: 6 }}>
                                 <Controller
                                     name="lastName"
                                     control={control}
@@ -135,42 +152,9 @@ const CreateCustomer = ({ open, handleDialogClose, onCustomerCreated }: CreateCu
                                     )}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={4}>
+                            <Grid  size={{ xs: 12, sm: 12 }}>
                                 <Controller
-                                    name="phoneCode"
-                                    control={control}
-                                    rules={{
-                                        required: {
-                                            value: true,
-                                            message: "Phone code is required"
-                                        },
-                                        maxLength: {
-                                            value: 10,
-                                            message: "Phone code must not exceed 10 characters"
-                                        },
-                                        validate: (value) => {
-                                            if (value && !value.startsWith('+')) {
-                                                return "Phone code must start with +";
-                                            }
-                                            return true;
-                                        }
-                                    }}
-                                    render={({ field, fieldState: { error } }: any) => (
-                                        <FormInput
-                                            fullWidth={true}
-                                            error={error}
-                                            field={field}
-                                            value={field.value || ''}
-                                            label="Phone Code"
-                                            placeholder="+1"
-                                            onInput={(e: any) => phoneCodeOnly(e, 10)}
-                                        />
-                                    )}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={8}>
-                                <Controller
-                                    name="phoneNumber"
+                                    name="phone"
                                     control={control}
                                     rules={{
                                         required: {
@@ -178,29 +162,31 @@ const CreateCustomer = ({ open, handleDialogClose, onCustomerCreated }: CreateCu
                                             message: "Phone number is required"
                                         },
                                         validate: (value) => {
-                                            const currentPhoneCode = getValues('phoneCode') || phoneCode || '';
-                                            if (!currentPhoneCode) {
-                                                return "Please enter phone code first";
+                                            if (!value) {
+                                                return "Phone number is required";
                                             }
-                                            return validatePhoneNumber(value, currentPhoneCode);
+                                            // Basic validation - MuiTelInput handles format
+                                            if (value && value.length < 8) {
+                                                return "Please enter a valid phone number";
+                                            }
+                                            return true;
                                         }
                                     }}
-                                    render={({ field, fieldState: { error } }: any) => {
-                                        const maxLength = getPhoneNumberMaxLength(phoneCode || '');
-                                        return (
-                                            <FormInput
-                                                fullWidth={true}
-                                                error={error}
-                                                field={field}
-                                                value={field.value || ''}
+                                    render={({ field, fieldState: { error } }: any) => (
+                                        <FormControl fullWidth error={!!error}>
+                                            <MuiTelInput
+                                                {...field}
                                                 label="Phone Number"
-                                                placeholder={phoneCode ? `Enter phone number (max ${maxLength} digits)` : "Enter phone code first"}
-                                                type="tel"
-                                                disabled={!phoneCode}
-                                                onInput={(e: any) => phoneNumberOnly(e, maxLength)}
+                                                placeholder="Enter phone number"
+                                                defaultCountry="PK"
+                                                preferredCountries={['PK', 'US', 'GB', 'IN']}
+                                                size="small"
+                                                fullWidth
+                                                error={!!error}
+                                                helperText={error?.message}
                                             />
-                                        );
-                                    }}
+                                        </FormControl>
+                                    )}
                                 />
                             </Grid>
                         </Grid>
@@ -224,5 +210,5 @@ const CreateCustomer = ({ open, handleDialogClose, onCustomerCreated }: CreateCu
     );
 };
 
-export default CreateCustomer;
+export default SaveCustomer;
 

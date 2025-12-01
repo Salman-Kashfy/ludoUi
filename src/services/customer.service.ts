@@ -33,9 +33,9 @@ export const GetCustomers = async ({page = 1, limit = constants.PER_PAGE}, param
         : emptyListResponse;
 };
 
-export const CreateCustomer = async (data: any): Promise<any> => {
+export const SaveCustomer = async (data: any): Promise<any> => {
     const query = `
-        mutation CreateCustomer($input: SaveCustomerInput!) {
+        mutation SaveCustomer($input: SaveCustomerInput!) {
             saveCustomer(input: $input) {
                 data {
                     uuid

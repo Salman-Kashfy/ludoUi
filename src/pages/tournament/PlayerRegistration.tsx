@@ -8,7 +8,7 @@ import { GetCustomers } from "../../services/customer.service";
 import { useToast } from "../../utils/toast";
 import { CompanyContext } from "../../hooks/CompanyContext";
 import FormInput from "../../components/FormInput";
-import CreateCustomer from "../../components/CreateCustomer";
+import SaveCustomer from "../../components/SaveCustomer";
 import { debounce } from "@mui/material/utils";
 import { PAYMENT_METHOD } from "../../utils/constants";
 
@@ -52,7 +52,7 @@ export default function PlayerRegistration({ open, onClose, tournament, onSucces
     const [customerId, setCustomerId] = useState<{label: string, value: string}>({label: '', value: ''});
     const [customerLoader, setCustomerLoader] = useState(false);
     const [searchCustomer, setSearchCustomer] = useState("");
-    const [createCustomerDialogOpen, setCreateCustomerDialogOpen] = useState(false);
+    const [saveCustomerDialogOpen, setSaveCustomerDialogOpen] = useState(false);
 
     const fetchCustomers = useCallback(({searchCustomer, companyUuid}:{searchCustomer:string, companyUuid:string}) => {
         setCustomerLoader(true);
@@ -136,7 +136,7 @@ export default function PlayerRegistration({ open, onClose, tournament, onSucces
     };
 
     const handleAddCustomer = () => {
-        setCreateCustomerDialogOpen(true);
+        setSaveCustomerDialogOpen(true);
     };
 
     const handleCustomerCreated = (newCustomer: any) => {
@@ -150,11 +150,11 @@ export default function PlayerRegistration({ open, onClose, tournament, onSucces
         // Select the newly created customer
         setCustomerId(customerOption);
         setValue('customerUuid', newCustomer.uuid);
-        setCreateCustomerDialogOpen(false);
+        setSaveCustomerDialogOpen(false);
     };
 
-    const handleCreateCustomerDialogClose = () => {
-        setCreateCustomerDialogOpen(false);
+    const handleSaveCustomerDialogClose = () => {
+        setSaveCustomerDialogOpen(false);
     };
 
     const onSubmit = async () => {
@@ -199,9 +199,9 @@ export default function PlayerRegistration({ open, onClose, tournament, onSucces
 
     return (
         <Fragment>
-            <CreateCustomer
-                open={createCustomerDialogOpen}
-                handleDialogClose={handleCreateCustomerDialogClose}
+            <SaveCustomer
+                open={saveCustomerDialogOpen}
+                handleDialogClose={handleSaveCustomerDialogClose}
                 onCustomerCreated={handleCustomerCreated}
             />
             <Dialog open={open} onClose={handleClose} maxWidth="xs" fullWidth>
