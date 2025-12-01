@@ -22,6 +22,7 @@ import { PAYMENT_METHOD } from '../../utils/constants';
 import { BookTableSession } from '../../services/table.session.service';
 import { useToast } from '../../utils/toast.tsx';
 import { useTableSession } from '../../hooks/TableSessionContext';
+import SaveCustomer from '../../components/SaveCustomer';
 
 const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices, onBookingSuccess}:{open:boolean, handleDialogClose:() => void, tableUuid:string, categoryPrices: any[], onBookingSuccess?: () => void }) => {
 
@@ -48,6 +49,7 @@ const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices, onBook
     const [customerId, setCustomerId] = useState<{label: string, value: string}>({label: '', value: ''});
     const [customerLoader, setCustomerLoader] = useState(false);
     const [searchCustomer, setSearchCustomer] = useState("");
+    const [saveCustomerDialogOpen, setSaveCustomerDialogOpen] = useState(false);
 
     const { successToast, errorToast } = useToast();
 
@@ -114,8 +116,26 @@ const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices, onBook
     }   
 
     const handleAddCustomer = () => {
-        console.log('Add customer clicked');
-    }
+        setSaveCustomerDialogOpen(true);
+    };
+
+    const handleCustomerCreated = (newCustomer: any) => {
+        // Add the new customer to the list
+        const customerOption = {
+            value: newCustomer.uuid,
+            label: `${newCustomer.firstName} ${newCustomer.lastName} (${newCustomer.phone || `${newCustomer.phoneCode}${newCustomer.phoneNumber}`})`,
+            phoneCode: newCustomer.phoneCode || '',
+        };
+        setCustomers((prev) => [customerOption, ...prev]);
+        // Select the newly created customer
+        setCustomerId(customerOption);
+        setValue('customerUuid', newCustomer.uuid);
+        setSaveCustomerDialogOpen(false);
+    };
+
+    const handleSaveCustomerDialogClose = () => {
+        setSaveCustomerDialogOpen(false);
+    };
 
     const onSubmit = () => {
         setBookSessionLoader(true)
@@ -152,6 +172,11 @@ const BookSession = ({open, handleDialogClose, tableUuid, categoryPrices, onBook
 
     return (
         <Fragment>
+            <SaveCustomer
+                open={saveCustomerDialogOpen}
+                handleDialogClose={handleSaveCustomerDialogClose}
+                onCustomerCreated={handleCustomerCreated}
+            />
             <Dialog open={open} onClose={_handleDialogClose}>
                 <form onSubmit={handleSubmit(onSubmit)}>
                     <DialogTitle>Book Session</DialogTitle>
