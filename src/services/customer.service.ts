@@ -13,6 +13,7 @@ export const GetCustomers = async ({page = 1, limit = constants.PER_PAGE}, param
                     phoneNumber
                     fullName
                     phone
+                    createdAt
                 }
                 paging {
                     totalPages

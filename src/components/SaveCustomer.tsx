@@ -1,4 +1,4 @@
-import { Fragment, useState, useContext } from 'react';
+import { Fragment, useState, useContext, useEffect } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import Grid from '@mui/material/Grid';
 import Dialog from '@mui/material/Dialog';
@@ -18,30 +18,60 @@ interface SaveCustomerProps {
     open: boolean;
     handleDialogClose: () => void;
     onCustomerCreated: (customer: any) => void;
+    customer?: any; // For edit mode
 }
 
-const SaveCustomer = ({ open, handleDialogClose, onCustomerCreated }: SaveCustomerProps) => {
+const SaveCustomer = ({ open, handleDialogClose, onCustomerCreated, customer }: SaveCustomerProps) => {
     const companyContext: any = useContext(CompanyContext);
     const { successToast, errorToast } = useToast();
     const [loading, setLoading] = useState(false);
 
-    const defaultValues = {
-        firstName: '',
-        lastName: '',
-        phone: '',
-        companyUuid: companyContext.companyUuid,
+    const isEditMode = !!customer;
+
+    const getDefaultValues = () => {
+        if (customer) {
+            // Construct phone number from phoneCode and phoneNumber for edit mode
+            const phone = customer.phoneCode && customer.phoneNumber 
+                ? `${customer.phoneCode}${customer.phoneNumber}` 
+                : customer.phone || '';
+            return {
+                firstName: customer.firstName || '',
+                lastName: customer.lastName || '',
+                phone: phone,
+                companyUuid: companyContext.companyUuid,
+            };
+        }
+        return {
+            firstName: '',
+            lastName: '',
+            phone: '',
+            companyUuid: companyContext.companyUuid,
+        };
     };
 
     const { control, handleSubmit, reset } = useForm({
         mode: "onChange",
-        defaultValues
+        defaultValues: getDefaultValues()
     });
+
+    // Reset form when customer prop or open state changes
+    useEffect(() => {
+        if (open) {
+            reset(getDefaultValues());
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [open, customer]);
 
     const onSubmit = async (data: any) => {
         setLoading(true);
         try {
             // Ensure companyUuid is always current
             data.companyUuid = companyContext.companyUuid;
+            
+            // Add uuid for edit mode
+            if (isEditMode && customer?.id) {
+                data.uuid = customer.id;
+            }
             
             // Extract phone code and phone number from MuiTelInput format
             // MuiTelInput returns phone in E.164 format (e.g., +923001234567)
@@ -72,16 +102,16 @@ const SaveCustomer = ({ open, handleDialogClose, onCustomerCreated }: SaveCustom
             
             const response = await SaveCustomerService(data);
             if (response.status) {
-                successToast('Customer created successfully');
+                successToast(isEditMode ? 'Customer updated successfully' : 'Customer created successfully');
                 onCustomerCreated(response.data);
-                reset(defaultValues);
+                reset(getDefaultValues());
                 handleDialogClose();
             } else {
-                errorToast(response.errorMessage || 'Failed to create customer');
+                errorToast(response.errorMessage || (isEditMode ? 'Failed to update customer' : 'Failed to create customer'));
             }
         } catch (error: any) {
             console.error(error);
-            errorToast('Failed to create customer');
+            errorToast(isEditMode ? 'Failed to update customer' : 'Failed to create customer');
         } finally {
             setLoading(false);
         }
@@ -89,7 +119,7 @@ const SaveCustomer = ({ open, handleDialogClose, onCustomerCreated }: SaveCustom
 
     const _handleDialogClose = () => {
         if (loading) return;
-        reset(defaultValues);
+        reset(getDefaultValues());
         handleDialogClose();
     };
 
@@ -97,7 +127,7 @@ const SaveCustomer = ({ open, handleDialogClose, onCustomerCreated }: SaveCustom
         <Fragment>
             <Dialog open={open} onClose={_handleDialogClose} maxWidth="sm" fullWidth>
                 <form onSubmit={handleSubmit(onSubmit)}>
-                    <DialogTitle>Create Customer</DialogTitle>
+                    <DialogTitle>{isEditMode ? 'Edit Customer' : 'Create Customer'}</DialogTitle>
                     <DialogContent>
                         <Grid container spacing={2} sx={{ mt: 1 }}>
                             <Grid  size={{ xs: 12, sm: 6 }}>
@@ -201,7 +231,7 @@ const SaveCustomer = ({ open, handleDialogClose, onCustomerCreated }: SaveCustom
                             loading={loading}
                             disabled={loading}
                         >
-                            Create Customer
+                            {isEditMode ? 'Update Customer' : 'Create Customer'}
                         </LoadingButton>
                     </DialogActions>
                 </form>

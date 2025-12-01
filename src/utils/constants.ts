@@ -48,6 +48,9 @@ export const ROUTES = {
         EDIT: ((uuid = null) => '/tournament/'+(uuid || ':uuid')+'/edit'),
         VIEW: ((uuid = null) => '/tournament/'+(uuid || ':uuid')),
         ROUND_DETAILS: ((uuid = null) => '/tournament-round/'+(uuid || ':uuid')),
+    },
+    CUSTOMER: {
+        LIST: '/customers',
     }
 }
 
@@ -65,6 +68,9 @@ export const PERMISSIONS = {
         LIST: 'tournament:view',
         UPSERT: 'tournament:upsert',
         DELETE: 'tournament:delete',
+    },
+    CUSTOMER: {
+        LIST: 'customer:view',
     },
 
 }

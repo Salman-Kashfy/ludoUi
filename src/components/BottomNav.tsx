@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Paper, BottomNavigation, BottomNavigationAction } from '@mui/material';
-import { LayoutDashboard, Shapes, GalleryHorizontal, Trophy } from 'lucide-react';
+import { LayoutDashboard, GalleryHorizontal, Trophy, MoreHorizontal } from 'lucide-react';
 import { ROUTES, PERMISSIONS } from '../utils/constants';
 import { hasPermission } from '../utils/permissions';
 
@@ -11,13 +11,6 @@ const navItems = [
         value: ROUTES.DASHBOARD,
         icon: <LayoutDashboard size={18} strokeWidth={1.6} />,
         matchers: [ROUTES.DASHBOARD],
-    },
-    {
-        label: 'Category',
-        value: ROUTES.CATEGORY.LIST,
-        permission: PERMISSIONS.CATEGORY.LIST,
-        icon: <Shapes size={18} strokeWidth={1.6} />,
-        matchers: [ROUTES.CATEGORY.LIST, '/category'],
     },
     {
         label: 'Tables',
@@ -33,18 +26,27 @@ const navItems = [
         icon: <Trophy size={18} strokeWidth={1.6} />,
         matchers: [ROUTES.TOURNAMENT.LIST, '/tournament'],
     },
+    {
+        label: 'More',
+        value: 'more',
+        icon: <MoreHorizontal size={18} strokeWidth={1.6} />,
+        matchers: [],
+        isMoreButton: true,
+    },
 ];
 
 interface BottomNavProps {
     visible?: boolean;
+    onMoreClick?: () => void;
 }
 
-function BottomNav({ visible = true }: BottomNavProps) {
+function BottomNav({ visible = true, onMoreClick }: BottomNavProps) {
     const navigate = useNavigate();
     const location = useLocation();
 
     const items = useMemo(() => {
         return navItems.filter((item) => {
+            if (item.isMoreButton) return true;
             if (!item.permission) return true;
             return hasPermission(item.permission);
         });
@@ -55,7 +57,7 @@ function BottomNav({ visible = true }: BottomNavProps) {
     };
 
     const activeItem = items.find((item) =>
-        (item.matchers || [item.value]).some(matchesRoute)
+        item.isMoreButton ? false : (item.matchers || [item.value]).some(matchesRoute)
     );
 
     if (!visible || !items.length) {
@@ -78,7 +80,12 @@ function BottomNav({ visible = true }: BottomNavProps) {
                 showLabels
                 value={activeItem?.value || items[0].value}
                 onChange={(_event, newValue) => {
-                    navigate(newValue);
+                    const clickedItem = items.find(item => item.value === newValue);
+                    if (clickedItem?.isMoreButton && onMoreClick) {
+                        onMoreClick();
+                    } else if (!clickedItem?.isMoreButton) {
+                        navigate(newValue);
+                    }
                 }}
             >
                 {items.map((item) => (
