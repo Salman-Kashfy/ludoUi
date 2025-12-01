@@ -32,7 +32,7 @@ import {useTheme} from "@mui/material";
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import TrendingDownOutlinedIcon from '@mui/icons-material/TrendingDownOutlined';
 import AltRouteIcon from "@mui/icons-material/AltRoute";
-import { LayoutDashboard , Shapes, GalleryHorizontal, Trophy} from 'lucide-react'; 
+import { LayoutDashboard , Shapes, GalleryHorizontal, Trophy, Users} from 'lucide-react'; 
 
 const openedMixin = (theme: Theme): CSSObject => ({
     width: drawerWidth,
@@ -98,9 +98,10 @@ interface SidebarProps {
     open: boolean;
     drawerWidth: number;
     isMobile: boolean;
+    onClose?: () => void;
 }
 
-function SideBar({open, drawerWidth, isMobile}: SidebarProps) {
+function SideBar({open, drawerWidth, isMobile, onClose}: SidebarProps) {
     const theme = useTheme()
     const location = useLocation();
     const drawerPaperProps = {
@@ -116,9 +117,11 @@ function SideBar({open, drawerWidth, isMobile}: SidebarProps) {
     const effectiveOpen = open;
     const matchesRoute = (matcher: string) => location.pathname === matcher || location.pathname.startsWith(`${matcher}/`);
 
-    if (isMobile) {
-        return null;
-    }
+    const handleNavClick = () => {
+        if (isMobile && onClose) {
+            onClose();
+        }
+    };
 
     const drawerContent = (
         <>
@@ -134,6 +137,7 @@ function SideBar({open, drawerWidth, isMobile}: SidebarProps) {
                             component={NavLink}
                             to={ROUTES.DASHBOARD}
                             selected={matchesRoute(ROUTES.DASHBOARD)}
+                            onClick={handleNavClick}
                             sx={[listBtnStyles, effectiveOpen ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
                             <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, effectiveOpen ? {mr: 2} : {mr: 'auto'}]}>
                                 {/* <GridViewOutlinedIcon sx={iconStyles}/> */}
@@ -151,6 +155,7 @@ function SideBar({open, drawerWidth, isMobile}: SidebarProps) {
                                 component={NavLink}
                                 to={ROUTES.CATEGORY.LIST}
                                 selected={matchesRoute(ROUTES.CATEGORY.LIST) || matchesRoute('/category')}
+                                onClick={handleNavClick}
                                 sx={[listBtnStyles, effectiveOpen ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
                                 <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, effectiveOpen ? {mr: 2} : {mr: 'auto'}]}>
                                     {/* <GridViewOutlinedIcon sx={iconStyles}/> */}
@@ -170,6 +175,7 @@ function SideBar({open, drawerWidth, isMobile}: SidebarProps) {
                                 component={NavLink}
                                 to={ROUTES.TABLE.LIST}
                                 selected={matchesRoute(ROUTES.TABLE.LIST) || matchesRoute('/table')}
+                                onClick={handleNavClick}
                                 sx={[listBtnStyles, effectiveOpen ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
                                 <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, effectiveOpen ? {mr: 2} : {mr: 'auto'}]}>
                                     <GalleryHorizontal strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
@@ -188,6 +194,7 @@ function SideBar({open, drawerWidth, isMobile}: SidebarProps) {
                                 component={NavLink}
                                 to={ROUTES.TOURNAMENT.LIST}
                                 selected={matchesRoute(ROUTES.TOURNAMENT.LIST) || matchesRoute('/tournament')}
+                                onClick={handleNavClick}
                                 sx={[listBtnStyles, effectiveOpen ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
                                 <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, effectiveOpen ? {mr: 2} : {mr: 'auto'}]}>
                                     <Trophy strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
@@ -198,10 +205,54 @@ function SideBar({open, drawerWidth, isMobile}: SidebarProps) {
                     </ListItem>
                     : <></>
                 }
+                { 
+                hasPermission(PERMISSIONS.CUSTOMER.LIST) ?
+                    <ListItem key="customer" disablePadding sx={{ display: 'block', }}>
+                        <Tooltip title="Customer" placement={'right'} disableHoverListener={effectiveOpen} disableFocusListener={effectiveOpen}>
+                            <ListItemButton
+                                component={NavLink}
+                                to={ROUTES.CUSTOMER.LIST}
+                                selected={matchesRoute(ROUTES.CUSTOMER.LIST) || matchesRoute('/customer')}
+                                onClick={handleNavClick}
+                                sx={[listBtnStyles, effectiveOpen ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
+                                <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, effectiveOpen ? {mr: 2} : {mr: 'auto'}]}>
+                                    <Users strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
+                                </ListItemIcon>
+                                <ListItemText primary="Customer" sx={[effectiveOpen ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
+                            </ListItemButton>
+                        </Tooltip>
+                    </ListItem>
+                    : <></>
+                }
             </List>
         </>
     );
 
+    // Mobile drawer
+    if (isMobile) {
+        return (
+            <MuiDrawer
+                variant="temporary"
+                open={open}
+                onClose={onClose || (() => {})}
+                ModalProps={{
+                    keepMounted: true, // Better open performance on mobile.
+                }}
+                sx={{
+                    display: { xs: 'block', md: 'none' },
+                    '& .MuiDrawer-paper': {
+                        boxSizing: 'border-box',
+                        width: drawerWidth,
+                    },
+                }}
+                PaperProps={drawerPaperProps}
+            >
+                {drawerContent}
+            </MuiDrawer>
+        );
+    }
+
+    // Desktop drawer
     return (
         <Drawer variant="permanent" open={open} PaperProps={drawerPaperProps} sx={{ display: { xs: 'none', md: 'block' } }}>
             {drawerContent}

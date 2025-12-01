@@ -76,9 +76,10 @@ function DashboardLayout({ children, isDarkMode, handleThemeChange }:any) {
                         isMobile={isMobile}
                     />
                     <Sidebar
-                        open={open}
+                        open={isMobile ? mobileOpen : open}
                         drawerWidth={drawerWidth}
                         isMobile={isMobile}
+                        onClose={() => setMobileOpen(false)}
                     />
                     <Box component="main" sx={{ flexGrow: 1, mt: { xs: '56px', sm: '64px', md: '65px' }, pb: '90px' }}>
                         <Box sx={{ px: { xs: 0, sm: 2 }, pt: { xs: 0.5, sm: 2 } }}>
@@ -95,7 +96,7 @@ function DashboardLayout({ children, isDarkMode, handleThemeChange }:any) {
                             </Box>
                         </Box>
                     </Box>
-                    {isMobile && <BottomNav />}
+                    {isMobile && <BottomNav onMoreClick={handleDrawerToggle} />}
                 </Box>
             </BreadcrumbContext.Provider>
         </AppProvider>

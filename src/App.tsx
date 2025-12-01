@@ -28,6 +28,7 @@ import Tournament from './pages/tournament/Tournament';
 import CreateTournament from './pages/tournament/CreateTournament';
 import EditTournament from './pages/tournament/EditTournament';
 import TournamentRoundDetails from './pages/tournament/TournamentRoundDetails';
+import Customer from './pages/customer/Customer';
 
 function App() {
     /**
@@ -67,6 +68,7 @@ function App() {
                                 <Route path={ROUTES.TOURNAMENT.CREATE} element={<DashboardLayoutRoute isAuth={true} component={CreateTournament} permissionName={PERMISSIONS.TOURNAMENT.UPSERT} />} />
                                 <Route path={ROUTES.TOURNAMENT.EDIT()} element={<DashboardLayoutRoute isAuth={true} component={EditTournament} permissionName={PERMISSIONS.TOURNAMENT.UPSERT} />} />
                                 <Route path={ROUTES.TOURNAMENT.ROUND_DETAILS()} element={<DashboardLayoutRoute isAuth={true} component={TournamentRoundDetails} permissionName={PERMISSIONS.TOURNAMENT.LIST} />} />
+                                <Route path={ROUTES.CUSTOMER.LIST} element={<DashboardLayoutRoute isAuth={true} component={Customer} permissionName={PERMISSIONS.CUSTOMER.LIST} />} />
                                 {/* <Route path={ROUTES.FORBIDDEN} element={<DashboardLayoutRoute isAuth={true} component={PermissionDenied} permissionName={false} />} /> */}
                                 <Route path={ROUTES.AUTH.LOGIN} element={<AuthLayoutRoute isAuth={false} component={Signin} />} />
                                 <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<AuthLayoutRoute isAuth={false} component={ForgotPassword} />} />
