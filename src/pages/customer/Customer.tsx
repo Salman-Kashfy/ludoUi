@@ -73,7 +73,7 @@ function Customer() {
             field: 'fullName', 
             headerName: 'Customer', 
             flex: 1,
-            minWidth: 250,
+            width: 100,
             renderCell: (params: any) => {
                 const row = params.row;
                 const initials = getInitials(row.firstName || '', row.lastName || '');
@@ -102,7 +102,7 @@ function Customer() {
             field: 'phone', 
             headerName: 'Phone', 
             flex: 1,
-            minWidth: 200,
+            width: 100,
             renderCell: (params: any) => {
                 if (!params.value) return <Typography variant="body2" color="text.secondary">-</Typography>;
                 return (
@@ -117,7 +117,7 @@ function Customer() {
             field: 'createdAt', 
             headerName: 'Registered', 
             flex: 1,
-            minWidth: 180,
+            width: 100,
             renderCell: (params: any) => {
                 if (!params.value) return <Typography variant="body2" color="text.secondary">-</Typography>;
                 return (
@@ -360,8 +360,8 @@ function Customer() {
                     }}
                 >
                     <CardContent sx={{ p: 0 }}>
-                        <Box sx={{ width: '100%', overflowX: 'auto' }}>
-                            <Box sx={{ width: '100%', minWidth: 0 }}>
+                        <Box sx={{ overflowX: 'auto' }}>
+                            <Box>
                                 <Box sx={{ p: 2 }}>
                                     <DataGrid
                                         rows={customers}
@@ -369,12 +369,11 @@ function Customer() {
                                         loading={loading}
                                         paginationModel={paginationModel}
                                         onPaginationModelChange={setPaginationModel}
-                                        pageSizeOptions={[10, 25, 50, 100]}
                                         rowCount={paginationInfo.totalResultCount}
                                         paginationMode="server"
                                         sx={{ 
                                             border: 0,
-                                            width: '100%',
+                                            width: '99%',
                                             '& .MuiDataGrid-cell': {
                                                 borderBottom: `1px solid ${theme.palette.divider}`,
                                             },
@@ -387,7 +386,6 @@ function Customer() {
                                                 backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.02)',
                                             },
                                         }}
-                                        autoHeight
                                         disableRowSelectionOnClick
                                     />
                                 </Box>

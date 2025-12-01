@@ -208,7 +208,7 @@ function Table() {
                                     rows={tables}
                                     columns={columns}
                                     loading={loading}
-                                    sx={{ border: 0 }}
+                                    sx={{ border: 0, width: '99%' }}
                                     hideFooter
                                     autoHeight
                                 />
