@@ -24,6 +24,7 @@
     "libphonenumber-js": "^1.12.24",
     "lodash": "^4.17.21",
     "lucide-react": "^0.546.0",
+    "mui-tel-input": "^9.0.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-draggable": "^4.5.0",
