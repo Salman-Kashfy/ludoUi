@@ -51,7 +51,10 @@ export const ROUTES = {
     },
     CUSTOMER: {
         LIST: '/customers',
-    }
+    },
+    USER: {
+        LIST: '/users',
+    },
 }
 
 export const PERMISSIONS = {
@@ -71,6 +74,9 @@ export const PERMISSIONS = {
     },
     CUSTOMER: {
         LIST: 'customer:view',
+    },
+    USER: {
+        LIST: 'user:view',
     },
 
 }
