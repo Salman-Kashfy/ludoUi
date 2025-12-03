@@ -32,7 +32,7 @@ import {useTheme} from "@mui/material";
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import TrendingDownOutlinedIcon from '@mui/icons-material/TrendingDownOutlined';
 import AltRouteIcon from "@mui/icons-material/AltRoute";
-import { LayoutDashboard , Shapes, GalleryHorizontal, Trophy, Users} from 'lucide-react'; 
+import { LayoutDashboard , Shapes, GalleryHorizontal, Trophy, Users,ShieldUser} from 'lucide-react'; 
 
 const openedMixin = (theme: Theme): CSSObject => ({
     width: drawerWidth,
@@ -235,7 +235,7 @@ function SideBar({open, drawerWidth, isMobile, onClose}: SidebarProps) {
                                 onClick={handleNavClick}
                                 sx={[listBtnStyles, effectiveOpen ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
                                 <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, effectiveOpen ? {mr: 2} : {mr: 'auto'}]}>
-                                    <Users strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
+                                    <ShieldUser strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
                                 </ListItemIcon>
                                 <ListItemText primary="Users" sx={[effectiveOpen ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
                             </ListItemButton>
