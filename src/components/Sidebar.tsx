@@ -224,6 +224,25 @@ function SideBar({open, drawerWidth, isMobile, onClose}: SidebarProps) {
                     </ListItem>
                     : <></>
                 }
+                { 
+                hasPermission(PERMISSIONS.USER.LIST) ?
+                    <ListItem key="users" disablePadding sx={{ display: 'block', }}>
+                        <Tooltip title="Users" placement={'right'} disableHoverListener={effectiveOpen} disableFocusListener={effectiveOpen}>
+                            <ListItemButton
+                                component={NavLink}
+                                to={ROUTES.USER.LIST}
+                                selected={matchesRoute(ROUTES.USER.LIST) || matchesRoute('/users')}
+                                onClick={handleNavClick}
+                                sx={[listBtnStyles, effectiveOpen ? {justifyContent: 'initial' }: {justifyContent: 'center'}]}>
+                                <ListItemIcon sx={[{minWidth: 0, justifyContent: 'center',}, effectiveOpen ? {mr: 2} : {mr: 'auto'}]}>
+                                    <Users strokeWidth={1.5} size={20} color={theme.palette.mode === 'dark' ? '#999' : '#111'}/>
+                                </ListItemIcon>
+                                <ListItemText primary="Users" sx={[effectiveOpen ? {opacity: 1} : {opacity: 0}]} primaryTypographyProps={labelTypography}/>
+                            </ListItemButton>
+                        </Tooltip>
+                    </ListItem>
+                    : <></>
+                }
             </List>
         </>
     );

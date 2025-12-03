@@ -91,10 +91,8 @@ function User() {
                             {initials}
                         </Avatar>
                         <Box>
-                            <Typography variant="body2" fontWeight={500}>
-                                {row.fullName || '-'}
-                            </Typography>
-                            {row.role?.name && (
+                            <Typography variant="body2" fontWeight={500} component="span">
+                                {row.fullName || '-'} {row.role?.name && (
                                 <Chip 
                                     label={row.role.name} 
                                     size="small" 
@@ -105,6 +103,8 @@ function User() {
                                     }} 
                                 />
                             )}
+                            </Typography>
+                            
                         </Box>
                     </Box>
                 );
@@ -325,9 +325,7 @@ function User() {
                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
                                             <Box>
                                                 <Typography variant="subtitle1" fontWeight={600}>
-                                                    {user.fullName}
-                                                </Typography>
-                                                {user.role?.name && (
+                                                    {user.fullName} {user.role?.name && (
                                                     <Chip 
                                                         label={user.role.name} 
                                                         size="small" 
@@ -338,6 +336,8 @@ function User() {
                                                         }} 
                                                     />
                                                 )}
+                                                </Typography>
+                                                
                                             </Box>
                                             <IconButton
                                                 size="small"
@@ -443,7 +443,7 @@ function User() {
                                 <Box sx={{ p: 2 }}>
                                     <DataGrid
                                         rows={users}
-                                        columns={columns}
+                                        columns={columns as any}
                                         loading={loading}
                                         paginationModel={paginationModel}
                                         onPaginationModelChange={setPaginationModel}
