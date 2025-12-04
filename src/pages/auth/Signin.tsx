@@ -8,7 +8,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import {NavLink} from "react-router-dom"
 import {useForm, Controller} from "react-hook-form"
 import {UserContext} from '../../hooks/UserContext';
-import {AdminLogin, UserLogin, UserPermissions} from "../../services/auth/auth.service";
+import {AdminLogin, SetAuthCompany, UserLogin, UserPermissions} from "../../services/auth/auth.service";
 import {ROUTES} from "../../utils/constants";
 import * as React from "react";
 
@@ -36,6 +36,7 @@ function Signin() {
         await UserLogin(data).then((data) => {
             if (data.status) {
                 userContext.setUser(data.user)
+                SetAuthCompany(data.user.companyUuid);
                 userContext.setToken(data.token)
                 UserPermissions().then((response) => {
                     setLoading(false)
