@@ -5,6 +5,7 @@ interface BillingTotalInterface {
     companyUuid: string;
     tableUuid: string;
     categoryPriceUuid: string;
+    paymentMethod: string
 }
 
 export const TableSessionBilling = async (params:BillingTotalInterface) => {
