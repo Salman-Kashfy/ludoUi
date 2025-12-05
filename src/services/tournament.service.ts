@@ -137,27 +137,23 @@ export const DeleteTournament = async (uuid: string): Promise<any> => {
 
 export const GetTournamentPlayers = async (tournamentUuid: string): Promise<any> => {
     const query = `
-        query TournamentRoundPlayers($params: TournamentRoundPlayerFilter!) {
-            tournamentRoundPlayers(params: $params) {
-                status
-                list {
-                    customerId
-                    customer {
-                        uuid
-                        firstName
-                        lastName
-                        fullName
-                        phone
-                    }
-                    table {
-                        uuid
-                        name
-                    }
-                }
-                errors
-                errorMessage
+        query TournamentPlayers($params: TournamentPlayerFilters!) {
+            tournamentPlayers(params: $params) {
+                            status
+                            list {
+                                customerId
+                                customer {
+                                    uuid
+                                    firstName
+                                    lastName
+                                    fullName
+                                    phone
+                                }
+                            }
+                            errors
+                            errorMessage
+                        }
             }
-        }
     `;
 
     const variables = {
@@ -168,7 +164,7 @@ export const GetTournamentPlayers = async (tournamentUuid: string): Promise<any>
     };
 
     const response = await POST(constants.GRAPHQL_SERVER, { query, variables });
-    return response?.data?.tournamentRoundPlayers || emptyListResponse;
+    return response?.data?.tournamentPlayers || emptyListResponse;
 };
 
 export const PlayerRegistrationBill = async (params: any): Promise<any> => {
