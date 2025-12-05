@@ -24,6 +24,7 @@ export default function TournamentPlayers({ open, onClose, tournamentUuid }: Tou
     const loadPlayers = () => {
         setLoading(true);
         GetTournamentPlayers(tournamentUuid).then((res: any) => {
+            console.log(res.list);
             setPlayers(res.list || []);
         }).catch(() => {
             errorToast('Failed to load players');

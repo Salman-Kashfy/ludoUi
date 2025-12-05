@@ -1,5 +1,5 @@
-import {constants, emptyListResponse, emptyMutationResponse} from "../utils/constants";
-import {POST} from "./api.service.wrapper";
+import { constants, emptyListResponse, emptyMutationResponse } from "../utils/constants";
+import { POST } from "./api.service.wrapper";
 
 interface GetTournamentsInput {
     companyUuid: string;
@@ -49,13 +49,13 @@ export const GetTournaments = async (params: GetTournamentsInput, paging?: any):
         paging: paging || null
     };
 
-    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    const response = await POST(constants.GRAPHQL_SERVER, { query, variables });
     return response?.data?.tournaments?.list?.length
         ? response?.data?.tournaments
         : emptyListResponse;
 };
 
-export const GetTournament = async (uuid:string): Promise<any> => {
+export const GetTournament = async (uuid: string): Promise<any> => {
     const query = `
         query Tournament($uuid: ID!) {
             tournament(uuid: $uuid) {
@@ -93,11 +93,11 @@ export const GetTournament = async (uuid:string): Promise<any> => {
         uuid
     }
 
-    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    const response = await POST(constants.GRAPHQL_SERVER, { query, variables });
     return response?.data?.tournament?.data || {}
 };
 
-export const SaveTournament = async (data:any): Promise<any> => {
+export const SaveTournament = async (data: any): Promise<any> => {
     const query = `
         mutation SaveTournament($input: SaveTournamentInput!) {
             saveTournament(input: $input) {
@@ -113,11 +113,11 @@ export const SaveTournament = async (data:any): Promise<any> => {
     const variables = {
         input: data
     }
-    const response:any = await POST(constants.GRAPHQL_SERVER, { query:query.trim(), variables });
+    const response: any = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables });
     return response?.data?.saveTournament || emptyMutationResponse
 }
 
-export const DeleteTournament = async (uuid:string): Promise<any> => {
+export const DeleteTournament = async (uuid: string): Promise<any> => {
     const query = `
         mutation DeleteTournament($uuid: ID!) {
             deleteTournament(uuid: $uuid) {
@@ -131,40 +131,39 @@ export const DeleteTournament = async (uuid:string): Promise<any> => {
     const variables = {
         uuid
     }
-    const response:any = await POST(constants.GRAPHQL_SERVER, { query:query.trim(), variables });
+    const response: any = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables });
     return response?.data?.deleteTournament || emptyMutationResponse
 }
 
 export const GetTournamentPlayers = async (tournamentUuid: string): Promise<any> => {
     const query = `
-        query TournamentPlayers($tournamentUuid: ID!) {
-            tournamentPlayers(tournamentUuid: $tournamentUuid) {
-                status
-                list {
-                    customerId
-                    customer {
-                        uuid
-                        firstName
-                        lastName
-                        fullName
-                        phone
-                    }
-                    table {
-                        uuid
-                        name
-                    }
-                }
-                errors
-                errorMessage
+        query TournamentPlayers($params: TournamentPlayerFilters!) {
+            tournamentPlayers(params: $params) {
+                            status
+                            list {
+                                customerId
+                                customer {
+                                    uuid
+                                    firstName
+                                    lastName
+                                    fullName
+                                    phone
+                                }
+                            }
+                            errors
+                            errorMessage
+                        }
             }
-        }
     `;
 
     const variables = {
-        tournamentUuid
+        params: {
+            tournamentUuid,  // wrap it as a field inside the expected filter
+            // you may add other filter fields if needed, e.g., roundUuid, tableUuid, etc.
+        }
     };
 
-    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    const response = await POST(constants.GRAPHQL_SERVER, { query, variables });
     return response?.data?.tournamentPlayers || emptyListResponse;
 };
 
@@ -187,7 +186,7 @@ export const PlayerRegistrationBill = async (params: any): Promise<any> => {
         params
     };
 
-    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    const response = await POST(constants.GRAPHQL_SERVER, { query, variables });
     return response?.data?.playerRegistrationBill || emptyMutationResponse;
 };
 
@@ -210,7 +209,7 @@ export const PlayerRegistration = async (input: any): Promise<any> => {
         input
     };
 
-    const response = await POST(constants.GRAPHQL_SERVER, {query, variables});
+    const response = await POST(constants.GRAPHQL_SERVER, { query, variables });
     return response?.data?.playerRegistration || emptyMutationResponse;
 };
 

@@ -18,6 +18,7 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
             duration: number | string;
             unit: string;
             price: number | string;
+            paymentMethod: string;
             freeMins: number | string;
             currencyName?: string;
         }>;
@@ -29,6 +30,7 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
             duration: '',
             unit: 'minutes',
             price: '',
+            paymentMethod: '',
             freeMins: 0,
             currencyName: record?.currencyName || ''
         }],
@@ -70,6 +72,7 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
             duration: '',
             unit: 'minutes',
             price: '',
+            paymentMethod: '',
             freeMins: 0,
             currencyName: record?.currencyName || ''
         });
@@ -90,6 +93,8 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
             price.price = parseFloat(price.price)
             price.freeMins = parseInt(price.freeMins)
             price.duration = parseInt(price.duration)
+            console.log(price);
+            
             return price
         });
         callback(data);
