@@ -55,6 +55,9 @@ export const ROUTES = {
     USER: {
         LIST: '/users',
     },
+    PAYMENT: {
+        LIST: '/payments',
+    },
 }
 
 export const PERMISSIONS = {
@@ -77,6 +80,9 @@ export const PERMISSIONS = {
     },
     USER: {
         LIST: 'user:view',
+    },
+    PAYMENT: {
+        LIST: 'payment:view',
     },
 
 }

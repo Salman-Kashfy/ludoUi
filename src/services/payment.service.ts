@@ -1,14 +1,69 @@
-import { apiUrl } from "../utils/constants";
-import { GET } from "./api.service.wrapper";
+import { GET, POST } from "./api.service.wrapper";
+import { constants, emptyListResponse, apiUrl } from "../utils/constants";
 
 interface BillingTotalInterface {
     companyUuid: string;
     tableUuid: string;
     categoryPriceUuid: string;
-    paymentMethod: string
+    paymentMethod: string;
 }
 
-export const TableSessionBilling = async (params:BillingTotalInterface) => {
-    const response = await GET(apiUrl.tableSessionBilling, params);
-    return response.status ? response.data : {}
+interface PaymentsParams {
+    searchText?: string;
+    customerId?: number;
+    status?: string;
+    method?: string;
+    tournamentUuid?: string;
 }
+
+export const Payments = async (
+    { page = 1, limit = constants.PER_PAGE },
+    params: PaymentsParams = {}
+): Promise<any> => {
+    const query = `
+        query Payments($paging: PaginatorInput, $params: PaymentFilter) {
+            payments(paging: $paging, params: $params) {
+            list {
+                uuid
+                amount
+                method
+                status
+                refundNote
+                refundedAt
+                createdAt
+                customer {
+                uuid
+                fullName
+                phone
+                }
+                invoiceId
+                taxAmount
+                taxRate
+                totalAmount
+                tournamentId
+                tableSessionId
+            }
+            paging {
+                totalPages
+                totalResultCount
+            }
+            }
+        }
+    `;
+
+    const variables = {
+        paging: { page, limit },
+        params
+    };
+
+    const response = await POST(constants.GRAPHQL_SERVER, { query, variables });
+
+    // Corrected: Return payments list instead of users
+    const payments = response?.data?.payments;
+    return payments?.list?.length ? payments : emptyListResponse;
+};
+
+export const TableSessionBilling = async (params: BillingTotalInterface) => {
+    const response = await GET(apiUrl.tableSessionBilling, params);
+    return response.status ? response.data : {};
+};

@@ -11,7 +11,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { NavLink, useLocation } from "react-router-dom";
 import { ROUTES, PERMISSIONS } from "../utils/constants";
 import { hasPermission } from "../utils/permissions";
-import { LayoutDashboard, Shapes, GalleryHorizontal, Trophy, Users, ShieldUser } from "lucide-react";
+import { LayoutDashboard, Shapes, GalleryHorizontal, Trophy, Users, ShieldUser,DollarSign } from "lucide-react";
 
 const drawerWidth = 240;
 
@@ -157,6 +157,15 @@ function SideBar({ open, drawerWidth, isMobile, onClose }: SidebarProps) {
             handleNavClick={handleNavClick}
           />
         )}
+
+          <SidebarItem
+            label="Payments"
+            to={ROUTES.PAYMENT.LIST}
+            icon={<DollarSign strokeWidth={1.5} size={20} color={theme.palette.mode === "dark" ? "#999" : "#111"} />}
+            open={open}
+            matchesRoute={matchesRoute}
+            handleNavClick={handleNavClick}
+          />
       </List>
     </>
   );
