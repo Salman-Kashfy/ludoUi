@@ -90,16 +90,14 @@ function TournamentPlayerPayments() {
             headerName: 'Type',
             width: 150,
             renderCell: (params: any) => {
-                const value = params?.value || '-';
-                return (
-                    <Chip
-                        label={value}
-                        color={value === 'Tournament' ? 'primary' : value === 'Table Session' ? 'secondary' : 'default'}
-                        size="small"
-                        sx={{ fontWeight: 500 }}
-                    />
-                );
-            }
+                const row = params?.row;
+                if (!row) return 'aa-';
+        
+                if (row.tournamentId) return 'Tournament';
+                if (row.tableSessionId) return 'Table';
+        
+                return '-';
+            },
         },
         {
             field: 'method',
@@ -129,20 +127,7 @@ function TournamentPlayerPayments() {
                     {params?.value ? dayjs(Number(params.value)).format('DD MMM, YYYY hh:mm A') : '-'}
                 </Typography>
             ),
-        },
-        {
-            field: 'actions',
-            type: 'actions',
-            headerName: 'Actions',
-            width: 100,
-            getActions: (params: any) => [
-                <GridActionsCellItem
-                    icon={<Edit size={18} />}
-                    label="Edit"
-                    onClick={() => handleEditPayment(params.row)}
-                />,
-            ],
-        },
+        }
     ];
 
     // Load payments
