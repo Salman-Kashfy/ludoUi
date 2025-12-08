@@ -25,7 +25,7 @@ interface PaymentType {
   value: number;
 }
 
-const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28"];
 
 export default function PaymentCharts() {
   const companyContext = useContext(CompanyContext);
@@ -51,31 +51,40 @@ export default function PaymentCharts() {
   const fetchCharts = async () => {
     if (!companyUuid || !daterange.start || !daterange.end) return;
 
-    try {
-      const startDate = daterange.start.startOf('day').valueOf().toString();
-      const endDate = daterange.end.endOf('day').valueOf().toString();
+    const startDate = daterange.start.startOf('day').toISOString();
+    const endDate = daterange.end.endOf('day').toISOString();
 
-      // Fetch all payments in date range
-      const paymentsResponse = await Payments({ page: 1, limit: 1000, startDate, endDate });
+    try {
+      // Fetch payments with companyUuid and date filters
+      const paymentsResponse = await Payments(
+        { page: 1, limit: 1000 },
+        { companyUuid, startDate, endDate }
+      );
       const paymentsList = paymentsResponse.list ?? [];
 
-      // Pie chart: payment types
-      const typeMap: Record<string, number> = {};
+      // Prepare pie chart data (payment types)
+      const paymentTypesMap: Record<string, number> = {};
       paymentsList.forEach(p => {
         const type = p.method || "Other";
-        typeMap[type] = (typeMap[type] || 0) + (p.totalAmount || p.amount);
+        paymentTypesMap[type] = (paymentTypesMap[type] || 0) + p.totalAmount;
       });
-      setPieData(Object.entries(typeMap).map(([type, value]) => ({ type, value })));
+      const pieChartData: PaymentType[] = Object.entries(paymentTypesMap).map(([type, value]) => ({ type, value }));
+      setPieData(pieChartData);
 
-      // Bar chart: day-wise revenue (Tables & Tournaments)
-      const revenueByDate: Record<string, { tableRevenue: number; tournamentRevenue: number }> = {};
+      // Prepare bar chart data (day-wise revenue split)
+      const revenueMap: Record<string, { tableRevenue: number; tournamentRevenue: number }> = {};
       paymentsList.forEach(p => {
-        const dateKey = new Date(Number(p.createdAt)).toLocaleDateString();
-        if (!revenueByDate[dateKey]) revenueByDate[dateKey] = { tableRevenue: 0, tournamentRevenue: 0 };
-        if (p.tableSessionId) revenueByDate[dateKey].tableRevenue += (p.totalAmount || p.amount);
-        if (p.tournamentId) revenueByDate[dateKey].tournamentRevenue += (p.totalAmount || p.amount);
+        const dateKey = dayjs(Number(p.createdAt)).format("YYYY-MM-DD");
+        if (!revenueMap[dateKey]) revenueMap[dateKey] = { tableRevenue: 0, tournamentRevenue: 0 };
+        if (p.tableSessionId) revenueMap[dateKey].tableRevenue += p.totalAmount;
+        if (p.tournamentId) revenueMap[dateKey].tournamentRevenue += p.totalAmount;
       });
-      setBarData(Object.entries(revenueByDate).map(([source, revenue]) => ({ source, ...revenue })));
+      const barChartData: RevenueSourceSplit[] = Object.entries(revenueMap).map(([source, values]) => ({
+        source,
+        tableRevenue: values.tableRevenue,
+        tournamentRevenue: values.tournamentRevenue
+      }));
+      setBarData(barChartData);
 
     } catch (error) {
       console.error("Failed to fetch payment charts:", error);
@@ -107,9 +116,10 @@ export default function PaymentCharts() {
         </CardContent>
       </Card>
 
-      <Grid container spacing={3}>
-        {/* Bar chart */}
-        <Grid item xs={12} md={6}>
+      {/* Charts side by side */}
+      <Grid container spacing={3} justifyContent="space-between">
+        {/* Day-wise revenue */}
+        <Grid item sx={{ width: '49%' }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>Day-wise Revenue (Tables & Tournaments)</Typography>
@@ -131,8 +141,8 @@ export default function PaymentCharts() {
           </Card>
         </Grid>
 
-        {/* Pie chart */}
-        <Grid item xs={12} md={6}>
+        {/* Payment types */}
+        <Grid item sx={{ width: '49%' }}>
           <Card sx={{ height: '100%' }}>
             <CardContent>
               <Typography variant="h6" gutterBottom>Payment Types</Typography>
