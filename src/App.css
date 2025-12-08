@@ -16,3 +16,6 @@
 body {
     font-family: "Segoe UI", "Inter", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Arial, sans-serif !important;
 }
+.MuiDateRangeCalendar-root > div[style*="z-index: 100000"] {
+    display: none !important;
+}

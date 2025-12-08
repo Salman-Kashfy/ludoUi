@@ -148,24 +148,36 @@ function SideBar({ open, drawerWidth, isMobile, onClose }: SidebarProps) {
         )}
 
         {hasPermission(PERMISSIONS.USER.LIST) && (
-          <SidebarItem
-            label="Users"
-            to={ROUTES.USER.LIST}
-            icon={<ShieldUser strokeWidth={1.5} size={20} color={theme.palette.mode === "dark" ? "#999" : "#111"} />}
-            open={open}
-            matchesRoute={matchesRoute}
-            handleNavClick={handleNavClick}
-          />
+          <>
+            <SidebarItem
+              label="Users"
+              to={ROUTES.USER.LIST}
+              icon={<ShieldUser strokeWidth={1.5} size={20} color={theme.palette.mode === "dark" ? "#999" : "#111"} />}
+              open={open}
+              matchesRoute={matchesRoute}
+              handleNavClick={handleNavClick}
+            />
+            <SidebarItem
+              label="Payments"
+              to={ROUTES.PAYMENT.LIST}
+              icon={<DollarSign strokeWidth={1.5} size={20} color={theme.palette.mode === "dark" ? "#999" : "#111"} />}
+              open={open}
+              matchesRoute={matchesRoute}
+              handleNavClick={handleNavClick}
+            />
+
+            <SidebarItem
+              label="Payments Charts"
+              to={ROUTES.PAYMENT.CHART}
+              icon={<DollarSign strokeWidth={1.5} size={20} color={theme.palette.mode === "dark" ? "#999" : "#111"} />}
+              open={open}
+              matchesRoute={matchesRoute}
+              handleNavClick={handleNavClick}
+            />
+          </>
         )}
 
-          <SidebarItem
-            label="Payments"
-            to={ROUTES.PAYMENT.LIST}
-            icon={<DollarSign strokeWidth={1.5} size={20} color={theme.palette.mode === "dark" ? "#999" : "#111"} />}
-            open={open}
-            matchesRoute={matchesRoute}
-            handleNavClick={handleNavClick}
-          />
+          
       </List>
     </>
   );

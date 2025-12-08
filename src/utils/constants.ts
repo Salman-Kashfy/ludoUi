@@ -57,6 +57,7 @@ export const ROUTES = {
     },
     PAYMENT: {
         LIST: '/payments',
+        CHART: '/sales/analytics'
     },
 }
 

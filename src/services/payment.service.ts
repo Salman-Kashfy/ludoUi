@@ -6,6 +6,7 @@ interface BillingTotalInterface {
     tableUuid: string;
     categoryPriceUuid: string;
     paymentMethod: string;
+    hours: number;
 }
 
 interface PaymentsParams {
