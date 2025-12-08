@@ -6,9 +6,14 @@ interface BillingTotalInterface {
     tableUuid: string;
     categoryPriceUuid: string;
     paymentMethod: string;
+    hours: number;
 }
 
-interface PaymentsParams {
+// Extend PaymentsParams to include companyUuid and optional date filters
+export interface PaymentsParams {
+    companyUuid: string;          // required
+    startDate?: string;           // optional ISO string
+    endDate?: string;             // optional ISO string
     searchText?: string;
     customerId?: number;
     status?: string;
@@ -18,37 +23,37 @@ interface PaymentsParams {
 
 export const Payments = async (
     { page = 1, limit = constants.PER_PAGE },
-    params: PaymentsParams = {}
+    params: PaymentsParams
 ): Promise<any> => {
     const query = `
-        query Payments($paging: PaginatorInput, $params: PaymentFilter) {
-            payments(paging: $paging, params: $params) {
-            list {
-                uuid
-                amount
-                method
-                status
-                refundNote
-                refundedAt
-                createdAt
-                customer {
-                uuid
-                fullName
-                phone
-                }
-                invoiceId
-                taxAmount
-                taxRate
-                totalAmount
-                tournamentId
-                tableSessionId
+      query Payments($paging: PaginatorInput, $params: PaymentFilter) {
+        payments(paging: $paging, params: $params) {
+          list {
+            uuid
+            amount
+            method
+            status
+            refundNote
+            refundedAt
+            createdAt
+            customer {
+              uuid
+              fullName
+              phone
             }
-            paging {
-                totalPages
-                totalResultCount
-            }
-            }
+            invoiceId
+            taxAmount
+            taxRate
+            totalAmount
+            tournamentId
+            tableSessionId
+          }
+          paging {
+            totalPages
+            totalResultCount
+          }
         }
+      }
     `;
 
     const variables = {
@@ -58,10 +63,10 @@ export const Payments = async (
 
     const response = await POST(constants.GRAPHQL_SERVER, { query, variables });
 
-    // Corrected: Return payments list instead of users
     const payments = response?.data?.payments;
     return payments?.list?.length ? payments : emptyListResponse;
 };
+
 
 export const TableSessionBilling = async (params: BillingTotalInterface) => {
     const response = await GET(apiUrl.tableSessionBilling, params);
