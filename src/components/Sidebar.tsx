@@ -167,7 +167,7 @@ function SideBar({ open, drawerWidth, isMobile, onClose }: SidebarProps) {
             />
 
             <SidebarItem
-              label="Payments Charts"
+              label="Sales Analytics"
               to={ROUTES.PAYMENT.CHART}
               icon={<DollarSign strokeWidth={1.5} size={20} color={theme.palette.mode === "dark" ? "#999" : "#111"} />}
               open={open}
