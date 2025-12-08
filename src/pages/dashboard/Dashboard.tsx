@@ -91,6 +91,7 @@ function Dashboard() {
 
     const updateTournamentPlayerCount = (tournamentUuid: string, playerCount: number) => {
         patchTournament(tournamentUuid, { playerCount });
+        loadDashboardStats()
     };
 
     // ---------------- Table Session Handlers ----------------
