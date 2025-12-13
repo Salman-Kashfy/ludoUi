@@ -66,7 +66,7 @@ function Signin() {
                 </Alert>
             )}
 
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 500,color: 'rgba(0,0,0,0.87)',textAlign:'center' }}>
+            <Typography variant="h6" sx={{ mb: 3, fontWeight: 500,color: 'rgba(0,0,0,0.87)' }}>
                 Welcome
             </Typography>
 
