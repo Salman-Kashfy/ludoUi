@@ -2,8 +2,7 @@ import { useState, useContext } from 'react'
 import { useNavigate } from "react-router"
 import { Box, Alert, Typography, Button } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
-import { TextField, InputAdornment, IconButton } from '@mui/material'
-import LoadingButton from '@mui/lab/LoadingButton'
+import { TextField, InputAdornment, IconButton, CircularProgress } from '@mui/material'
 import { NavLink } from "react-router-dom"
 import { useForm, Controller } from "react-hook-form"
 import { UserContext } from '../../hooks/UserContext'
@@ -66,7 +65,7 @@ function Signin() {
                 </Alert>
             )}
 
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 500,color: 'rgba(0,0,0,0.87)' }}>
+            <Typography variant="h6" sx={{ mb: 3, fontWeight: 500, color: 'rgba(0,0,0,0.87)', fontSize: { xs: '1.05rem', sm: '1.25rem' } }}>
                 Welcome
             </Typography>
 
@@ -82,16 +81,17 @@ function Signin() {
                         <TextField
                             {...field}
                             error={!!error}
-                            variant="standard"
+                            variant="filled"
+                            InputLabelProps={{ shrink: true }}
                             type="email"
                             label="Email"
                             fullWidth
                             sx={{
                                 mb: 3,
-                                input: { color: 'rgba(0,0,0,0.87)' },
-                                label: { color: 'rgba(0,0,0,0.6)' },
-                                '& .MuiInput-underline:before': { borderBottomColor: 'rgba(0,0,0,0.42)' },
-                                '& .MuiInput-underline:hover:before': { borderBottomColor: 'rgba(0,0,0,0.87)' },
+                                '& .MuiFilledInput-root': { backgroundColor: { xs: '#fafafa', sm: '#fff' }, borderRadius: 1, px: { xs: 1, sm: 0 } },
+                                '& .MuiFilledInput-input': { padding: { xs: '12px 12px', sm: '10px 12px' }, fontSize: { xs: '0.95rem', sm: '0.9rem' }, color: 'rgba(0,0,0,0.87)' },
+                                '& .MuiInputLabel-root': { color: 'rgba(0,0,0,0.6)' },
+                                '& .MuiFilledInput-root:before, & .MuiFilledInput-root:after': { display: 'none' },
                             }}
                             helperText={error ? error.message : ''}
                         />
@@ -109,16 +109,17 @@ function Signin() {
                         <TextField
                             {...field}
                             error={!!error}
-                            variant="standard"
+                            variant="filled"
+                            InputLabelProps={{ shrink: true }}
                             type={showPassword ? 'text' : 'password'}
                             label="Password"
                             fullWidth
                             sx={{
                                 mb: 3,
-                                input: { color: 'rgba(0,0,0,0.87)' },
-                                label: { color: 'rgba(0,0,0,0.6)' },
-                                '& .MuiInput-underline:before': { borderBottomColor: 'rgba(0,0,0,0.42)' },
-                                '& .MuiInput-underline:hover:before': { borderBottomColor: 'rgba(0,0,0,0.87)' },
+                                '& .MuiFilledInput-root': { backgroundColor: { xs: '#fafafa', sm: '#fff' }, borderRadius: 1, px: { xs: 1, sm: 0 } },
+                                '& .MuiFilledInput-input': { padding: { xs: '12px 12px', sm: '10px 12px' }, fontSize: { xs: '0.95rem', sm: '0.9rem' }, color: 'rgba(0,0,0,0.87)' },
+                                '& .MuiInputLabel-root': { color: 'rgba(0,0,0,0.6)' },
+                                '& .MuiFilledInput-root:before, & .MuiFilledInput-root:after': { display: 'none' },
                             }}
                             helperText={error ? error.message : ''}
                             InputProps={{
@@ -137,24 +138,27 @@ function Signin() {
                     )}
                 />
 
-                <Box sx={{ mb: 3 }}>
+                <Box sx={{ mb: 3, textAlign: { xs: 'left', sm: 'left' } }}>
                     <Button
                         size="small"
                         component={NavLink}
                         to={ROUTES.AUTH.FORGOT_PASSWORD}
+                        sx={{ padding: 0, minWidth: 0, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
                     >
                         Forgot password
                     </Button>
                 </Box>
 
-                <Box sx={{ textAlign: 'right' }}>
-                    <LoadingButton
+                <Box sx={{ display: 'flex', justifyContent: { xs: 'center', sm: 'flex-end' }, mt: 1 }}>
+                    <Button
                         variant="contained"
                         type="submit"
-                        loading={loading}
+                        disabled={loading}
+                        startIcon={loading ? <CircularProgress size={18} color="inherit" /> : null}
+                        sx={{ width: { xs: '100%', sm: 'auto' }, maxWidth: { xs: '360px', sm: 'none' }, py: { xs: 1.25, sm: 0.75 }, fontSize: { xs: '1rem', sm: '0.875rem' } }}
                     >
                         Sign in
-                    </LoadingButton>
+                    </Button>
                 </Box>
             </form>
         </Box>

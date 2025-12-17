@@ -14,7 +14,7 @@ import {PERMISSIONS, ROLE, ROUTES} from "../utils/constants";
 import {hasPermission} from "../utils/permissions";
 import { EllipsisVertical, Sun, MoonStar } from "lucide-react";
 import { GetCompanies } from "../services/company.service";
-import crmLogo from "../assets/cloudfitnest.png";
+import ludoLogo from "../assets/ludoroyalclub-horizontal.svg";
 
 const drawerWidth = 240
 
@@ -160,7 +160,7 @@ function Header({open, drawerWidth, handleDrawerOpen, isDarkMode, handleThemeCha
                     }}
                 >
                     <img
-                        src={crmLogo}
+                        src={ludoLogo}
                         alt="Logo"
                         style={{
                             height: 26,

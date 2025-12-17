@@ -27,9 +27,10 @@ export const ROUTES = {
     DASHBOARD: '/dashboard',
     FORBIDDEN: '/access-forbidden',
     AUTH: {
-        LOGIN: '/',
+        LOGIN: '/login',
         FORGOT_PASSWORD: '/forgot-password',
     },
+    LANDING: '/',
     CATEGORY: {
         LIST: '/categories',
         CREATE: '/category/create',
