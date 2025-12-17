@@ -1,10 +1,10 @@
 import {useState} from 'react'
 import {BrowserRouter as Router, Route, Routes} from "react-router-dom";
 import './App.css'
-import {UserContext} from './hooks/UserContext.ts';
-import {CompanyContext} from './hooks/CompanyContext.ts';
-import {ToastProvider} from './utils/toast.tsx';
-import {constants, ROUTES, PERMISSIONS} from "./utils/constants.ts";
+import {UserContext} from './hooks/UserContext';
+import {CompanyContext} from './hooks/CompanyContext';
+import {ToastProvider} from './utils/toast';
+import {constants, ROUTES, PERMISSIONS} from "./utils/constants";
 import {BookingProvider} from './hooks/BookingContext';
 
 // App Layout
@@ -19,7 +19,7 @@ import Landing from "./pages/Landing";
 
 // Supporting Components
 // import PermissionDenied from "./components/PermissionDenied";
-import Category from './pages/category/Category.tsx';
+import Category from './pages/category/Category';
 import EditCategory from './pages/category/EditCategory';
 import CreateCategory from './pages/category/CreateCategory';
 import Table from './pages/table/Table';
@@ -31,8 +31,8 @@ import EditTournament from './pages/tournament/EditTournament';
 import TournamentRoundDetails from './pages/tournament/TournamentRoundDetails';
 import Customer from './pages/customer/Customer';
 import User from './pages/user/User';
-import TournamentPlayerPayments from './pages/payment/TournamentPlayerPayments.tsx';
-import PaymentCharts from './pages/payment/PaymentCharts.tsx';
+import TournamentPlayerPayments from './pages/payment/TournamentPlayerPayments';
+import PaymentCharts from './pages/payment/PaymentCharts';
 
 function App() {
     /**
