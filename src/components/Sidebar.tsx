@@ -1,5 +1,5 @@
-import crmLogo from "../assets/cloudfitnest.png";
-import crmIcon from "../assets/cloudfitnest-icon.png";
+import ludoLogo from "../assets/ludoroyalclub-horizontal.svg";
+import ludoIcon from "../assets/ludoroyalclub-monogram.svg";
 import { styled, CSSObject, Theme, useTheme } from "@mui/material/styles";
 import MuiDrawer from "@mui/material/Drawer";
 import List from "@mui/material/List";
@@ -88,7 +88,7 @@ function SideBar({ open, drawerWidth, isMobile, onClose }: SidebarProps) {
     <>
       <DrawerHeader sx={{ justifyContent: "center" }}>
         <img
-          src={open ? crmLogo : crmIcon}
+          src={open ? ludoLogo : ludoIcon}
           style={{ height: "25px", filter: theme.palette.mode === "dark" ? "invert(1)" : "" }}
         />
       </DrawerHeader>

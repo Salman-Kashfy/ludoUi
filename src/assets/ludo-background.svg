@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="g1" x1="0" x2="1">
+      <stop offset="0" stop-color="#5B2E8A" stop-opacity="0.12"/>
+      <stop offset="1" stop-color="#D4AF37" stop-opacity="0.06"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g1)"/>
+  <!-- pawns -->
+  <g opacity="0.18" transform="translate(80,140)">
+    <circle cx="40" cy="40" r="32" fill="#5B2E8A" />
+    <rect x="20" y="64" width="40" height="16" rx="4" fill="#5B2E8A" />
+  </g>
+  <g opacity="0.14" transform="translate(980,520)">
+    <circle cx="40" cy="40" r="32" fill="#D4AF37" />
+    <rect x="20" y="64" width="40" height="16" rx="4" fill="#D4AF37" />
+  </g>
+  <!-- dice -->
+  <g opacity="0.08" transform="translate(520,80)">
+    <rect x="0" y="0" width="110" height="110" rx="12" fill="#fff" stroke="#5B2E8A" stroke-opacity="0.14"/>
+    <circle cx="28" cy="28" r="6" fill="#5B2E8A"/>
+    <circle cx="82" cy="82" r="6" fill="#5B2E8A"/>
+    <circle cx="55" cy="55" r="6" fill="#5B2E8A"/>
+  </g>
+  <!-- diagonal pattern -->
+  <g opacity="0.06">
+    <rect x="-200" y="600" width="1400" height="40" fill="#5B2E8A" transform="rotate(-8 0 0)" />
+    <rect x="-200" y="660" width="1400" height="40" fill="#D4AF37" transform="rotate(-8 0 0)" />
+  </g>
+</svg>

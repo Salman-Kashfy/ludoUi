@@ -60,7 +60,7 @@ export const lightTheme = createTheme({
         MuiCssBaseline: {
             styleOverrides: {
                 body: {
-                    backgroundColor: '#f9f9f9',
+                    backgroundColor: '#ffffff',
                 },
                 '& .fc-col-header-cell': {
                     fontWeight: 400,

@@ -15,6 +15,7 @@ import DashboardLayoutRoute from "./layouts/DashboardLayout";
 import Dashboard from "./pages/dashboard/Dashboard";
 import Signin from "./pages/auth/Signin";
 import ForgotPassword from "./pages/auth/ForgotPassword";
+import Landing from "./pages/Landing";
 
 // Supporting Components
 // import PermissionDenied from "./components/PermissionDenied";
@@ -77,6 +78,7 @@ function App() {
                                 <Route path={ROUTES.PAYMENT.CHART} element={<DashboardLayoutRoute isAuth={true} component={PaymentCharts} permissionName={PERMISSIONS.USER.LIST} />} />
 
                                 {/* <Route path={ROUTES.FORBIDDEN} element={<DashboardLayoutRoute isAuth={true} component={PermissionDenied} permissionName={false} />} /> */}
+                                <Route path={ROUTES.LANDING} element={<Landing />} />
                                 <Route path={ROUTES.AUTH.LOGIN} element={<AuthLayoutRoute isAuth={false} component={Signin} />} />
                                 <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<AuthLayoutRoute isAuth={false} component={ForgotPassword} />} />
                             </Routes>
