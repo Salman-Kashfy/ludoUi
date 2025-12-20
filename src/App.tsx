@@ -33,6 +33,7 @@ import Customer from './pages/customer/Customer';
 import User from './pages/user/User';
 import TournamentPlayerPayments from './pages/payment/TournamentPlayerPayments';
 import PaymentCharts from './pages/payment/PaymentCharts';
+import { ROLE } from './utils/constants';
 
 function App() {
     /**
@@ -73,9 +74,16 @@ function App() {
                                 <Route path={ROUTES.TOURNAMENT.EDIT()} element={<DashboardLayoutRoute isAuth={true} component={EditTournament} permissionName={PERMISSIONS.TOURNAMENT.UPSERT} />} />
                                 <Route path={ROUTES.TOURNAMENT.ROUND_DETAILS()} element={<DashboardLayoutRoute isAuth={true} component={TournamentRoundDetails} permissionName={PERMISSIONS.TOURNAMENT.LIST} />} />
                                 <Route path={ROUTES.CUSTOMER.LIST} element={<DashboardLayoutRoute isAuth={true} component={Customer} permissionName={PERMISSIONS.CUSTOMER.LIST} />} />
-                                <Route path={ROUTES.USER.LIST} element={<DashboardLayoutRoute isAuth={true} component={User} permissionName={PERMISSIONS.USER.LIST} />} />
-                                <Route path={ROUTES.PAYMENT.LIST} element={<DashboardLayoutRoute isAuth={true} component={TournamentPlayerPayments} permissionName={PERMISSIONS.USER.LIST} />} />
-                                <Route path={ROUTES.PAYMENT.CHART} element={<DashboardLayoutRoute isAuth={true} component={PaymentCharts} permissionName={PERMISSIONS.USER.LIST} />} />
+                                
+                                {
+                                    userData.user?.role?.name === ROLE.ADMIN? 
+                                    <> 
+                                    <Route path={ROUTES.USER.LIST} element={<DashboardLayoutRoute isAuth={true} component={User} permissionName={PERMISSIONS.USER.LIST} />} />
+                                    <Route path={ROUTES.PAYMENT.LIST} element={<DashboardLayoutRoute isAuth={true} component={TournamentPlayerPayments} permissionName={PERMISSIONS.USER.LIST} />} />
+                                    <Route path={ROUTES.PAYMENT.CHART} element={<DashboardLayoutRoute isAuth={true} component={PaymentCharts} permissionName={PERMISSIONS.USER.LIST} />} />
+</>
+                                    : null
+                                }
 
                                 {/* <Route path={ROUTES.FORBIDDEN} element={<DashboardLayoutRoute isAuth={true} component={PermissionDenied} permissionName={false} />} /> */}
                                 <Route path={ROUTES.LANDING} element={<Landing />} />

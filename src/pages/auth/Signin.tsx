@@ -60,12 +60,12 @@ function Signin() {
     return (
         <Box>
             {errorMessage && (
-                <Alert severity="error" sx={{ mb: 3 }}>
+                <Alert severity="error" sx={{ mb: 3, fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
                     {errorMessage}
                 </Alert>
             )}
 
-            <Typography variant="h6" sx={{ mb: 3, fontWeight: 500, color: 'rgba(0,0,0,0.87)', fontSize: { xs: '1.05rem', sm: '1.25rem' } }}>
+            <Typography variant="h6" sx={{ mb: 4, fontWeight: 500, color: 'rgba(0,0,0,0.87)', fontSize: { xs: '1.25rem', sm: '1.25rem' } }}>
                 Welcome
             </Typography>
 
@@ -81,19 +81,66 @@ function Signin() {
                         <TextField
                             {...field}
                             error={!!error}
-                            variant="filled"
-                            InputLabelProps={{ shrink: true }}
+                            variant="outlined"
                             type="email"
                             label="Email"
+                            placeholder="Enter your email"
                             fullWidth
+                            autoComplete="email"
+                            InputLabelProps={{ 
+                                shrink: true,
+                                sx: {
+                                    color: 'rgba(0,0,0,0.6)',
+                                    fontSize: { xs: '1rem', sm: '0.875rem' },
+                                    '&.Mui-focused': {
+                                        color: 'primary.main'
+                                    },
+                                    '&.MuiInputLabel-shrink': {
+                                        fontSize: { xs: '0.875rem', sm: '0.75rem' }
+                                    }
+                                }
+                            }}
                             sx={{
                                 mb: 3,
-                                '& .MuiFilledInput-root': { backgroundColor: { xs: '#fafafa', sm: '#fff' }, borderRadius: 1, px: { xs: 1, sm: 0 } },
-                                '& .MuiFilledInput-input': { padding: { xs: '12px 12px', sm: '10px 12px' }, fontSize: { xs: '0.95rem', sm: '0.9rem' }, color: 'rgba(0,0,0,0.87)' },
-                                '& .MuiInputLabel-root': { color: 'rgba(0,0,0,0.6)' },
-                                '& .MuiFilledInput-root:before, & .MuiFilledInput-root:after': { display: 'none' },
+                                '& .MuiOutlinedInput-root': { 
+                                    backgroundColor: { xs: '#f8f9fa', sm: '#fff' }, 
+                                    borderRadius: 1,
+                                    '& fieldset': {
+                                        borderColor: 'rgba(0,0,0,0.12)',
+                                        borderWidth: 1
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'rgba(0,0,0,0.23)'
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'primary.main',
+                                        borderWidth: 2
+                                    }
+                                },
+                                '& .MuiOutlinedInput-input': { 
+                                    padding: { xs: '14px 16px', sm: '12px 14px' }, 
+                                    fontSize: { xs: '1rem', sm: '0.9rem' }, 
+                                    color: 'rgba(0,0,0,0.87)',
+                                    '&::placeholder': {
+                                        color: 'rgba(0,0,0,0.4)',
+                                        opacity: 1
+                                    },
+                                    '&:-webkit-autofill': {
+                                        WebkitBoxShadow: '0 0 0 1000px #f8f9fa inset',
+                                        WebkitTextFillColor: 'rgba(0,0,0,0.87)'
+                                    }
+                                }
                             }}
                             helperText={error ? error.message : ''}
+                            slotProps={{
+                                formHelperText: {
+                                    sx: { 
+                                        fontSize: { xs: '0.75rem', sm: '0.75rem' },
+                                        mx: 0,
+                                        mt: 1
+                                    }
+                                }
+                            }}
                         />
                     )}
                 />
@@ -109,43 +156,103 @@ function Signin() {
                         <TextField
                             {...field}
                             error={!!error}
-                            variant="filled"
-                            InputLabelProps={{ shrink: true }}
+                            variant="outlined"
                             type={showPassword ? 'text' : 'password'}
                             label="Password"
+                            placeholder="Enter your password"
                             fullWidth
+                            autoComplete="current-password"
+                            InputLabelProps={{ 
+                                shrink: true,
+                                sx: {
+                                    color: 'rgba(0,0,0,0.6)',
+                                    fontSize: { xs: '1rem', sm: '0.875rem' },
+                                    '&.Mui-focused': {
+                                        color: 'primary.main'
+                                    },
+                                    '&.MuiInputLabel-shrink': {
+                                        fontSize: { xs: '0.875rem', sm: '0.75rem' }
+                                    }
+                                }
+                            }}
                             sx={{
                                 mb: 3,
-                                '& .MuiFilledInput-root': { backgroundColor: { xs: '#fafafa', sm: '#fff' }, borderRadius: 1, px: { xs: 1, sm: 0 } },
-                                '& .MuiFilledInput-input': { padding: { xs: '12px 12px', sm: '10px 12px' }, fontSize: { xs: '0.95rem', sm: '0.9rem' }, color: 'rgba(0,0,0,0.87)' },
-                                '& .MuiInputLabel-root': { color: 'rgba(0,0,0,0.6)' },
-                                '& .MuiFilledInput-root:before, & .MuiFilledInput-root:after': { display: 'none' },
+                                '& .MuiOutlinedInput-root': { 
+                                    backgroundColor: { xs: '#f8f9fa', sm: '#fff' }, 
+                                    borderRadius: 1,
+                                    '& fieldset': {
+                                        borderColor: 'rgba(0,0,0,0.12)',
+                                        borderWidth: 1
+                                    },
+                                    '&:hover fieldset': {
+                                        borderColor: 'rgba(0,0,0,0.23)'
+                                    },
+                                    '&.Mui-focused fieldset': {
+                                        borderColor: 'primary.main',
+                                        borderWidth: 2
+                                    }
+                                },
+                                '& .MuiOutlinedInput-input': { 
+                                    padding: { xs: '14px 16px', sm: '12px 14px' }, 
+                                    fontSize: { xs: '1rem', sm: '0.9rem' }, 
+                                    color: 'rgba(0,0,0,0.87)',
+                                    '&::placeholder': {
+                                        color: 'rgba(0,0,0,0.4)',
+                                        opacity: 1
+                                    },
+                                    '&:-webkit-autofill': {
+                                        WebkitBoxShadow: '0 0 0 1000px #f8f9fa inset',
+                                        WebkitTextFillColor: 'rgba(0,0,0,0.87)'
+                                    }
+                                }
                             }}
                             helperText={error ? error.message : ''}
-                            InputProps={{
-                                endAdornment: (
-                                    <InputAdornment position="end">
-                                        <IconButton
-                                            onClick={handleTogglePasswordVisibility}
-                                            edge="end"
-                                        >
-                                            {showPassword ? <VisibilityOff /> : <Visibility />}
-                                        </IconButton>
-                                    </InputAdornment>
-                                ),
+                            slotProps={{
+                                formHelperText: {
+                                    sx: { 
+                                        fontSize: { xs: '0.75rem', sm: '0.75rem' },
+                                        mx: 0,
+                                        mt: 1
+                                    }
+                                },
+                                input: {
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                onClick={handleTogglePasswordVisibility}
+                                                edge="end"
+                                                size="small"
+                                                sx={{ mr: { xs: 0, sm: 1 } }}
+                                            >
+                                                {showPassword ? <VisibilityOff fontSize="small" /> : <Visibility fontSize="small" />}
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }
                             }}
                         />
                     )}
                 />
 
-                <Box sx={{ mb: 3, textAlign: { xs: 'left', sm: 'left' } }}>
+                <Box sx={{ mb: 4, textAlign: { xs: 'left', sm: 'left' } }}>
                     <Button
                         size="small"
                         component={NavLink}
                         to={ROUTES.AUTH.FORGOT_PASSWORD}
-                        sx={{ padding: 0, minWidth: 0, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}
+                        sx={{ 
+                            padding: 0, 
+                            minWidth: 0, 
+                            fontSize: { xs: '0.875rem', sm: '0.875rem' },
+                            color: 'primary.main',
+                            textTransform: 'none',
+                            fontWeight: 400,
+                            '&:hover': {
+                                backgroundColor: 'transparent',
+                                textDecoration: 'underline'
+                            }
+                        }}
                     >
-                        Forgot password
+                        FORGOT PASSWORD
                     </Button>
                 </Box>
 
@@ -155,7 +262,22 @@ function Signin() {
                         type="submit"
                         disabled={loading}
                         startIcon={loading ? <CircularProgress size={18} color="inherit" /> : null}
-                        sx={{ width: { xs: '100%', sm: 'auto' }, maxWidth: { xs: '360px', sm: 'none' }, py: { xs: 1.25, sm: 0.75 }, fontSize: { xs: '1rem', sm: '0.875rem' } }}
+                        sx={{ 
+                            width: { xs: '100%', sm: 'auto' }, 
+                            maxWidth: { xs: '360px', sm: 'none' }, 
+                            py: { xs: 1.5, sm: 0.75 }, 
+                            fontSize: { xs: '1rem', sm: '0.875rem' },
+                            fontWeight: 600,
+                            textTransform: 'uppercase',
+                            borderRadius: 1,
+                            boxShadow: 'none',
+                            '&:hover': {
+                                boxShadow: 'rgba(0, 0, 0, 0.1) 0px 2px 8px'
+                            },
+                            '&:disabled': {
+                                backgroundColor: 'rgba(0, 0, 0, 0.12)'
+                            }
+                        }}
                     >
                         Sign in
                     </Button>
