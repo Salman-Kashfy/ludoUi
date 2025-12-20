@@ -23,10 +23,10 @@ function AuthLayout({children}: {children: React.ReactNode}) {
                     <Box sx={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: `url(${ludoBg})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundSize: 'cover', opacity: { xs: 0.04, sm: 0.08 }, pointerEvents: 'none', filter: { xs: 'none', sm: 'blur(0.2px)' } }} />
 
                     <Box sx={{ position: 'relative', zIndex: 1 }}>
-                        <Box sx={{backgroundColor: '#fff', overflow: 'hidden', borderRadius: 2, p: { xs: 1, sm: 2, md: 4 }, width: { xs: '96vw', sm: '440px' }, maxWidth: '100%', boxSizing: 'border-box', position: 'relative', boxShadow: 'rgba(0, 0, 0, 0.08) 0px 6px 20px'}}>
-                            <Box sx={{ height: 6, background: 'linear-gradient(90deg, #5B2E8A 0%, #D4AF37 100%)', width: '100%', mb: 2 }} />
-                            <Box sx={{textAlign: 'center', mb:2}}>
-                                <Box component="img" src={ludoLogo} sx={{ width: { xs: '100px', sm: '120px', md: '160px' }, height: 'auto' }} />
+                        <Box sx={{backgroundColor: '#fff', overflow: 'hidden', borderRadius: 2, p: { xs: 3, sm: 2, md: 4 }, width: { xs: '92vw', sm: '440px' }, maxWidth: '100%', boxSizing: 'border-box', position: 'relative', boxShadow: 'rgba(0, 0, 0, 0.08) 0px 6px 20px'}}>
+                            <Box sx={{ height: 6, background: 'linear-gradient(90deg, #5B2E8A 0%, #D4AF37 100%)', width: '100%', mb: { xs: 3, sm: 2 } }} />
+                            <Box sx={{textAlign: 'center', mb: { xs: 3, sm: 2 }}}>
+                                <Box component="img" src={ludoLogo} sx={{ width: { xs: '140px', sm: '120px', md: '160px' }, height: 'auto' }} />
                             </Box>
                             {children}
                         </Box>
