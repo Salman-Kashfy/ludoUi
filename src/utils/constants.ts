@@ -19,8 +19,9 @@ export const constants = {
     DOC_SIDEBAR: 'DOC_SIDEBAR',
     APP_URL: import.meta.env.VITE_APP_URL,
     BASE_URL: import.meta.env.VITE_BASE_URL,
-    API_URL: import.meta.env.VITE_BASE_URL + '/api',
-    GRAPHQL_SERVER: import.meta.env.VITE_BASE_URL + '/graphql',
+    API_URL: '/api',
+    GRAPHQL_SERVER: '/graphql',
+    DEFAULT_COMPANY_UUID: import.meta.env.VITE_PUBLIC_COMPANY_UUID || '',
 };
 
 export const ROUTES = {
@@ -28,7 +29,9 @@ export const ROUTES = {
     FORBIDDEN: '/access-forbidden',
     AUTH: {
         LOGIN: '/login',
+        REGISTER: '/register',
         FORGOT_PASSWORD: '/forgot-password',
+        THANK_YOU: '/thank-you',
     },
     LANDING: '/',
     CATEGORY: {

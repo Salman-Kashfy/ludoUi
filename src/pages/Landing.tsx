@@ -1,9 +1,11 @@
 import React from 'react'
-import { Box, Container, Typography, Grid, Paper } from '@mui/material'
+import { Box, Container, Typography, Grid, Paper, Button } from '@mui/material'
+import { NavLink } from 'react-router-dom'
 import ludoLogo from '../assets/ludoroyalclub-horizontal.svg'
 import PublicHeader from '../components/PublicHeader'
 import PublicFooter from '../components/PublicFooter'
 import { Award, Users, Trophy, Clock } from 'lucide-react' 
+import { ROUTES } from '../utils/constants'
 
 function Landing() {
     return (
@@ -27,6 +29,15 @@ function Landing() {
 
                         <Box sx={{ mt: 2, color: 'rgba(0,0,0,0.7)' }}>
                             <Typography variant="body1">Discover tournaments, leaderboards, and community features—LudoRoyalClub offers competitive play and social rooms for all skill levels.</Typography>
+                        </Box>
+
+                        <Box sx={{ mt: 4, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                            <Button component={NavLink} to={ROUTES.AUTH.REGISTER} variant="contained" size="large">
+                                Register Now
+                            </Button>
+                            <Button component={NavLink} to={ROUTES.AUTH.LOGIN} variant="outlined" size="large">
+                                Sign In
+                            </Button>
                         </Box>
 
                         <Box sx={{ mt: 6 }}>

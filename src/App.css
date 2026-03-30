@@ -16,6 +16,25 @@
 body {
     font-family: "Segoe UI", "Inter", -apple-system, BlinkMacSystemFont, "Roboto", "Helvetica Neue", Arial, sans-serif !important;
 }
+
+/* Force MUI inputs visible black text and strong outline for register form */
+.MuiInputBase-root,
+.MuiOutlinedInput-root,
+.MuiOutlinedInput-input,
+.MuiInputLabel-root,
+.MuiFormLabel-root {
+    color: #000 !important;
+}
+
+.MuiOutlinedInput-root {
+    background: #fff !important;
+    border: 1px solid #2196f3 !important;
+}
+
+.MuiOutlinedInput-notchedOutline {
+    border-color: #2196f3 !important;
+}
+
 .MuiDateRangeCalendar-root > div[style*="z-index: 100000"] {
     display: none !important;
 }

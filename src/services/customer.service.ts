@@ -59,3 +59,50 @@ export const SaveCustomer = async (data: any): Promise<any> => {
     const response: any = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables });
     return response?.data?.saveCustomer || emptyMutationResponse;
 };
+
+export const RegisterCustomer = async (data: any): Promise<any> => {
+    const query = `
+        mutation RegisterCustomer($input: SaveCustomerInput!) {
+            registerCustomer(input: $input) {
+                data {
+                    uuid
+                    firstName
+                    lastName
+                    phoneCode
+                    phoneNumber
+                    fullName
+                    phone
+                }
+                errors
+                status
+                errorMessage
+            }
+        }
+    `;
+    const variables = {
+        input: data
+    };
+    const response: any = await POST(constants.GRAPHQL_SERVER, { query: query.trim(), variables }, { skipRefreshToken: true });
+    return response?.data?.registerCustomer || emptyMutationResponse;
+};
+
+export const SaveCustomerDevice = async (data: any): Promise<any> => {
+    const query = `
+        mutation SaveCustomerDevice($input: SaveCustomerDeviceInput!) {
+            saveCustomerDevice(input: $input) {
+                id
+                deviceToken
+                deviceType
+                fcmToken
+                customerId
+            }
+        }
+    `;
+    const variables = { input: data };
+    const response: any = await POST(
+        constants.GRAPHQL_SERVER,
+        { query: query.trim(), variables },
+        { skipRefreshToken: true }
+    );
+    return response?.data?.saveCustomerDevice || null;
+};

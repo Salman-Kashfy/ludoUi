@@ -21,7 +21,7 @@ import PermissionDenied from '../components/PermissionDenied'
 
 const drawerWidth = 240
 
-const getStoredDrawerState = () => {
+const getStoredDrawerState = (): boolean => {
     if (typeof window === 'undefined') {
         return true;
     }
@@ -30,13 +30,38 @@ const getStoredDrawerState = () => {
         localStorage.setItem(constants.DOC_SIDEBAR, 'true');
         return true;
     }
-    return JSON.parse(stored);
+    try {
+        return JSON.parse(stored);
+    } catch {
+        return true;
+    }
+};
+
+const getStoredDarkMode = (): boolean => {
+    if (typeof window === 'undefined') {
+        return false;
+    }
+    const stored = localStorage.getItem(constants.DARK_MODE);
+    if (!stored) {
+        return false;
+    }
+    try {
+        return JSON.parse(stored);
+    } catch {
+        return false;
+    }
+};
+
+interface DashboardLayoutProps {
+    children: React.ReactNode;
+    isDarkMode: boolean;
+    handleThemeChange: () => void;
 }
 
-function DashboardLayout({ children, isDarkMode, handleThemeChange }:any) {
-    const [open, setOpen] = useState(getStoredDrawerState);
+function DashboardLayout({ children, isDarkMode, handleThemeChange }: DashboardLayoutProps) {
+    const [open, setOpen] = useState<boolean>(getStoredDrawerState);
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [breadcrumb, setBreadcrumb] = useState([]);
+    const [breadcrumb, setBreadcrumb] = useState<any[]>([]);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -44,7 +69,7 @@ function DashboardLayout({ children, isDarkMode, handleThemeChange }:any) {
         if (isMobile) {
             setMobileOpen((prev) => !prev);
         } else {
-            setOpen((prevOpen) => {
+            setOpen((prevOpen: boolean) => {
                 const next = !prevOpen;
                 localStorage.setItem(constants.DOC_SIDEBAR, JSON.stringify(next));
                 return next;
@@ -103,19 +128,25 @@ function DashboardLayout({ children, isDarkMode, handleThemeChange }:any) {
     );
 }
 
-const DashboardLayoutRoute = ({ isAuth, component: Component, permissionName }) => {
+interface DashboardLayoutRouteProps {
+    isAuth?: boolean;
+    component: React.ComponentType;
+    permissionName?: string | false;
+}
+
+const DashboardLayoutRoute = ({ isAuth, component: Component, permissionName }: DashboardLayoutRouteProps) => {
     isAuth = Boolean(GetToken());
-    let permission
-    if(permissionName){
-        permission = hasPermission(permissionName)
+    let permission = true;
+    if (permissionName) {
+        permission = hasPermission(permissionName as string);
     }
 
-    const [isDarkMode, setIsDarkMode] = useState(JSON.parse(localStorage.getItem(constants.DARK_MODE)) || false);
+    const [isDarkMode, setIsDarkMode] = useState<boolean>(getStoredDarkMode());
     const handleThemeChange = () => {
-        const _isDarkMode = !isDarkMode
-        localStorage.setItem(constants.DARK_MODE,_isDarkMode)
+        const _isDarkMode = !isDarkMode;
+        localStorage.setItem(constants.DARK_MODE, JSON.stringify(_isDarkMode));
         setIsDarkMode(_isDarkMode);
-    }
+    };
 
     return (
         <>

@@ -1,12 +1,11 @@
-import { Users, Phone, Calendar, Search, Plus, Edit } from "lucide-react"
+import { Users, Phone, Calendar, Search, Plus, Edit, Cake } from "lucide-react"
 import { Fragment, useState, useEffect, useContext, useCallback } from "react"
 import PageTitle from "../../components/PageTitle"
 import { Box, Card, CardContent, Typography, Stack, CircularProgress, Avatar, Pagination, TextField, InputAdornment, Button, IconButton } from "@mui/material";
 import { CompanyContext } from "../../hooks/CompanyContext"
 import { GetCustomers } from "../../services/customer.service"
 import { useToast } from "../../utils/toast"
-import { DataGrid, GridPaginationModel, GridActionsCellItem } from '@mui/x-data-grid';
-import ResponsiveTableContainer from "../../components/ResponsiveTableContainer";
+import { DataGrid, GridPaginationModel, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
 import { useTheme } from "@mui/material/styles";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import dayjs from "dayjs";
@@ -33,14 +32,12 @@ function Customer() {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    // Get initials for avatar
     const getInitials = (firstName: string, lastName: string) => {
         const first = firstName?.charAt(0)?.toUpperCase() || '';
         const last = lastName?.charAt(0)?.toUpperCase() || '';
         return first + last || '?';
     };
 
-    // Get avatar color based on name
     const getAvatarColor = (name: string) => {
         const colors = [
             theme.palette.primary.main,
@@ -63,27 +60,26 @@ function Customer() {
         setSaveCustomerDialogOpen(true);
     };
 
-    const handleCustomerSaved = (customer: any) => {
-        // Reload customers after create/update
+    const handleCustomerSaved = () => {
         loadCustomers(paginationModel.page + 1, searchText);
     };
 
-    const columns = [
-        { 
-            field: 'fullName', 
-            headerName: 'Customer', 
+    const columns: GridColDef[] = [
+        {
+            field: 'fullName',
+            headerName: 'Customer',
             flex: 1,
-            width: 100,
+            width: 180,
             renderCell: (params: any) => {
                 const row = params.row;
                 const initials = getInitials(row.firstName || '', row.lastName || '');
                 const color = getAvatarColor(row.fullName || '');
                 return (
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <Avatar 
-                            sx={{ 
-                                bgcolor: color, 
-                                width: 36, 
+                        <Avatar
+                            sx={{
+                                bgcolor: color,
+                                width: 36,
                                 height: 36,
                                 fontSize: '0.875rem',
                                 fontWeight: 600
@@ -98,11 +94,11 @@ function Customer() {
                 );
             }
         },
-        { 
-            field: 'phone', 
-            headerName: 'Phone', 
+        {
+            field: 'phone',
+            headerName: 'Phone',
             flex: 1,
-            width: 100,
+            width: 150,
             renderCell: (params: any) => {
                 if (!params.value) return <Typography variant="body2" color="text.secondary">-</Typography>;
                 return (
@@ -113,11 +109,28 @@ function Customer() {
                 );
             }
         },
-        { 
-            field: 'createdAt', 
-            headerName: 'Registered', 
+        {
+            field: 'dob',
+            headerName: 'DOB',
             flex: 1,
-            width: 100,
+            width: 140,
+            renderCell: (params: any) => {
+                if (!params.value) return <Typography variant="body2" color="text.secondary">-</Typography>;
+                return (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                        <Cake size={14} color={theme.palette.text.secondary} />
+                        <Typography variant="body2" color="text.secondary">
+                            {dayjs(params.value).format('MMM DD, YYYY')}
+                        </Typography>
+                    </Box>
+                );
+            }
+        },
+        {
+            field: 'createdAt',
+            headerName: 'Registered',
+            flex: 1,
+            width: 150,
             renderCell: (params: any) => {
                 if (!params.value) return <Typography variant="body2" color="text.secondary">-</Typography>;
                 return (
@@ -132,7 +145,7 @@ function Customer() {
         },
         {
             field: 'actions',
-            type: 'actions',
+            type: 'actions' as const,
             headerName: 'Actions',
             width: 100,
             getActions: (params: any) => [
@@ -151,17 +164,19 @@ function Customer() {
         if (search) {
             params.searchText = search;
         }
-        
-        GetCustomers({ page, limit: constants.PER_PAGE }, params).then((res:any) => {
-            setCustomers(res.list.map((e:any) => {
+
+        GetCustomers({ page, limit: constants.PER_PAGE }, params).then((res: any) => {
+            setCustomers(res.list.map((e: any) => {
                 return {
                     id: e.uuid,
+                    uuid: e.uuid,
                     fullName: e.fullName || `${e.firstName || ''} ${e.lastName || ''}`.trim(),
                     firstName: e.firstName,
                     lastName: e.lastName,
                     phone: e.phone || '',
                     phoneCode: e.phoneCode || '',
                     phoneNumber: e.phoneNumber || '',
+                    dob: e.dob || '',
                     createdAt: e.createdAt || '',
                 }
             }));
@@ -178,15 +193,12 @@ function Customer() {
         });
     }, [companyContext.companyUuid, errorToast]);
 
-    // Handle pagination changes (when search is not active or cleared)
     useEffect(() => {
-        // Only load if search is empty or search has been applied
         if (searchText === '') {
             loadCustomers(paginationModel.page + 1, '');
         }
     }, [paginationModel.page, paginationModel.pageSize, companyContext.companyUuid, searchText, loadCustomers]);
 
-    // Debounced search handler
     const debouncedSearch = useCallback(
         debounce((search: string) => {
             setPaginationModel(prev => ({ ...prev, page: 0 }));
@@ -195,7 +207,6 @@ function Customer() {
         [loadCustomers]
     );
 
-    // Handle search text changes
     useEffect(() => {
         debouncedSearch(searchText);
         return () => {
@@ -218,10 +229,10 @@ function Customer() {
 
         if (!customers.length) {
             return (
-                <Box sx={{ 
-                    textAlign: 'center', 
+                <Box sx={{
+                    textAlign: 'center',
                     py: 6,
-                    px: 2 
+                    px: 2
                 }}>
                     <Users size={48} color={theme.palette.text.secondary} style={{ opacity: 0.5, margin: '0 auto 16px' }} />
                     <Typography variant="body1" color="text.secondary" fontWeight={500}>
@@ -240,8 +251,8 @@ function Customer() {
                     const initials = getInitials(customer.firstName || '', customer.lastName || '');
                     const color = getAvatarColor(customer.fullName || '');
                     return (
-                        <Card 
-                            key={customer.id} 
+                        <Card
+                            key={customer.id}
                             variant="outlined"
                             sx={{
                                 transition: 'all 0.2s ease-in-out',
@@ -253,10 +264,10 @@ function Customer() {
                         >
                             <CardContent sx={{ p: 2.5 }}>
                                 <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
-                                    <Avatar 
-                                        sx={{ 
-                                            bgcolor: color, 
-                                            width: 48, 
+                                    <Avatar
+                                        sx={{
+                                            bgcolor: color,
+                                            width: 48,
                                             height: 48,
                                             fontSize: '1rem',
                                             fontWeight: 600
@@ -277,6 +288,7 @@ function Customer() {
                                                 <Edit size={16} />
                                             </IconButton>
                                         </Box>
+
                                         {customer.phone && (
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                                                 <Phone size={16} color={theme.palette.text.secondary} />
@@ -285,6 +297,16 @@ function Customer() {
                                                 </Typography>
                                             </Box>
                                         )}
+
+                                        {customer.dob && (
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                <Cake size={16} color={theme.palette.text.secondary} />
+                                                <Typography variant="body2" color="text.secondary">
+                                                    DOB {dayjs(customer.dob).format('MMM DD, YYYY')}
+                                                </Typography>
+                                            </Box>
+                                        )}
+
                                         {customer.createdAt && (
                                             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                 <Calendar size={16} color={theme.palette.text.secondary} />
@@ -302,7 +324,7 @@ function Customer() {
             </Stack>
         );
     };
-    
+
     return (
         <Fragment>
             <PageTitle title="Customer" titleIcon={<Users />} />
@@ -335,6 +357,7 @@ function Customer() {
                     Create Customer
                 </Button>
             </Box>
+
             {isMobile ? (
                 <>
                     {renderMobileList()}
@@ -351,8 +374,8 @@ function Customer() {
                     )}
                 </>
             ) : (
-                <Card 
-                    sx={{ 
+                <Card
+                    sx={{
                         boxShadow: theme.shadows[2],
                         borderRadius: 2,
                         overflow: 'hidden',
@@ -371,7 +394,7 @@ function Customer() {
                                         onPaginationModelChange={setPaginationModel}
                                         rowCount={paginationInfo.totalResultCount}
                                         paginationMode="server"
-                                        sx={{ 
+                                        sx={{
                                             border: 0,
                                             width: '99%',
                                             '& .MuiDataGrid-cell': {
@@ -394,6 +417,7 @@ function Customer() {
                     </CardContent>
                 </Card>
             )}
+
             <SaveCustomer
                 open={saveCustomerDialogOpen}
                 handleDialogClose={() => {
@@ -408,4 +432,3 @@ function Customer() {
 }
 
 export default Customer
-

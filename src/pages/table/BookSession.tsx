@@ -108,7 +108,14 @@
         // -------------------- Fetch Billing --------------------
         const fetchBillingData = () => {
             setBillingLoader(true);
-            TableSessionBilling({ companyUuid, tableUuid, categoryPriceUuid })
+            const selectedPrice = categoryPrices.find((p) => p.uuid === categoryPriceUuid);
+            TableSessionBilling({
+                companyUuid,
+                tableUuid,
+                categoryPriceUuid,
+                paymentMethod: paymentMethod || 'CASH',
+                hours: selectedPrice ? selectedPrice.duration : 0,
+            })
                 .then((data) => setBillingData(data))
                 .catch((e) => console.error(e.message))
                 .finally(() => setBillingLoader(false));
@@ -121,6 +128,7 @@
                 setCustomers([]);
                 setSearchCustomer('');
                 fetchBillingData();
+                fetchCustomers({ searchCustomer: '', companyUuid });
             }
         }, [open, tableUuid]);
 
@@ -217,7 +225,7 @@
                         <DialogContent>
                             <Grid container spacing={2}>
                                 {/* Session Duration */}
-                                <Grid item xs={12}>
+                                <Grid size={12}>
                                     <Controller
                                         name="categoryPriceUuid"
                                         control={control}
@@ -248,7 +256,7 @@
                                 </Grid>
 
                                 {/* Customer Autocomplete */}
-                                <Grid item xs={12} >
+                                <Grid size={12}>
                                     <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
                                         <Controller
                                             name="customerUuid"
@@ -397,7 +405,7 @@
                                 )}
 
                                 {billingLoader && (
-                                    <Grid item xs={12}>
+                                    <Grid size={12}>
                                         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                                             <CircularProgress size={30} />
                                         </Box>
