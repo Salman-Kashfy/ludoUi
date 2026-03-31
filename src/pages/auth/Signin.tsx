@@ -6,11 +6,13 @@ import { TextField, InputAdornment, IconButton, CircularProgress } from '@mui/ma
 import { NavLink } from "react-router-dom"
 import { useForm, Controller } from "react-hook-form"
 import { UserContext } from '../../hooks/UserContext'
+import { CompanyContext } from '../../hooks/CompanyContext'
 import { SetAuthCompany, UserLogin, UserPermissions } from "../../services/auth/auth.service"
 import { ROUTES } from "../../utils/constants"
 
 function Signin() {
     const userContext: any = useContext(UserContext)
+    const companyContext: any = useContext(CompanyContext)
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -33,7 +35,9 @@ function Signin() {
         await UserLogin(data).then((data) => {
             if (data.status) {
                 userContext.setUser(data.user)
+                userContext.setLoggedIn(true)
                 SetAuthCompany(data.user.companyUuid)
+                companyContext.setCompanyUuid(data.user.companyUuid)
                 userContext.setToken(data.token)
                 UserPermissions().then((response) => {
                     setLoading(false)

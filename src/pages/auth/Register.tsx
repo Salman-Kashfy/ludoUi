@@ -9,6 +9,7 @@ import { RegisterCustomer, SaveCustomerDevice } from '../../services/customer.se
 import { constants, ROUTES } from '../../utils/constants';
 import { useToast } from '../../utils/toast';
 import { getFCMToken } from '../../config/firebase.service';
+import { getDeviceToken, getDeviceType } from '../../utils/deviceUtils';
 
 interface RegistrationFormValues {
     firstName: string;
@@ -16,25 +17,6 @@ interface RegistrationFormValues {
     phone: string;
     dob: string;
 }
-
-const getDeviceToken = () => {
-    if (typeof window === 'undefined') return '';
-    const storageKey = 'LRCL_DEVICE_TOKEN';
-    let token: string = localStorage.getItem(storageKey) || '';
-    if (!token) {
-        token = (crypto as any)?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-        localStorage.setItem(storageKey, token);
-    }
-    return token;
-};
-
-const getDeviceType = () => {
-    if (typeof navigator === 'undefined') return 'web';
-    const ua = navigator.userAgent || '';
-    if (/android/i.test(ua)) return 'android';
-    if (/iPad|iPhone|iPod/i.test(ua)) return 'ios';
-    return 'web';
-};
 
 const promptNotificationPermission = async (): Promise<boolean> => {
     if (typeof window === 'undefined' || !('Notification' in window)) {
@@ -49,20 +31,6 @@ const promptNotificationPermission = async (): Promise<boolean> => {
         return false;
     }
 
-    const permission = await Notification.requestPermission();
-    return permission === 'granted';
-};
-
-const requestNotificationPermission = async () => {
-    if (typeof window === 'undefined' || !('Notification' in window)) {
-        return false;
-    }
-    if (Notification.permission === 'granted') {
-        return true;
-    }
-    if (Notification.permission === 'denied') {
-        return false;
-    }
     const permission = await Notification.requestPermission();
     return permission === 'granted';
 };
@@ -96,6 +64,9 @@ function Register() {
             phoneNumber: '',
             dob: data.dob || null,
             companyUuid,
+            deviceToken: '',
+            deviceType: getDeviceType(),
+            fcmToken: null
         } as any;
 
         // Parse phone using libphonenumber-js if possible (same logic as SaveCustomer)
@@ -118,10 +89,22 @@ function Register() {
         }
 
         try {
+            const permissionGranted = await promptNotificationPermission();
+            console.log("Permission:", Notification.permission);
+
+            params.deviceToken = getDeviceToken();
+
+            if (permissionGranted) {
+                params.fcmToken = await getFCMToken(true);
+                console.log("FCM TOKEN:", params.fcmToken);
+            } else {
+                console.log("Permission not granted");
+            }
+
             const response = (await RegisterCustomer(params)) || { status: false, data: null, errorMessage: 'Failed to register customer' };
             if (!response.status || !response.data) {
                 const message = response.errorMessage || 'Failed to register customer';
-                
+
                 // Check if customer already exists
                 if (message === 'CUSTOMER_ALREADY_EXISTS') {
                     setErrorMessage('This phone number is already registered. Please login instead.');
@@ -139,25 +122,15 @@ function Register() {
             const customerUuid = response.data.uuid;
             const fullName = `${data.firstName} ${data.lastName}`;
 
-            const permissionGranted = await promptNotificationPermission();
-            if (permissionGranted) {
-                const token = getDeviceToken();
-                const deviceType = getDeviceType();
-                
-                // Try to get FCM token from Firebase
-                let fcmToken = null;
-                try {
-                    fcmToken = await getFCMToken();
-                } catch (fcmError) {
-                    console.warn('Failed to get FCM token:', fcmError);
-                }
-
+            try {
                 await SaveCustomerDevice({
                     customerUuid,
-                    deviceToken: token,
-                    deviceType,
-                    fcmToken: fcmToken || undefined
+                    deviceToken: params.deviceToken,
+                    deviceType: params.deviceType,
+                    fcmToken: params.fcmToken || undefined
                 });
+            } catch (deviceSaveError) {
+                console.warn('Failed to save customer device during registration:', deviceSaveError);
             }
 
             successToast('Registration successful!');
@@ -192,121 +165,121 @@ function Register() {
                 Register as a customer
             </Typography>
 
-                    <form onSubmit={handleSubmit(onSubmit)}>
-                        <Controller
-                            name="firstName"
-                            control={control}
-                            rules={{ required: { value: true, message: 'First name is required' } }}
-                            render={({ field, fieldState: { error } }) => (
-                                <FormInput
-                                    field={field}
-                                    error={error}
-                                    label="First Name"
-                                    placeholder="Enter first name"
-                                    fullWidth
-                                    sx={{ mb: 3 }}
-                                />
-                            )}
-                        />
-
-                        <Controller
-                            name="lastName"
-                            control={control}
-                            rules={{ required: { value: true, message: 'Last name is required' } }}
-                            render={({ field, fieldState: { error } }) => (
-                                <FormInput
-                                    field={field}
-                                    error={error}
-                                    label="Last Name"
-                                    placeholder="Enter last name"
-                                    fullWidth
-                                    sx={{ mb: 3 }}
-                                />
-                            )}
-                        />
-
-                        <Controller
-                            name="phone"
-                            control={control}
-                            rules={{
-                                required: { value: true, message: 'Phone number is required' },
-                                validate: (value) => {
-                                    if (!value) return 'Phone number is required';
-                                    if (value && value.length < 8) return 'Please enter a valid phone number';
-                                    return true;
-                                }
-                            }}
-                            render={({ field, fieldState: { error } }) => (
-                                <FormControl fullWidth error={!!error} sx={{ mb: 3 }}>
-                                    <MuiTelInput
-                                        {...field}
-                                        label="Phone Number"
-                                        placeholder="Enter phone number"
-                                        defaultCountry="PK"
-                                        preferredCountries={['PK', 'US', 'GB', 'IN']}
-                                        size="small"
-                                        fullWidth
-                                        error={!!error}
-                                        helperText={error?.message}
-                                    />
-                                </FormControl>
-                            )}
-                        />
-
-                        <Controller
-                            name="dob"
-                            control={control}
-                            rules={{
-                                validate: (value) => {
-                                    if (!value) return true;
-                                    return dayjs(value).isValid() || 'Please enter a valid date';
-                                }
-                            }}
-                            render={({ field, fieldState: { error } }) => (
-                                <FormInput
-                                    fullWidth
-                                    error={error}
-                                    field={field}
-                                    value={field.value || ''}
-                                    label="Date of Birth"
-                                    type="date"
-                                    InputLabelProps={{ shrink: true }}
-                                    sx={{ mb: 3 }}
-                                />
-                            )}
-                        />
-
-                        <Button
-                            type="button"
-                            variant="outlined"
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <Controller
+                    name="firstName"
+                    control={control}
+                    rules={{ required: { value: true, message: 'First name is required' } }}
+                    render={({ field, fieldState: { error } }) => (
+                        <FormInput
+                            field={field}
+                            error={error}
+                            label="First Name"
+                            placeholder="Enter first name"
                             fullWidth
-                            sx={{ mb: 2, py: 1.2 }}
-                            onClick={async () => {
-                                const allowed = await promptNotificationPermission();
-                                if (allowed) {
-                                    window.alert('Notifications enabled. Please complete registration.');
-                                } else {
-                                    window.alert('Please enable notification permission from browser settings.');
-                                }
-                            }}
-                        >
-                            Enable Notifications
-                        </Button>
+                            sx={{ mb: 3 }}
+                        />
+                    )}
+                />
 
-                        <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ py: 1.5 }}>
-                            {loading ? <CircularProgress size={20} color="inherit" /> : 'Register'}
-                        </Button>
+                <Controller
+                    name="lastName"
+                    control={control}
+                    rules={{ required: { value: true, message: 'Last name is required' } }}
+                    render={({ field, fieldState: { error } }) => (
+                        <FormInput
+                            field={field}
+                            error={error}
+                            label="Last Name"
+                            placeholder="Enter last name"
+                            fullWidth
+                            sx={{ mb: 3 }}
+                        />
+                    )}
+                />
 
-                        <Box sx={{ mt: 2, textAlign: 'center' }}>
-                            <Typography variant="body2" sx={{ color: 'rgba(0,0,0,0.6)' }}>
-                                Already registered?{' '}
-                                <Button component={NavLink} to={ROUTES.AUTH.LOGIN} size="small">
-                                    Sign in
-                                </Button>
-                            </Typography>
-                        </Box>
-                    </form>
+                <Controller
+                    name="phone"
+                    control={control}
+                    rules={{
+                        required: { value: true, message: 'Phone number is required' },
+                        validate: (value) => {
+                            if (!value) return 'Phone number is required';
+                            if (value && value.length < 8) return 'Please enter a valid phone number';
+                            return true;
+                        }
+                    }}
+                    render={({ field, fieldState: { error } }) => (
+                        <FormControl fullWidth error={!!error} sx={{ mb: 3 }}>
+                            <MuiTelInput
+                                {...field}
+                                label="Phone Number"
+                                placeholder="Enter phone number"
+                                defaultCountry="PK"
+                                preferredCountries={['PK', 'US', 'GB', 'IN']}
+                                size="small"
+                                fullWidth
+                                error={!!error}
+                                helperText={error?.message}
+                            />
+                        </FormControl>
+                    )}
+                />
+
+                <Controller
+                    name="dob"
+                    control={control}
+                    rules={{
+                        validate: (value) => {
+                            if (!value) return true;
+                            return dayjs(value).isValid() || 'Please enter a valid date';
+                        }
+                    }}
+                    render={({ field, fieldState: { error } }) => (
+                        <FormInput
+                            fullWidth
+                            error={error}
+                            field={field}
+                            value={field.value || ''}
+                            label="Date of Birth"
+                            type="date"
+                            InputLabelProps={{ shrink: true }}
+                            sx={{ mb: 3 }}
+                        />
+                    )}
+                />
+
+                <Button
+                    type="button"
+                    variant="outlined"
+                    fullWidth
+                    sx={{ mb: 2, py: 1.2 }}
+                    onClick={async () => {
+                        const allowed = await promptNotificationPermission();
+                        if (allowed) {
+                            window.alert('Notifications enabled. Please complete registration.');
+                        } else {
+                            window.alert('Please enable notification permission from browser settings.');
+                        }
+                    }}
+                >
+                    Enable Notifications
+                </Button>
+
+                <Button type="submit" variant="contained" fullWidth disabled={loading} sx={{ py: 1.5 }}>
+                    {loading ? <CircularProgress size={20} color="inherit" /> : 'Register'}
+                </Button>
+
+                <Box sx={{ mt: 2, textAlign: 'center' }}>
+                    <Typography variant="body2" sx={{ color: 'rgba(0,0,0,0.6)' }}>
+                        Already registered?{' '}
+                        <Button component={NavLink} to={ROUTES.AUTH.LOGIN} size="small">
+                            Sign in
+                        </Button>
+                    </Typography>
                 </Box>
+            </form>
+        </Box>
     );
 }
 

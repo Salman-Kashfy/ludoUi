@@ -29,7 +29,7 @@ export const firebaseConfig = {
 
 // Firebase Cloud Messaging - Web Push Certificate (VAPID Public Key)
 // Get this from Firebase Console > Project Settings > Cloud Messaging > Web configuration
-export const vapidPublicKey = "qCkXGn2-jGcJkOkW6I05qfx_7lQz_LJPxE5xC4usMlU";
+export const vapidPublicKey = "BIMQVOJyTL13-Q4uybSKJ_hZVw0mcn-Dn2rRAl_PVIsmj-jGi4edR9jzQ-Yy8y8tT5IqR32J19a-UeETNdH6tX0";
 
 /*
   Backend Configuration for Firebase Admin SDK:

@@ -7,6 +7,7 @@ interface BillingTotalInterface {
     categoryPriceUuid: string;
     paymentMethod?: string;
     hours?: number;
+    personCount?: number;
 }
 
 // Extend PaymentsParams to include companyUuid and optional date filters

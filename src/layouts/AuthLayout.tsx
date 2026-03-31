@@ -36,18 +36,26 @@ function AuthLayout({children}: {children: React.ReactNode}) {
     )
 }
 
-const AuthLayoutRoute = ({isAuth, component: Component}: {isAuth: boolean, component: React.ComponentType}) => {
+const AuthLayoutRoute = ({
+    isAuth,
+    component: Component,
+    allowWhenAuthenticated = false
+}: {
+    isAuth: boolean,
+    component: React.ComponentType,
+    allowWhenAuthenticated?: boolean
+}) => {
     isAuth = Boolean(GetToken());
-    return(
-        <>
-            { isAuth ?
-                <Navigate to="/dashboard" /> :
-                <AuthLayout>
-                    <Component />
-                </AuthLayout>
-            }
-        </>
-    )
+
+    if (isAuth && !allowWhenAuthenticated) {
+        return <Navigate to="/dashboard" />;
+    }
+
+    return (
+        <AuthLayout>
+            <Component />
+        </AuthLayout>
+    );
 }
 
 export default AuthLayoutRoute

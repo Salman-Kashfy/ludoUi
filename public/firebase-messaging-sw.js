@@ -1,59 +1,53 @@
-// Firebase Cloud Messaging Service Worker
-// This handles push notifications received even when the app is closed
+importScripts('https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js');
+importScripts('https://www.gstatic.com/firebasejs/10.1.0/firebase-messaging-compat.js');
 
-importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging.js');
-
-// Initialize Firebase in the service worker
-// Note: These values are public and safe to be here (they're in public folder)
 const firebaseConfig = {
-    apiKey: "AIzaSyCCKx91J1d_--8BuDIOAZCLHRG9o5224hs",
-    authDomain: "react-project-1-30116.firebaseapp.com",
-    projectId: "react-project-1-30116",
-    storageBucket: "react-project-1-30116.appspot.com",
-    messagingSenderId: "695385686838",
-    appId: "1:695385686838:web:1020b9610a87085f7e6997",
+    apiKey: "AIzaSyAJMTJ6xxSQwYp37OsyBgKsfGIRGgLs6zw",
+    authDomain: "ludo-c1bc3.firebaseapp.com",
+    projectId: "ludo-c1bc3",
+    storageBucket: "ludo-c1bc3.firebasestorage.app",
+    messagingSenderId: "268220915710",
+    appId: "1:268220915710:web:e2a72accb3eed28a462aaf",
 };
 
 firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
-// Handle background messages
-messaging.onBackgroundMessage((payload) => {
-    console.log('Background message received:', payload);
+console.log('[SW] Firebase Service Worker Ready');
 
-    const notificationTitle = payload.notification?.title || 'Notification';
-    const notificationOptions = {
-        body: payload.notification?.body || 'You have a new message',
-        icon: payload.notification?.icon || '/ludo-icon.png',
-        badge: payload.notification?.badge || '/ludo-badge.png',
+messaging.onBackgroundMessage((payload) => {
+    console.log('[SW] 📨 Background message received:', payload);
+    console.log('[SW] 📨 Notification data:', payload.notification);
+    console.log('[SW] 📨 Custom data:', payload.data);
+
+    const title = payload.notification?.title || 'New Notification';
+    const options = {
+        body: payload.notification?.body || '',
+        icon: '/favicon.png',
+        badge: '/favicon.png',
         data: payload.data || {},
-        tag: 'booking-notification',
-        requireInteraction: true // Keep notification until user interacts
+        tag: 'fcm-notification',
+        requireInteraction: true
     };
 
-    self.registration.showNotification(notificationTitle, notificationOptions);
+    console.log('[SW] 🔔 Showing notification:', title, options);
+
+    self.registration.showNotification(title, options).then(() => {
+        console.log('[SW] ✅ Notification shown successfully');
+    }).catch((error) => {
+        console.error('[SW] ❌ Failed to show notification:', error);
+    });
 });
 
-// Handle notification click
-self.addEventListener('notificationclick', (event) => {
-    console.log('Notification clicked:', event.notification);
+self.addEventListener('notificationclick', function (event) {
     event.notification.close();
-
-    // Open app or bring to focus
     event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-            // Check if app is already open
-            for (let i = 0; i < clientList.length; i++) {
-                const client = clientList[i];
-                if (client.url === '/' && 'focus' in client) {
-                    return client.focus();
-                }
+        clients.matchAll({ type: "window", includeUncontrolled: true }).then(function (clientList) {
+            for (var i = 0; i < clientList.length; i++) {
+                var client = clientList[i];
+                if (client.url === '/' && 'focus' in client) return client.focus();
             }
-            // If not open, open new window
-            if (clients.openWindow) {
-                return clients.openWindow('/');
-            }
+            if (clients.openWindow) return clients.openWindow('/');
         })
     );
 });

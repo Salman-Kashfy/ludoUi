@@ -2,13 +2,14 @@
 // Replace the values below with your Firebase project settings.
 
 export const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_PROJECT_ID.appspot.com",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: 'AIzaSyAJMTJ6xxSQwYp37OsyBgKsfGIRGgLs6zw',
+    authDomain: 'ludo-c1bc3.firebaseapp.com',
+    projectId: 'ludo-c1bc3',
+    storageBucket: 'ludo-c1bc3.firebasestorage.app',
+    messagingSenderId: '268220915710',
+    appId: '1:268220915710:web:e2a72accb3eed28a462aaf',
+    measurementId: 'G-NV8GH4982N'
 };
 
 // VAPID public key (Web Push certificate) from Firebase Cloud Messaging settings
-export const vapidPublicKey = "YOUR_VAPID_PUBLIC_KEY";
+export const vapidPublicKey = "BIMQVOJyTL13-Q4uybSKJ_hZVw0mcn-Dn2rRAl_PVIsmj-jGi4edR9jzQ-Yy8y8tT5IqR32J19a-UeETNdH6tX0";

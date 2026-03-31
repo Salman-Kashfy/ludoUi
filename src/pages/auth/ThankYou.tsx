@@ -4,6 +4,7 @@ import { Alert, Box, Typography, Card } from '@mui/material';
 import { CheckCircle } from 'lucide-react';
 import { SaveCustomerDevice } from '../../services/customer.service';
 import { getFCMToken } from '../../config/firebase.service';
+import { getDeviceToken, getDeviceType } from '../../utils/deviceUtils';
 
 interface ThankYouProps {
     customerName?: string;
@@ -13,27 +14,6 @@ interface ThankYouProps {
     phoneCode?: string;
     phoneNumber?: string;
 }
-
-const getDeviceToken = () => {
-    if (typeof window === 'undefined') return '';
-    const storageKey = 'LRCL_DEVICE_TOKEN';
-    let token: string = localStorage.getItem(storageKey) || '';
-    if (!token) {
-        token =
-            (crypto as any)?.randomUUID?.() ||
-            `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-        localStorage.setItem(storageKey, token);
-    }
-    return token;
-};
-
-const getDeviceType = () => {
-    if (typeof navigator === 'undefined') return 'web';
-    const ua = navigator.userAgent || '';
-    if (/android/i.test(ua)) return 'android';
-    if (/iPad|iPhone|iPod/i.test(ua)) return 'ios';
-    return 'web';
-};
 
 function ThankYou({
     customerName = '',
@@ -64,12 +44,7 @@ function ThankYou({
 
     useEffect(() => {
         const setupNotifications = async () => {
-            if (!displayCustomerUuid || typeof window === 'undefined' || !('Notification' in window)) {
-                return;
-            }
-
-            if (Notification.permission !== 'granted') {
-                setNotificationSetupMessage('Enable browser notifications to receive booking updates instantly.');
+            if (!displayCustomerUuid || typeof window === 'undefined') {
                 return;
             }
 
@@ -78,11 +53,35 @@ function ThankYou({
                 const deviceType = getDeviceType();
 
                 let fcmToken: string | undefined;
-                try {
-                    fcmToken = (await getFCMToken()) || undefined;
-                } catch (fcmError) {
-                    console.warn('Failed to get FCM token on thank-you screen:', fcmError);
+                let statusMessage = 'This device has been linked with your account.';
+
+                if (!('Notification' in window)) {
+                    statusMessage = 'This browser does not support notifications, but your device session has been saved.';
+                } else {
+                    try {
+                        fcmToken = (await getFCMToken(true)) || undefined;
+                        console.log('🔑 ThankYou FCM Token:', fcmToken ? fcmToken.substring(0, 20) + '...' : 'NOT RECEIVED');
+                    } catch (fcmError) {
+                        console.warn('Failed to get FCM token on thank-you screen:', fcmError);
+                    }
+
+                    if (Notification.permission === 'granted' && fcmToken) {
+                        statusMessage = 'Notifications are enabled for this device.';
+                    } else if (Notification.permission === 'denied') {
+                        statusMessage =
+                            'Browser notifications are blocked for this device. Please allow them from browser settings to receive booking updates.';
+                    } else {
+                        statusMessage =
+                            'Notification permission is still pending. Allow browser notifications to receive booking updates instantly.';
+                    }
                 }
+
+                console.log('💾 Saving customer device:', {
+                    customerUuid: displayCustomerUuid,
+                    deviceToken,
+                    deviceType,
+                    fcmToken: fcmToken ? 'PRESENT' : 'NULL'
+                });
 
                 await SaveCustomerDevice({
                     customerUuid: displayCustomerUuid,
@@ -91,7 +90,7 @@ function ThankYou({
                     fcmToken
                 });
 
-                setNotificationSetupMessage('Notifications are enabled for this device.');
+                setNotificationSetupMessage(statusMessage);
             } catch (error) {
                 console.warn('Failed to save customer device on thank-you screen:', error);
                 setNotificationSetupMessage('Notification setup is pending. Please keep browser notifications enabled.');
