@@ -5,8 +5,9 @@ interface BillingTotalInterface {
     companyUuid: string;
     tableUuid: string;
     categoryPriceUuid: string;
-    paymentMethod: string;
-    hours: number;
+    paymentMethod?: string;
+    hours?: number;
+    personCount?: number;
 }
 
 // Extend PaymentsParams to include companyUuid and optional date filters
@@ -47,6 +48,7 @@ export const Payments = async (
             totalAmount
             tournamentId
             tableSessionId
+            personCount
           }
           paging {
             totalPages

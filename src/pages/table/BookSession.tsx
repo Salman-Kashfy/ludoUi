@@ -51,7 +51,8 @@
             tableUuid,
             categoryPriceUuid: '',
             customerUuid: '',
-            paymentMethod: ''
+            paymentMethod: '',
+            personCount: 1
         };
 
         const { control, handleSubmit, watch, setValue, reset } = useForm({
@@ -61,6 +62,7 @@
 
         const categoryPriceUuid = watch('categoryPriceUuid');
         const paymentMethod = watch('paymentMethod');
+        const personCount = watch('personCount');
 
         const [bookSessionLoader, setBookSessionLoader] = useState(false);
         const companyContext: any = useContext(CompanyContext);
@@ -108,7 +110,15 @@
         // -------------------- Fetch Billing --------------------
         const fetchBillingData = () => {
             setBillingLoader(true);
-            TableSessionBilling({ companyUuid, tableUuid, categoryPriceUuid })
+            const selectedPrice = categoryPrices.find((p) => p.uuid === categoryPriceUuid);
+            TableSessionBilling({
+                companyUuid,
+                tableUuid,
+                categoryPriceUuid,
+                paymentMethod: paymentMethod || 'CASH',
+                hours: selectedPrice ? selectedPrice.duration : 0,
+                personCount: personCount || 1,
+            })
                 .then((data) => setBillingData(data))
                 .catch((e) => console.error(e.message))
                 .finally(() => setBillingLoader(false));
@@ -121,6 +131,7 @@
                 setCustomers([]);
                 setSearchCustomer('');
                 fetchBillingData();
+                fetchCustomers({ searchCustomer: '', companyUuid });
             }
         }, [open, tableUuid]);
 
@@ -128,7 +139,7 @@
             if (categoryPriceUuid && open) {
                 fetchBillingData();
             }
-        }, [categoryPriceUuid]);
+        }, [categoryPriceUuid, personCount, open]);
 
         // -------------------- Customer Handling --------------------
         const handleAddCustomer = () => setSaveCustomerDialogOpen(true);
@@ -162,21 +173,25 @@
 
         const { subtotal, taxRate, taxAmount, grandTotal } = useMemo(() => {
             const selectedPrice = categoryPrices.find((p) => p.uuid === categoryPriceUuid);
-            const price = selectedPrice ? selectedPrice.price : 0;
+            const headCount = personCount && Number.isInteger(personCount) && personCount > 0 ? personCount : 1;
+            const pricePerPerson = selectedPrice ? Number(selectedPrice.price) : 0;
+            const subtotalVal = pricePerPerson * headCount;
             const rate = getTaxRate(paymentMethod);
-            const tax = price * (rate / 100);
-            return { subtotal: price, taxRate: rate, taxAmount: tax, grandTotal: price + tax };
-        }, [categoryPriceUuid, paymentMethod, categoryPrices]);
+            const tax = subtotalVal * (rate / 100);
+            return { subtotal: subtotalVal, taxRate: rate, taxAmount: tax, grandTotal: subtotalVal + tax };
+        }, [categoryPriceUuid, paymentMethod, categoryPrices, personCount]);
 
         // -------------------- Submit --------------------
         const onSubmit = () => {
             setBookSessionLoader(true);
+            const finalPersonCount = personCount && Number.isInteger(personCount) && personCount > 0 ? personCount : 1;
             const input = {
                 tableUuid,
                 categoryPriceUuid,
                 companyUuid,
                 customerUuid: customerId.value,
                 paymentMethod: { paymentScheme: paymentMethod },
+                personCount: finalPersonCount,
                 taxRate,
                 taxAmount,
                 totalAmount: grandTotal
@@ -217,7 +232,7 @@
                         <DialogContent>
                             <Grid container spacing={2}>
                                 {/* Session Duration */}
-                                <Grid item xs={12}>
+                                <Grid size={12}>
                                     <Controller
                                         name="categoryPriceUuid"
                                         control={control}
@@ -248,7 +263,7 @@
                                 </Grid>
 
                                 {/* Customer Autocomplete */}
-                                <Grid item xs={12} >
+                                <Grid size={12}>
                                     <Box sx={{ display: 'flex', gap: 1, width: '100%' }}>
                                         <Controller
                                             name="customerUuid"
@@ -310,6 +325,38 @@
                                     </Box>
                                 </Grid>
 
+                                <Grid size={12}>
+                                    <Controller
+                                        name="personCount"
+                                        control={control}
+                                        rules={{
+                                            validate: (value: any) => {
+                                                if (value === '' || value === null || value === undefined) return true;
+                                                if (!Number.isInteger(value)) return 'Person count must be a whole number';
+                                                if (value <= 0) return 'Person count must be at least 1';
+                                                return true;
+                                            }
+                                        }}
+                                        render={({ field, fieldState: { error } }) => (
+                                            <FormInput
+                                                fullWidth
+                                                type="number"
+                                                inputProps={{ min: 1, step: 1 }}
+                                                error={!!error}
+                                                label="Person Count"
+                                                placeholder="Number of persons"
+                                                value={field.value}
+                                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                                    const raw = e.target.value;
+                                                    const intVal = raw === '' ? '' : Number(raw);
+                                                    field.onChange(intVal);
+                                                }}
+                                                helperText={error?.message || 'Default 1 person if empty'}
+                                            />
+                                        )}
+                                    />
+                                </Grid>
+
                                 {/* Billing Summary */}
                                 {billingData && categoryPriceUuid && (
                                     <Box sx={{ mt: 3, mb: 2, width: '100%' }}>
@@ -341,6 +388,18 @@
                                                 {(() => {
                                                     const selectedPrice = categoryPrices.find((p) => p.uuid === categoryPriceUuid);
                                                     return selectedPrice ? `${selectedPrice.price} ${selectedPrice.currencyName}` : '';
+                                                })()}
+                                            </Typography>
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Person Count: {personCount || 1}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Per Person: ₨ {(() => {
+                                                    const selectedPrice = categoryPrices.find((p) => p.uuid === categoryPriceUuid);
+                                                    return selectedPrice ? selectedPrice.price : 0;
                                                 })()}
                                             </Typography>
                                         </Box>
@@ -397,7 +456,7 @@
                                 )}
 
                                 {billingLoader && (
-                                    <Grid item xs={12}>
+                                    <Grid size={12}>
                                         <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                                             <CircularProgress size={30} />
                                         </Box>

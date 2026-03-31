@@ -4,13 +4,13 @@ import {first,isEmpty,isArray} from "lodash";
 import {AxiosRequestConfig} from "axios";
 import {EmptyLocalStorage, SetToken} from "./auth/auth.service";
 
-export const SetBaseUrl = () => {
-    return constants.API_URL;
-}
-
 export const POST = async (url:string, data: any = null, config: any = {}) => {
-    try {   
-        const res = await api.post(url, data, { ...config, withCredentials: true } as AxiosRequestConfig);
+    try {
+        const skipRefresh = config?.skipRefreshToken || false;
+        const axiosConfig = { ...config, withCredentials: true } as AxiosRequestConfig;
+        delete (axiosConfig as any).skipRefreshToken;
+
+        const res = await api.post(url, data, axiosConfig);
         if(res?.data?.data && Object.keys(res?.data?.data).length){
             const key = first(Object.keys(res?.data?.data))
             if(key && !isEmpty(res?.data?.data[key].errors)){
@@ -28,14 +28,14 @@ export const POST = async (url:string, data: any = null, config: any = {}) => {
         }
         return res?.data;
     } catch (e: any) {
-        if (e?.response.status === 400) {
+        if (e?.response?.status === 400) {
             const error = first(e.response.data.errors) as any;
-            if (error?.extensions?.code === 'UNAUTHENTICATED') {
+            if (!skipRefresh && error?.extensions?.code === 'UNAUTHENTICATED') {
                 try {
-                    const refreshRes = await api.post(SetBaseUrl() + apiUrl.refreshToken, {}, { ...config, withCredentials: true } as AxiosRequestConfig);
+                    const refreshRes = await api.post(apiUrl.refreshToken, {}, { withCredentials: true } as AxiosRequestConfig);
                     if (refreshRes?.data.status) {
                         SetToken(refreshRes?.data.token);
-                        const retryRes = await api.post(url, data, { ...config, withCredentials: true } as AxiosRequestConfig);
+                        const retryRes = await api.post(url, data, axiosConfig);
                         return retryRes?.data;
                     }
                 } catch (e: any) {
@@ -51,6 +51,7 @@ export const POST = async (url:string, data: any = null, config: any = {}) => {
                 window.location.href = constants.APP_URL
             }
         }
+        throw e;
     }
 };
 
@@ -69,7 +70,7 @@ export const GET = async (url:string, params: any = {}, config: any = {}) => {
     } catch (e: any) {
         if (e?.response.status === 401) {
             try {
-                const refreshRes = await api.post(SetBaseUrl() + apiUrl.refreshToken, {}, { ...config, withCredentials: true } as AxiosRequestConfig);
+                const refreshRes = await api.post(apiUrl.refreshToken, {}, { ...config, withCredentials: true } as AxiosRequestConfig);
                 if (refreshRes?.data.status) {
                     SetToken(refreshRes?.data.token);
                     const res = await api.get(url, { ...config, withCredentials: true, params } as AxiosRequestConfig);

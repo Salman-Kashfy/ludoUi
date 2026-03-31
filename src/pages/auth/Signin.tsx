@@ -1,16 +1,18 @@
 import { useState, useContext } from 'react'
 import { useNavigate } from "react-router"
-import { Box, Alert, Typography, Button } from '@mui/material'
+import { Box, Alert, Typography, Button, Card, CardContent } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { TextField, InputAdornment, IconButton, CircularProgress } from '@mui/material'
 import { NavLink } from "react-router-dom"
 import { useForm, Controller } from "react-hook-form"
 import { UserContext } from '../../hooks/UserContext'
+import { CompanyContext } from '../../hooks/CompanyContext'
 import { SetAuthCompany, UserLogin, UserPermissions } from "../../services/auth/auth.service"
 import { ROUTES } from "../../utils/constants"
 
 function Signin() {
     const userContext: any = useContext(UserContext)
+    const companyContext: any = useContext(CompanyContext)
     const navigate = useNavigate()
     const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -33,7 +35,9 @@ function Signin() {
         await UserLogin(data).then((data) => {
             if (data.status) {
                 userContext.setUser(data.user)
+                userContext.setLoggedIn(true)
                 SetAuthCompany(data.user.companyUuid)
+                companyContext.setCompanyUuid(data.user.companyUuid)
                 userContext.setToken(data.token)
                 UserPermissions().then((response) => {
                     setLoading(false)
@@ -58,18 +62,56 @@ function Signin() {
     }
 
     return (
-        <Box>
-            {errorMessage && (
-                <Alert severity="error" sx={{ mb: 3, fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
-                    {errorMessage}
-                </Alert>
-            )}
+        <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            minHeight: '100vh',
+            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 3 }
+        }}>
+            <Card 
+                sx={{ 
+                    maxWidth: 450, 
+                    width: '100%', 
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                    borderRadius: 3,
+                    overflow: 'hidden'
+                }}
+            >
+                <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+                    {errorMessage && (
+                        <Alert severity="error" sx={{ mb: 3, fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
+                            {errorMessage}
+                        </Alert>
+                    )}
 
-            <Typography variant="h6" sx={{ mb: 4, fontWeight: 500, color: 'rgba(0,0,0,0.87)', fontSize: { xs: '1.25rem', sm: '1.25rem' } }}>
-                Welcome
-            </Typography>
+                    <Typography 
+                        variant="h5" 
+                        sx={{ 
+                            mb: 3, 
+                            fontWeight: 600, 
+                            color: 'text.primary',
+                            textAlign: 'center',
+                            fontSize: { xs: '1.5rem', sm: '1.75rem' }
+                        }}
+                    >
+                        Welcome Back
+                    </Typography>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
+                    <Typography 
+                        variant="body2" 
+                        sx={{ 
+                            mb: 4, 
+                            color: 'text.secondary',
+                            textAlign: 'center',
+                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }}
+                    >
+                        Sign in to your account to continue
+                    </Typography>
+
+                    <form onSubmit={handleSubmit(onSubmit)}>
                 <Controller
                     name="email"
                     control={control}
@@ -283,6 +325,8 @@ function Signin() {
                     </Button>
                 </Box>
             </form>
+                </CardContent>
+            </Card>
         </Box>
     )
 }

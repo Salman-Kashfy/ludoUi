@@ -18,15 +18,14 @@ function AuthLayout({children}: {children: React.ReactNode}) {
         <ThemeProvider theme={lightTheme}>
             <CssBaseline />
             <AppProvider>
-                <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', justifyContent: 'center', alignItems: 'center', position: 'relative', background: 'linear-gradient(142deg, rgba(255,255,255,1) 0%, rgba(250,249,251,1) 72%)' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', height: '100vh', width: '100vw', justifyContent: 'center', alignItems: 'center', position: 'relative', background: 'linear-gradient(142deg, rgba(255,255,255,1) 0%, rgba(250,249,251,1) 72%)', overflow: 'hidden' }}>
                     {/* decorative background - non-interactive */}
                     <Box sx={{ position: 'absolute', inset: 0, zIndex: 0, backgroundImage: `url(${ludoBg})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'center', backgroundSize: 'cover', opacity: { xs: 0.04, sm: 0.08 }, pointerEvents: 'none', filter: { xs: 'none', sm: 'blur(0.2px)' } }} />
 
-                    <Box sx={{ position: 'relative', zIndex: 1 }}>
-                        <Box sx={{backgroundColor: '#fff', overflow: 'hidden', borderRadius: 2, p: { xs: 3, sm: 2, md: 4 }, width: { xs: '92vw', sm: '440px' }, maxWidth: '100%', boxSizing: 'border-box', position: 'relative', boxShadow: 'rgba(0, 0, 0, 0.08) 0px 6px 20px'}}>
-                            <Box sx={{ height: 6, background: 'linear-gradient(90deg, #5B2E8A 0%, #D4AF37 100%)', width: '100%', mb: { xs: 3, sm: 2 } }} />
-                            <Box sx={{textAlign: 'center', mb: { xs: 3, sm: 2 }}}>
-                                <Box component="img" src={ludoLogo} sx={{ width: { xs: '140px', sm: '120px', md: '160px' }, height: 'auto' }} />
+                    <Box sx={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '100vw' }}>
+                        <Box sx={{backgroundColor: 'transparent', overflow: 'visible', borderRadius: 0, p: { xs: 1, sm: 1.5, md: 2 }, width: { xs: '100vw', sm: '100vw', md: '100vw' }, maxWidth: '100%', boxSizing: 'border-box', position: 'relative'}}>
+                            <Box sx={{textAlign: 'center', mb: { xs: 2, sm: 2 }}}>
+                                <Box component="img" src={ludoLogo} sx={{ width: { xs: '120px', sm: '120px', md: '160px' }, height: 'auto' }} />
                             </Box>
                             {children}
                         </Box>
@@ -37,18 +36,26 @@ function AuthLayout({children}: {children: React.ReactNode}) {
     )
 }
 
-const AuthLayoutRoute = ({isAuth, component: Component}: {isAuth: boolean, component: React.ComponentType}) => {
+const AuthLayoutRoute = ({
+    isAuth,
+    component: Component,
+    allowWhenAuthenticated = false
+}: {
+    isAuth: boolean,
+    component: React.ComponentType,
+    allowWhenAuthenticated?: boolean
+}) => {
     isAuth = Boolean(GetToken());
-    return(
-        <>
-            { isAuth ?
-                <Navigate to="/dashboard" /> :
-                <AuthLayout>
-                    <Component />
-                </AuthLayout>
-            }
-        </>
-    )
+
+    if (isAuth && !allowWhenAuthenticated) {
+        return <Navigate to="/dashboard" />;
+    }
+
+    return (
+        <AuthLayout>
+            <Component />
+        </AuthLayout>
+    );
 }
 
 export default AuthLayoutRoute
