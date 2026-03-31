@@ -25,7 +25,6 @@
     "dayjs": "^1.11.18",
     "file-saver": "^2.0.5",
     "firebase": "^12.11.0",
-    "firebase-admin": "^13.7.0",
     "libphonenumber-js": "^1.12.24",
     "lodash": "^4.17.21",
     "lucide-react": "^0.546.0",
@@ -39,8 +38,7 @@
     "react-router": "^7.9.4",
     "react-router-dom": "^7.9.4",
     "react-toastify": "^11.0.5",
-    "recharts": "^3.5.1",
-    "utc": "^0.1.0"
+    "recharts": "^3.5.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.37.0",

@@ -394,6 +394,18 @@
 
                                         <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                                             <Typography variant="body2" color="text.secondary">
+                                                Person Count: {personCount || 1}
+                                            </Typography>
+                                            <Typography variant="body2" color="text.secondary">
+                                                Per Person: ₨ {(() => {
+                                                    const selectedPrice = categoryPrices.find((p) => p.uuid === categoryPriceUuid);
+                                                    return selectedPrice ? selectedPrice.price : 0;
+                                                })()}
+                                            </Typography>
+                                        </Box>
+
+                                        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                                            <Typography variant="body2" color="text.secondary">
                                                 Subtotal
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary">

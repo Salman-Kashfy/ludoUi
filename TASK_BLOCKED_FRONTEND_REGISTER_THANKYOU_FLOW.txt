@@ -1,1 +1,0 @@
-Blocked: project files are not visible in the tool environment. Required frontend files under ludoUi/ could not be listed or read, and command execution fails because the environment attempts to invoke 'sh' on Windows. This marker file is created only to satisfy the write requirement and document the blocker for the parent agent.

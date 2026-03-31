@@ -34,7 +34,8 @@ function ThankYou({
     } | undefined) || {};
 
     const displayName = customerName || state.customerName || 'Valued Customer';
-    const displayCustomerUuid = customerUuid || state.customerUuid || '';
+    const persistedCustomerUuid = localStorage.getItem('LRCL_CUSTOMER_UUID') || undefined;
+    const displayCustomerUuid = customerUuid || state.customerUuid || persistedCustomerUuid || '';
     const displayBookingWaiting = isBookingWaiting || state.isBookingWaiting || false;
     const displayPhone =
         phone ||
@@ -52,6 +53,11 @@ function ThankYou({
                 const deviceToken = getDeviceToken();
                 const deviceType = getDeviceType();
 
+                if ('Notification' in window && Notification.permission !== 'granted') {
+                    const permissionRequested = await Notification.requestPermission();
+                    console.log('🔑 ThankYou Notification permission requested:', permissionRequested);
+                }
+
                 let fcmToken: string | undefined;
                 let statusMessage = 'This device has been linked with your account.';
 
@@ -60,6 +66,9 @@ function ThankYou({
                 } else {
                     try {
                         fcmToken = (await getFCMToken(true)) || undefined;
+                        if (fcmToken) {
+                            localStorage.setItem('LRCL_FCM_TOKEN', fcmToken);
+                        }
                         console.log('🔑 ThankYou FCM Token:', fcmToken ? fcmToken.substring(0, 20) + '...' : 'NOT RECEIVED');
                     } catch (fcmError) {
                         console.warn('Failed to get FCM token on thank-you screen:', fcmError);
@@ -90,6 +99,7 @@ function ThankYou({
                     fcmToken
                 });
 
+                localStorage.setItem('LRCL_CUSTOMER_UUID', displayCustomerUuid);
                 setNotificationSetupMessage(statusMessage);
             } catch (error) {
                 console.warn('Failed to save customer device on thank-you screen:', error);

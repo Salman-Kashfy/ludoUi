@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
-import { Box, Typography, Button, CircularProgress, Alert, FormControl } from '@mui/material';
+import { Box, Typography, Button, CircularProgress, Alert, FormControl, Card, CardContent } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { MuiTelInput } from 'mui-tel-input';
 import dayjs from 'dayjs';
@@ -134,6 +134,7 @@ function Register() {
             }
 
             successToast('Registration successful!');
+            localStorage.setItem('LRCL_CUSTOMER_UUID', customerUuid);
             reset();
             navigate(ROUTES.AUTH.THANK_YOU, {
                 state: {
@@ -154,18 +155,56 @@ function Register() {
     };
 
     return (
-        <Box>
-            {errorMessage && (
-                <Alert severity="error" sx={{ mb: 3, fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
-                    {errorMessage}
-                </Alert>
-            )}
+        <Box sx={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            minHeight: '100vh',
+            px: { xs: 2, sm: 3 },
+            py: { xs: 2, sm: 3 }
+        }}>
+            <Card 
+                sx={{ 
+                    maxWidth: 450, 
+                    width: '100%', 
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                    borderRadius: 3,
+                    overflow: 'hidden'
+                }}
+            >
+                <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
+                    {errorMessage && (
+                        <Alert severity="error" sx={{ mb: 3, fontSize: { xs: '0.875rem', sm: '0.875rem' } }}>
+                            {errorMessage}
+                        </Alert>
+                    )}
 
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 500, color: 'rgba(0,0,0,0.87)', fontSize: { xs: '1.25rem', sm: '1.25rem' } }}>
-                Register as a customer
-            </Typography>
+                    <Typography 
+                        variant="h5" 
+                        sx={{ 
+                            mb: 2, 
+                            fontWeight: 600, 
+                            color: 'text.primary',
+                            textAlign: 'center',
+                            fontSize: { xs: '1.5rem', sm: '1.75rem' }
+                        }}
+                    >
+                        Create Account
+                    </Typography>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
+                    <Typography 
+                        variant="body2" 
+                        sx={{ 
+                            mb: 4, 
+                            color: 'text.secondary',
+                            textAlign: 'center',
+                            fontSize: { xs: '0.875rem', sm: '1rem' }
+                        }}
+                    >
+                        Join us and start playing today
+                    </Typography>
+
+                    <form onSubmit={handleSubmit(onSubmit)}>
                 <Controller
                     name="firstName"
                     control={control}
@@ -279,6 +318,8 @@ function Register() {
                     </Typography>
                 </Box>
             </form>
+                </CardContent>
+            </Card>
         </Box>
     );
 }

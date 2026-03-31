@@ -48,6 +48,7 @@ export const Payments = async (
             totalAmount
             tournamentId
             tableSessionId
+            personCount
           }
           paging {
             totalPages

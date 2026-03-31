@@ -27,6 +27,7 @@ type Payment = {
     totalAmount?: number;
     tournamentId?: string;
     tableSessionId?: string;
+    personCount?: number;
     method?: string;
     status?: 'SUCCESS' | 'PENDING' | string;
     createdAt?: number;
@@ -98,6 +99,7 @@ function TournamentPlayerPayments() {
         { field: 'amount', headerName: 'SubTotal', width: 120, renderCell: (params: any) => <>₨ {params?.row?.amount || 0}</> },
         { field: 'taxAmount', headerName: 'Tax', width: 120, renderCell: (params: any) => <>₨ {params?.row?.taxAmount || 0}</> },
         { field: 'totalAmount', headerName: 'Total', width: 120, renderCell: (params: any) => <>₨ {params?.row?.totalAmount || 0}</> },
+        { field: 'personCount', headerName: 'Person Count', width: 120, renderCell: (params: any) => params?.row?.personCount || '-' },
         {
             field: 'type', headerName: 'Type', width: 150, renderCell: (params: any) => {
                 const row = params?.row;
@@ -215,7 +217,7 @@ function TournamentPlayerPayments() {
                                                 <Box>
                                                     <Typography fontWeight={600}>{p.customer?.fullName || '-'}</Typography>
                                                     <Typography variant="body2">
-                                                        SubTotal: ₨ {p.amount || 0} | Tax: ₨ {p.taxAmount || 0} | Total: ₨ {p.totalAmount || 0}
+                                                        SubTotal: ₨ {p.amount || 0} | Tax: ₨ {p.taxAmount || 0} | Total: ₨ {p.totalAmount || 0} | Persons: {p.personCount || '-'}
                                                     </Typography>
                                                     <Typography variant="body2" color="text.secondary">
                                                         {p.tournamentId ? 'Tournament' : p.tableSessionId ? 'Table Session' : '-'} | {p.method || '-'} | {p.status || '-'}
