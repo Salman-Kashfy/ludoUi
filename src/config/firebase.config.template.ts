@@ -18,13 +18,13 @@
 */
 
 export const firebaseConfig = {
-    apiKey: "AIzaSyCCKx91J1d_--8BuDIOAZCLHRG9o5224hs",
-    authDomain: "react-project-1-30116.firebaseapp.com",
-    projectId: "react-project-1-30116",
-    storageBucket: "react-project-1-30116.firebasestorage.app",
-    messagingSenderId: "695385686838",
-    appId: "1:695385686838:web:1020b9610a87085f7e6997",
-    measurementId: "G-MRZ0VE39KX"
+    measurementId: "G-MRZ0VE39KX",
+    apiKey: "AIzaSyAJMTJ6xxSQwYp37OsyBgKsfGIRGgLs6zw",
+    authDomain: "ludo-c1bc3.firebaseapp.com",
+    projectId: "ludo-c1bc3",
+    storageBucket: "ludo-c1bc3.firebasestorage.app",
+    messagingSenderId: "268220915710",
+    appId: "1:268220915710:web:e2a72accb3eed28a462aaf",
 };
 
 // Firebase Cloud Messaging - Web Push Certificate (VAPID Public Key)
