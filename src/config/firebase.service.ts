@@ -30,7 +30,7 @@ export const initializeFirebase = async () => {
       console.log('⏳ Registering Service Worker...');
       const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
       await navigator.serviceWorker.ready;
-      console.log('✅ Service Worker ready');
+      console.log('✅ Service Worker ready', swRegistration);
     }
 
     const supported = await isSupported();
