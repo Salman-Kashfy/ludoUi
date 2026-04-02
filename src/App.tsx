@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import './App.css';
 import { UserContext } from './hooks/UserContext';
@@ -89,14 +89,18 @@ function App() {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem(storageUser) || '{}') || {});
     const [permissions, setPermissions] = useState(JSON.parse(localStorage.getItem(storagePermission) || '[]') || []);
     const [token, setToken] = useState(localStorage.getItem(storageKey) || false);
-    const userData = { loggedIn, user, permissions, token, setLoggedIn, setUser, setToken, setPermissions };
+    const userData = useMemo(() => ({ 
+        loggedIn, user, permissions, token, setLoggedIn, setUser, setToken, setPermissions 
+    }), [loggedIn, user, permissions, token]);
 
     /**
      * Company Context
      */
     const storageCompany = constants.LOCAL_STORAGE_COMPANY;
     const [companyUuid, setCompanyUuid] = useState(localStorage.getItem(storageCompany) || '');
-    const companyData = { companyUuid, setCompanyUuid };
+    const companyData = useMemo(() => ({ 
+        companyUuid, setCompanyUuid 
+    }), [companyUuid]);
 
     return (
         <UserContext.Provider value={userData}>
