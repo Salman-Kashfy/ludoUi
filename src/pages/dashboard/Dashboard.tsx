@@ -1,13 +1,13 @@
 import { Fragment, useContext, useEffect, useState, SyntheticEvent } from 'react'
 import PageTitle from "../../components/PageTitle";
-import { Box, CircularProgress, Button } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
 import { CompanyContext } from '../../hooks/CompanyContext';
+import { UserContext } from '../../hooks/UserContext';
 import { useBooking } from '../../hooks/BookingContext';
 import { useToast } from '../../utils/toast.tsx';
 import DashboardStat from "./DashboardStat";
 import DashboardTournament from "./DashboardTournament";
-import { LayoutDashboard, Gamepad2, CircleOff, Trophy, Landmark, GalleryHorizontal, Bell, Info } from 'lucide-react';
-import { triggerNotification } from '../../components/NotificationCenter';
+import { LayoutDashboard, Gamepad2, CircleOff, Trophy, Landmark, GalleryHorizontal } from 'lucide-react';
 import { TableStats } from '../../services/dashboard.service';
 import { GetCategories } from '../../services/category.service';
 import { CategorySection } from '../../components/CategorySection';
@@ -21,6 +21,7 @@ import { GetTournaments } from "../../services/tournament.service"
 
 function Dashboard() {
     const companyContext: any = useContext(CompanyContext)
+    const userContext: any = useContext(UserContext)
     const { errorToast } = useToast()
     const { bookSessionDialog, tableUuid, categoryPrices, closeBookingDialog, rechargeSessionDialog, tableSessionUuid, rechargeCategoryPrices, closeRechargeDialog } = useBooking()
     const [tab, setTab] = useState(0);
@@ -28,7 +29,7 @@ function Dashboard() {
     const [tourLoader, setTourLoader] = useState<boolean>(false);
 
     // ---------------- Dashboard Stats ----------------
-    const [statsLoader, setStatsLoader] = useState(true);
+    const [statsLoader, setStatsLoader] = useState(false);
     const [dashboardStats, setDashboardStats] = useState({
         availableTables: 0,
         occupiedTables: 0,
@@ -37,12 +38,13 @@ function Dashboard() {
     })
 
     // ---------------- Categories ----------------
-    const [categoriesLoader, setCategoriesLoader] = useState(true);
+    const [categoriesLoader, setCategoriesLoader] = useState(false);
     const [categories, setCategories] = useState<any[]>([]);
 
-    const loadCategories = () => {
+    const loadCategories = (uuid: string = companyContext.companyUuid) => {
+        if (!uuid) return;
         setCategoriesLoader(true);
-        GetCategories({ companyUuid: companyContext.companyUuid }).then((res: any) => {
+        GetCategories({ companyUuid: uuid }).then((res: any) => {
             setCategories(res.list || []);
         }).catch(() => {
             errorToast('Failed to load categories');
@@ -51,9 +53,10 @@ function Dashboard() {
         });
     };
 
-    const loadDashboardStats = () => {
+    const loadDashboardStats = (uuid: string = companyContext.companyUuid) => {
+        if (!uuid) return;
         setStatsLoader(true);
-        TableStats({ companyUuid: companyContext.companyUuid })
+        TableStats({ companyUuid: uuid })
             .then((res: any) => {
                 if (res?.status) {
                     setDashboardStats(res.data)
@@ -73,9 +76,10 @@ function Dashboard() {
         setTab(newValue);
     };
 
-    const loadTournaments = () => {
+    const loadTournaments = (uuid: string = companyContext.companyUuid) => {
+        if (!uuid) return;
         setTourLoader(true);
-        GetTournaments({ companyUuid: companyContext.companyUuid }).then((res: any) => {
+        GetTournaments({ companyUuid: uuid }).then((res: any) => {
             setTournaments(res.list || []);
         }).catch(() => {
             errorToast('Failed to load tournaments');
@@ -88,70 +92,6 @@ function Dashboard() {
         setTournaments(prev =>
             prev.map(t => t.uuid === tournamentUuid ? { ...t, ...updates } : t)
         );
-    };
-
-    // Test notification handler
-    const handleTestNotification = async () => {
-        if (Notification.permission !== "granted") {
-            const permission = await Notification.requestPermission();
-            if (permission !== "granted") {
-                alert("Notification permission denied");
-                return;
-            }
-        }
-
-        // Show in-app notification (works on all devices)
-        triggerNotification({
-            title: '🔔 Test Notification',
-            body: 'In-app notification working!',
-            type: 'info',
-            duration: 5000
-        });
-
-        // Try browser notification (may not show on mobile when tab is active)
-        try {
-            new Notification("Test Notification", {
-                body: "Browser notification (may not show on mobile)",
-                icon: "/ludo-icon.png",
-                badge: "/ludo-badge.png",
-                requireInteraction: true
-            });
-        } catch (error) {
-            console.warn('Browser notification failed:', error);
-        }
-    };
-
-    // Test background notification setup
-    const handleCheckNotificationStatus = async () => {
-        const status = {
-            permission: Notification.permission,
-            fcmToken: localStorage.getItem('LRCL_FCM_TOKEN') ? '✓ Found' : '✗ Missing',
-            serviceWorkers: (await navigator.serviceWorker.getRegistrations()).length > 0 ? '✓ Registered' : '✗ Not registered'
-        };
-
-        console.group('🔔 Notification System Status');
-        console.log('Permission:', status.permission);
-        console.log('FCM Token:', status.fcmToken);
-        console.log('Service Workers:', status.serviceWorkers);
-        console.log('Testing Steps:');
-        console.log('1. Close this browser tab');
-        console.log('2. From admin, book a table for this customer');
-        console.log('3. Check bottom-right for system notification');
-        console.groupEnd();
-
-        const message = `
-📱 Notification System Status:
-• Permission: ${status.permission}
-• FCM Token: ${status.fcmToken}
-• Service Workers: ${status.serviceWorkers}
-
-🧪 Background Notification Test:
-1. Close this tab now
-2. Book a table from another window
-3. Check bottom-right corner for notification
-        `;
-
-        alert(message);
     };
 
     const updateTournamentPlayerCount = (tournamentUuid: string, playerCount: number) => {
@@ -240,10 +180,12 @@ function Dashboard() {
 
     // ---------------- Starting Point ----------------
     useEffect(() => {
-        loadDashboardStats();
-        loadCategories();
-        loadTournaments();
-    }, [companyContext.companyUuid])
+        if (companyContext.companyUuid && userContext.token) {
+            loadDashboardStats(companyContext.companyUuid);
+            loadCategories(companyContext.companyUuid);
+            loadTournaments(companyContext.companyUuid);
+        }
+    }, [companyContext.companyUuid, userContext.token])
 
     return (
         <DashboardProvider loadDashboardStats={loadDashboardStats}>
@@ -288,36 +230,6 @@ function Dashboard() {
                             <DashboardStat value={dashboardStats.occupiedTables} title="Occupied Tables" icon={<CircleOff color='#fff' strokeWidth={1.6} size={24} />} iconBg="triadic.main" loading={statsLoader} />
                             <DashboardStat value={dashboardStats.activeTournaments} title="Active Tournaments" icon={<Trophy color='#fff' strokeWidth={1.6} size={24} />} iconBg="success.main" loading={statsLoader} />
                             <DashboardStat value={dashboardStats.todaysRevenue} title="Today's Revenue" icon={<Landmark color='#fff' strokeWidth={1.6} size={24} />} iconBg="warning.main" loading={statsLoader} />
-                        </Box>
-
-                        {/* Test Notification Button */}
-                        <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                            <Button
-                                variant="outlined"
-                                color="info"
-                                startIcon={<Bell size={20} />}
-                                onClick={handleTestNotification}
-                                sx={{
-                                    borderRadius: 1,
-                                    textTransform: 'capitalize',
-                                    fontSize: '0.9rem'
-                                }}
-                            >
-                                Test Foreground Notification
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                color="warning"
-                                startIcon={<Info size={20} />}
-                                onClick={handleCheckNotificationStatus}
-                                sx={{
-                                    borderRadius: 1,
-                                    textTransform: 'capitalize',
-                                    fontSize: '0.9rem'
-                                }}
-                            >
-                                Check Background Notification Setup
-                            </Button>
                         </Box>
 
                         {/* Tabs */}

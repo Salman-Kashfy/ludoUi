@@ -292,7 +292,7 @@ function Register() {
                     type="button"
                     variant="outlined"
                     fullWidth
-                    sx={{ mb: 2, py: 1.2 }}
+                    sx={{ mb: 2, py: 1.2, display: 'none' }}
                     onClick={async () => {
                         const allowed = await promptNotificationPermission();
                         if (allowed) {
