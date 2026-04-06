@@ -3,7 +3,6 @@ import { useNavigate, NavLink } from 'react-router-dom';
 import { Box, Typography, Button, CircularProgress, Alert, FormControl, Card, CardContent } from '@mui/material';
 import { Controller, useForm } from 'react-hook-form';
 import { MuiTelInput } from 'mui-tel-input';
-import dayjs from 'dayjs';
 import FormInput from '../../components/FormInput';
 import { RegisterCustomer, SaveCustomerDevice } from '../../services/customer.service';
 import { constants, ROUTES } from '../../utils/constants';
@@ -17,6 +16,40 @@ interface RegistrationFormValues {
     phone: string;
     dob: string;
 }
+
+const formatDobInput = (value: string): string => {
+    const digitsOnly = value.replace(/\D/g, '').slice(0, 8);
+    const month = digitsOnly.slice(0, 2);
+    const day = digitsOnly.slice(2, 4);
+    const year = digitsOnly.slice(4, 8);
+
+    if (digitsOnly.length <= 2) return month;
+    if (digitsOnly.length <= 4) return `${month}-${day}`;
+    return `${month}-${day}-${year}`;
+};
+
+const isValidDobDate = (value: string): boolean => {
+    const [monthStr, dayStr, yearStr] = value.split('-');
+    const month = Number(monthStr);
+    const day = Number(dayStr);
+    const year = Number(yearStr);
+
+    if (!month || !day || !year) return false;
+
+    const date = new Date(year, month - 1, day);
+    return (
+        date.getFullYear() === year &&
+        date.getMonth() === month - 1 &&
+        date.getDate() === day
+    );
+};
+
+const toApiDob = (value: string): string | null => {
+    if (!value) return null;
+    const [month, day, year] = value.split('-');
+    if (!month || !day || !year) return null;
+    return `${year}-${month}-${day}`;
+};
 
 const promptNotificationPermission = async (): Promise<boolean> => {
     if (typeof window === 'undefined' || !('Notification' in window)) {
@@ -62,7 +95,7 @@ function Register() {
             lastName: data.lastName,
             phoneCode: '',
             phoneNumber: '',
-            dob: data.dob || null,
+            dob: toApiDob(data.dob),
             companyUuid,
             deviceToken: '',
             deviceType: getDeviceType(),
@@ -169,7 +202,8 @@ function Register() {
                     width: '100%', 
                     boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
                     borderRadius: 3,
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    bgcolor: 'background.paper'
                 }}
             >
                 <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
@@ -260,6 +294,42 @@ function Register() {
                                 fullWidth
                                 error={!!error}
                                 helperText={error?.message}
+                                InputLabelProps={{
+                                    sx: {
+                                        color: 'rgba(0,0,0,0.72)',
+                                        '&.Mui-focused': { color: 'primary.main' },
+                                        '&.MuiInputLabel-shrink': {
+                                            px: 0.5,
+                                            lineHeight: 1.1,
+                                            bgcolor: '#ffffff'
+                                        }
+                                    }
+                                }}
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        borderRadius: 1,
+                                        bgcolor: '#ffffff',
+                                        '& fieldset': {
+                                            borderColor: 'rgba(0,0,0,0.2)'
+                                        },
+                                        '&:hover fieldset': {
+                                            borderColor: 'rgba(0,0,0,0.45)'
+                                        },
+                                        '&.Mui-focused fieldset': {
+                                            borderColor: 'primary.main'
+                                        }
+                                    },
+                                    '& .MuiOutlinedInput-input': {
+                                        color: 'rgba(0,0,0,0.9)'
+                                    },
+                                    '& .MuiInputBase-input::placeholder': {
+                                        color: 'rgba(0,0,0,0.5)',
+                                        opacity: 1
+                                    },
+                                    '& .MuiFormHelperText-root': {
+                                        mx: 0
+                                    }
+                                }}
                             />
                         </FormControl>
                     )}
@@ -271,17 +341,27 @@ function Register() {
                     rules={{
                         validate: (value) => {
                             if (!value) return true;
-                            return dayjs(value).isValid() || 'Please enter a valid date';
+                            const dobPattern = /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])-\d{4}$/;
+                            if (!dobPattern.test(value)) return 'Please enter date in MM-DD-YYYY format';
+                            return isValidDobDate(value) || 'Please enter a valid date';
                         }
                     }}
                     render={({ field, fieldState: { error } }) => (
                         <FormInput
                             fullWidth
                             error={error}
-                            field={field}
+                            field={{
+                                ...field,
+                                onChange: (e: any) => {
+                                    const formattedDob = formatDobInput(e.target.value || '');
+                                    field.onChange(formattedDob);
+                                }
+                            }}
                             value={field.value || ''}
                             label="Date of Birth"
-                            type="date"
+                            type="text"
+                            placeholder="MM-DD-YYYY"
+                            inputProps={{ inputMode: 'numeric', maxLength: 10 }}
                             InputLabelProps={{ shrink: true }}
                             sx={{ mb: 3 }}
                         />
@@ -310,7 +390,7 @@ function Register() {
                 </Button>
 
                 <Box sx={{ mt: 2, textAlign: 'center' }}>
-                    <Typography variant="body2" sx={{ color: 'rgba(0,0,0,0.6)' }}>
+                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                         Already registered?{' '}
                         <Button component={NavLink} to={ROUTES.AUTH.LOGIN} size="small">
                             Sign in

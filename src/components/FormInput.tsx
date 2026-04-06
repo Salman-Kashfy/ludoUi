@@ -15,7 +15,22 @@ function FormInput(props: any) {
             <TextField
                 {...fieldProps}
                 InputProps={props.InputProps}
-                InputLabelProps={props.InputLabelProps}
+                inputProps={props.inputProps}
+                InputLabelProps={{
+                    ...props.InputLabelProps,
+                    sx: {
+                        color: 'rgba(0,0,0,0.72)',
+                        '&.Mui-focused': {
+                            color: 'primary.main',
+                        },
+                        '&.MuiInputLabel-shrink': {
+                            px: 0.5,
+                            lineHeight: 1.1,
+                            bgcolor: '#ffffff',
+                        },
+                        ...(props.InputLabelProps?.sx || {})
+                    }
+                }}
                 disabled={props.disabled}
                 error={!!props.error}
                 variant={props.variant || 'outlined'}
@@ -29,10 +44,25 @@ function FormInput(props: any) {
                 onInput={props.onInput}
                 size={props.size || 'small'}
                 sx={{
-                    bgcolor: '#ffffff',
-                    borderRadius: 1,
                     '& .MuiOutlinedInput-root': {
-                        borderColor: '#2196f3',
+                        borderRadius: 1,
+                        bgcolor: '#ffffff',
+                        '& fieldset': {
+                            borderColor: 'rgba(0,0,0,0.2)',
+                        },
+                        '&:hover fieldset': {
+                            borderColor: 'rgba(0,0,0,0.45)',
+                        },
+                        '&.Mui-focused fieldset': {
+                            borderColor: 'primary.main',
+                        }
+                    },
+                    '& .MuiOutlinedInput-input': {
+                        color: 'rgba(0,0,0,0.9)',
+                    },
+                    '& .MuiInputBase-input::placeholder': {
+                        color: 'rgba(0,0,0,0.5)',
+                        opacity: 1,
                     },
                     ...props.sx
                 }}

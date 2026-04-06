@@ -17,6 +17,52 @@ function Signin() {
     const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState('')
+    const authInputLabelProps = {
+        shrink: true,
+        sx: {
+            color: 'rgba(0,0,0,0.72)',
+            '&.Mui-focused': {
+                color: 'primary.main'
+            },
+            '&.MuiInputLabel-shrink': {
+                px: 0.5,
+                lineHeight: 1.1,
+                bgcolor: '#ffffff'
+            }
+        }
+    }
+    const authInputSx = {
+        mb: 3,
+        '& .MuiOutlinedInput-root': {
+            backgroundColor: '#ffffff',
+            borderRadius: 1,
+            '& fieldset': {
+                borderColor: 'rgba(0,0,0,0.2)',
+                borderWidth: 1
+            },
+            '&:hover fieldset': {
+                borderColor: 'rgba(0,0,0,0.45)'
+            },
+            '&.Mui-focused fieldset': {
+                borderColor: 'primary.main',
+                borderWidth: 2
+            }
+        },
+        '& .MuiOutlinedInput-input': {
+            padding: { xs: '14px 16px', sm: '12px 14px' },
+            fontSize: { xs: '1rem', sm: '0.9rem' },
+            color: 'rgba(0,0,0,0.9)',
+            '&::placeholder': {
+                color: 'rgba(0,0,0,0.5)',
+                opacity: 1
+            },
+            '&:-webkit-autofill': {
+                WebkitBoxShadow: '0 0 0 1000px transparent inset',
+                WebkitTextFillColor: 'currentColor',
+                caretColor: 'currentColor'
+            }
+        }
+    }
 
     const handleTogglePasswordVisibility = () => {
         setShowPassword((prev) => !prev)
@@ -76,7 +122,8 @@ function Signin() {
                     width: '100%', 
                     boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
                     borderRadius: 3,
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    bgcolor: 'background.paper'
                 }}
             >
                 <CardContent sx={{ p: { xs: 3, sm: 4 } }}>
@@ -129,50 +176,8 @@ function Signin() {
                             placeholder="Enter your email"
                             fullWidth
                             autoComplete="email"
-                            InputLabelProps={{ 
-                                shrink: true,
-                                sx: {
-                                    color: 'rgba(0,0,0,0.6)',
-                                    fontSize: { xs: '1rem', sm: '0.875rem' },
-                                    '&.Mui-focused': {
-                                        color: 'primary.main'
-                                    },
-                                    '&.MuiInputLabel-shrink': {
-                                        fontSize: { xs: '0.875rem', sm: '0.75rem' }
-                                    }
-                                }
-                            }}
-                            sx={{
-                                mb: 3,
-                                '& .MuiOutlinedInput-root': { 
-                                    backgroundColor: { xs: '#f8f9fa', sm: '#fff' }, 
-                                    borderRadius: 1,
-                                    '& fieldset': {
-                                        borderColor: 'rgba(0,0,0,0.12)',
-                                        borderWidth: 1
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'rgba(0,0,0,0.23)'
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'primary.main',
-                                        borderWidth: 2
-                                    }
-                                },
-                                '& .MuiOutlinedInput-input': { 
-                                    padding: { xs: '14px 16px', sm: '12px 14px' }, 
-                                    fontSize: { xs: '1rem', sm: '0.9rem' }, 
-                                    color: 'rgba(0,0,0,0.87)',
-                                    '&::placeholder': {
-                                        color: 'rgba(0,0,0,0.4)',
-                                        opacity: 1
-                                    },
-                                    '&:-webkit-autofill': {
-                                        WebkitBoxShadow: '0 0 0 1000px #f8f9fa inset',
-                                        WebkitTextFillColor: 'rgba(0,0,0,0.87)'
-                                    }
-                                }
-                            }}
+                            InputLabelProps={authInputLabelProps}
+                            sx={authInputSx}
                             helperText={error ? error.message : ''}
                             slotProps={{
                                 formHelperText: {
@@ -204,50 +209,8 @@ function Signin() {
                             placeholder="Enter your password"
                             fullWidth
                             autoComplete="current-password"
-                            InputLabelProps={{ 
-                                shrink: true,
-                                sx: {
-                                    color: 'rgba(0,0,0,0.6)',
-                                    fontSize: { xs: '1rem', sm: '0.875rem' },
-                                    '&.Mui-focused': {
-                                        color: 'primary.main'
-                                    },
-                                    '&.MuiInputLabel-shrink': {
-                                        fontSize: { xs: '0.875rem', sm: '0.75rem' }
-                                    }
-                                }
-                            }}
-                            sx={{
-                                mb: 3,
-                                '& .MuiOutlinedInput-root': { 
-                                    backgroundColor: { xs: '#f8f9fa', sm: '#fff' }, 
-                                    borderRadius: 1,
-                                    '& fieldset': {
-                                        borderColor: 'rgba(0,0,0,0.12)',
-                                        borderWidth: 1
-                                    },
-                                    '&:hover fieldset': {
-                                        borderColor: 'rgba(0,0,0,0.23)'
-                                    },
-                                    '&.Mui-focused fieldset': {
-                                        borderColor: 'primary.main',
-                                        borderWidth: 2
-                                    }
-                                },
-                                '& .MuiOutlinedInput-input': { 
-                                    padding: { xs: '14px 16px', sm: '12px 14px' }, 
-                                    fontSize: { xs: '1rem', sm: '0.9rem' }, 
-                                    color: 'rgba(0,0,0,0.87)',
-                                    '&::placeholder': {
-                                        color: 'rgba(0,0,0,0.4)',
-                                        opacity: 1
-                                    },
-                                    '&:-webkit-autofill': {
-                                        WebkitBoxShadow: '0 0 0 1000px #f8f9fa inset',
-                                        WebkitTextFillColor: 'rgba(0,0,0,0.87)'
-                                    }
-                                }
-                            }}
+                            InputLabelProps={authInputLabelProps}
+                            sx={authInputSx}
                             helperText={error ? error.message : ''}
                             slotProps={{
                                 formHelperText: {
