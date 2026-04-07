@@ -31,6 +31,7 @@ export function CategorySection({ category, onUpdate }: CategorySectionProps) {
                         <TableCard 
                             table={table} 
                             categoryPrices={category.categoryPrices || []}
+                            enablePersonCount={Boolean(category.enablePersonCount)}
                         />
                     </Box>
                 ))}

@@ -100,18 +100,28 @@ export const getFCMToken = async (shouldRequestPermission = true): Promise<strin
 
 // Foreground messages
 export const listenForMessages = (callback: (message: any) => void) => {
-  if (!messaging) return;
+  if (!messaging) return undefined;
 
-  onMessage(messaging, (payload) => {
+  return onMessage(messaging, (payload) => {
     console.log('📨 Foreground message:', payload);
 
     callback(payload);
 
     if (payload.notification) {
-      new Notification(payload.notification.title || 'Notification', {
+      const notification = new Notification(payload.notification.title || 'Notification', {
         body: payload.notification.body,
-        icon: payload.notification.icon
+        icon: payload.notification.icon,
+        data: payload.data
       });
+
+      notification.onclick = function(event) {
+        event.preventDefault();
+        window.focus();
+        if (payload.data?.link) {
+          window.location.href = payload.data.link;
+        }
+        notification.close();
+      };
     }
   });
 };

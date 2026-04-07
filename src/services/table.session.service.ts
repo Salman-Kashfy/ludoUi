@@ -33,6 +33,10 @@ export const BookTableSession = async (input:BookTableSessionInput) => {
                     uuid
                     startTime
                     status
+                    customer {
+                        firstName
+                        lastName
+                    }
                 }
                 status
                 errors
@@ -55,6 +59,10 @@ export const StartTableSession = async (input:StartTableSessionInput): Promise<a
                     uuid
                     startTime
                     status
+                    customer {
+                        firstName
+                        lastName
+                    }
                 }
                 status
                 errors
@@ -79,6 +87,10 @@ export const StopTableSession = async (input:any): Promise<any> => {
                     uuid
                     startTime
                     endTime
+                    customer {
+                        firstName
+                        lastName
+                    }
                 }
                 status
                 errors
@@ -103,6 +115,10 @@ export const RechargeTableSession = async (input: RechargeTableSessionInput): Pr
                     uuid
                     startTime
                     status
+                    customer {
+                        firstName
+                        lastName
+                    }
                 }
                 errors
                 status
@@ -127,6 +143,10 @@ export const MarkCompleted = async (input: any): Promise<any> => {
                     uuid
                     startTime
                     status
+                    customer {
+                        firstName
+                        lastName
+                    }
                 }
                 errors
                 status

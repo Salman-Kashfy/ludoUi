@@ -13,7 +13,8 @@ interface BookingContextType {
     bookSessionDialog: boolean;
     tableUuid: string;
     categoryPrices: CategoryPrice[];
-    openBookingDialog: (tableUuid: string, categoryPrices: CategoryPrice[]) => void;
+    enablePersonCount: boolean;
+    openBookingDialog: (tableUuid: string, categoryPrices: CategoryPrice[], enablePersonCount: boolean) => void;
     closeBookingDialog: () => void;
     rechargeSessionDialog: boolean;
     tableSessionUuid: string;
@@ -32,13 +33,15 @@ export function BookingProvider({ children }: BookingProviderProps) {
     const [bookSessionDialog, setBookSessionDialog] = useState(false);
     const [tableUuid, setTableUuid] = useState('');
     const [categoryPrices, setCategoryPrices] = useState<CategoryPrice[]>([]);
+    const [enablePersonCount, setEnablePersonCount] = useState(false);
     const [rechargeSessionDialog, setRechargeSessionDialog] = useState(false);
     const [tableSessionUuid, setTableSessionUuid] = useState('');
     const [rechargeCategoryPrices, setRechargeCategoryPrices] = useState<CategoryPrice[]>([]);
 
-    const openBookingDialog = (tableUuid: string, categoryPrices: CategoryPrice[]) => {
+    const openBookingDialog = (tableUuid: string, categoryPrices: CategoryPrice[], enablePersonCount: boolean) => {
         setTableUuid(tableUuid);
         setCategoryPrices(categoryPrices);
+        setEnablePersonCount(enablePersonCount);
         setBookSessionDialog(true);
     };
 
@@ -46,6 +49,7 @@ export function BookingProvider({ children }: BookingProviderProps) {
         setBookSessionDialog(false);
         setTableUuid('');
         setCategoryPrices([]);
+        setEnablePersonCount(false);
     };
 
     const openRechargeDialog = (tableUuid: string, tableSessionUuid: string, categoryPrices: CategoryPrice[]) => {
@@ -68,6 +72,7 @@ export function BookingProvider({ children }: BookingProviderProps) {
                 bookSessionDialog,
                 tableUuid,
                 categoryPrices,
+                enablePersonCount,
                 openBookingDialog,
                 closeBookingDialog,
                 rechargeSessionDialog,
