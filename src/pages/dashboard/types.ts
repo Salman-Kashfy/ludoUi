@@ -5,6 +5,10 @@ export interface TableSession {
     unit: string;
     duration: number;
     status: string;
+    customer?: {
+        firstName: string;
+        lastName: string;
+    }
 }
 
 export interface Table {
@@ -28,6 +32,7 @@ export interface Category {
     name: string;
     hourlyRate: number;
     currencyName: string;
+    enablePersonCount: boolean;
     tables: Table[];
     categoryPrices?: CategoryPrice[];
 }

@@ -42,7 +42,7 @@ messaging.onBackgroundMessage((payload) => {
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();
 
-    const targetUrl = event.notification?.data?.url || event.notification?.click_action || '/auth/thank-you';
+    const targetUrl = event.notification?.data?.link || event.notification?.data?.url || event.notification?.click_action || '/';
 
     event.waitUntil(
         clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (clientList) {

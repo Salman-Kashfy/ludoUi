@@ -19,6 +19,8 @@ import Signin from "./pages/auth/Signin";
 import Register from "./pages/auth/Register";
 import ForgotPassword from "./pages/auth/ForgotPassword";
 import ThankYou from "./pages/auth/ThankYou";
+import Receipt from "./pages/public/Receipt";
+import TournamentReceipt from "./pages/public/TournamentReceipt";
 import Landing from "./pages/Landing";
 import Category from './pages/category/Category';
 import EditCategory from './pages/category/EditCategory';
@@ -40,6 +42,8 @@ function App() {
      * Firebase + FCM setup
      */
     useEffect(() => {
+        let unsubscribeMessageListener: (() => void) | undefined;
+        
         const setupFCM = async () => {
             try {
                 // 1️⃣ Initialize Firebase messaging (with SW registration inside)
@@ -53,7 +57,7 @@ function App() {
                 }
 
                 // 3️⃣ Listen for foreground messages with UI notifications
-                listenForMessages((message) => {
+                unsubscribeMessageListener = listenForMessages((message) => {
                     console.log('Foreground message received:', message);
                     
                     // Show notification in notification center
@@ -77,6 +81,12 @@ function App() {
         };
 
         setupFCM();
+        
+        return () => {
+            if (unsubscribeMessageListener) {
+                unsubscribeMessageListener();
+            }
+        };
     }, []);
 
     /**
@@ -132,6 +142,8 @@ function App() {
                                 <Route path={ROUTES.AUTH.REGISTER} element={<AuthLayoutRoute isAuth={false} component={Register} />} />
                                 <Route path={ROUTES.AUTH.FORGOT_PASSWORD} element={<AuthLayoutRoute isAuth={false} component={ForgotPassword} />} />
                                 <Route path={ROUTES.AUTH.THANK_YOU} element={<AuthLayoutRoute isAuth={false} component={ThankYou} allowWhenAuthenticated={true} />} />
+                                <Route path="/receipt/:uuid" element={<AuthLayoutRoute isAuth={false} component={Receipt} allowWhenAuthenticated={true} />} />
+                                <Route path="/receipt/tournament/:tournamentUuid/:customerUuid" element={<AuthLayoutRoute isAuth={false} component={TournamentReceipt} allowWhenAuthenticated={true} />} />
                             </Routes>
                         </Router>
                     </ToastProvider>

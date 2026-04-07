@@ -124,6 +124,7 @@ function ThankYou({
                 p: { xs: 1, sm: 2, md: 3 },
                 background:
                     'linear-gradient(142deg, rgba(255,255,255,1) 0%, rgba(250,249,251,1) 72%)',
+                colorScheme: 'light',
                 zIndex: 10,
                 overflow: 'hidden'
             }}
@@ -138,7 +139,10 @@ function ThankYou({
                     maxWidth: { xs: 360, sm: 500, md: 640 },
                     maxHeight: 'calc(100vh - 32px)',
                     overflowY: 'auto',
-                    mx: 'auto'
+                    mx: 'auto',
+                    bgcolor: '#ffffff !important',
+                    color: '#1f2937 !important',
+                    border: '1px solid #e5e7eb'
                 }}
             >
                 {/* Success Icon */}
@@ -211,7 +215,7 @@ function ThankYou({
                     <Typography
                         variant="subtitle2"
                         fontWeight={600}
-                        sx={{ mb: 0.7, fontSize: { xs: '0.78rem', sm: '0.86rem' } }}
+                        sx={{ mb: 0.7, fontSize: { xs: '0.78rem', sm: '0.86rem' }, color: '#374151' }}
                     >
                         Registration Number (Customer Phone)
                     </Typography>
@@ -230,8 +234,8 @@ function ThankYou({
 
                     <Typography
                         variant="body2"
-                        color="text.secondary"
                         sx={{
+                            color: '#4b5563',
                             px: { xs: 0.5, sm: 1 },
                             fontSize: { xs: '0.72rem', sm: '0.84rem' }
                         }}
@@ -242,7 +246,7 @@ function ThankYou({
 
                 {/* Footer Note */}
                 <Box sx={{ mt: 3, p: 2, bgcolor: '#f0f4ff', borderRadius: 1 }}>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" sx={{ color: '#4b5563' }}>
                         Registration complete — no login action is needed on this screen.
                     </Typography>
                 </Box>

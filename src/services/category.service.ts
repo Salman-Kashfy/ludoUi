@@ -14,6 +14,7 @@ export const GetCategories = async (params: GetCategoriesInput): Promise<any> =>
                     name
                     hourlyRate
                     currencyName
+                    enablePersonCount
                     tables {
                         uuid
                         name
@@ -24,6 +25,10 @@ export const GetCategories = async (params: GetCategoriesInput): Promise<any> =>
                             unit
                             duration
                             status
+                            customer {
+                                firstName
+                                lastName
+                            }
                         }
                     }
                     categoryPrices {
@@ -58,6 +63,7 @@ export const GetCategory = async (uuid:string): Promise<any> => {
                     name
                     hourlyRate
                     currencyName
+                    enablePersonCount
                     categoryPrices {
                         uuid
                         price

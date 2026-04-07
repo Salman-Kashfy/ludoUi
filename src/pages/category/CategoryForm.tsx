@@ -1,5 +1,5 @@
 import { Fragment } from "react/jsx-runtime";
-import { Button, Box, Accordion, AccordionSummary, AccordionDetails, Typography, IconButton, FormControl, InputLabel, Select, MenuItem, FormHelperText } from "@mui/material";
+import { Button, Box, Accordion, AccordionSummary, AccordionDetails, Typography, IconButton, FormControl, InputLabel, Select, MenuItem, FormHelperText, FormControlLabel, Checkbox } from "@mui/material";
 import Grid from '@mui/material/Grid';
 import { Controller, useForm, useFieldArray } from "react-hook-form";
 import FormInput from "../../components/FormInput";
@@ -13,24 +13,26 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
     const defaultValues: {
         uuid: string;
         name: string;
+        hourlyRate: number | string;
+        enablePersonCount: boolean;
         categoryPrices: Array<{
             uuid?: string;
             duration: number | string;
             unit: string;
             price: number | string;
-            paymentMethod: string;
             freeMins: number | string;
             currencyName?: string;
         }>;
     } = {
         uuid: '',
         name: '',
+        hourlyRate: '',
+        enablePersonCount: false,
         categoryPrices: [{
             uuid: '',
             duration: '',
             unit: 'minutes',
             price: '',
-            paymentMethod: '',
             freeMins: 0,
             currencyName: record?.currencyName || ''
         }],
@@ -50,6 +52,8 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
         for (const key of Object.keys(defaultValues)) {
             if (key === 'categoryPrices') {
                 _data[key] = Array.isArray(data[key]) ? data[key] : []
+            } else if (key === 'enablePersonCount') {
+                _data[key] = Boolean(data[key])
             } else {
                 _data[key] = ['string', 'number'].includes(typeof data[key]) ? (data[key] || '') : data[key]
             }
@@ -72,7 +76,6 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
             duration: '',
             unit: 'minutes',
             price: '',
-            paymentMethod: '',
             freeMins: 0,
             currencyName: record?.currencyName || ''
         });
@@ -88,15 +91,21 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
     const onSubmit = (data: any) => {
         if(!data['uuid']) delete data.uuid
         data.companyUuid = companyContext.companyUuid
+        data.enablePersonCount = Boolean(data.enablePersonCount)
+        data.hourlyRate = parseFloat(String(data.hourlyRate || 0))
         data.categoryPrices = data.categoryPrices.map((price: any) => {
             delete price.uuid
-            price.price = parseFloat(price.price)
-            price.freeMins = parseInt(price.freeMins)
-            price.duration = parseInt(price.duration)
-            console.log(price);
+            const priceNum = parseFloat(String(price.price))
+            const durationNum = parseInt(String(price.duration), 10)
+            const freeMinsNum = parseInt(String(price.freeMins ?? 0), 10)
+            price.price = Number.isFinite(priceNum) ? priceNum : 0
+            price.duration = Number.isFinite(durationNum) && durationNum > 0 ? durationNum : 0
+            price.freeMins = Number.isFinite(freeMinsNum) && freeMinsNum >= 0 ? freeMinsNum : 0
             
             return price
         });
+        const firstCurrency = data.categoryPrices?.[0]?.currencyName
+        data.currencyName = typeof firstCurrency === 'string' && firstCurrency.trim() ? firstCurrency.trim() : 'PKR'
         callback(data);
     }
     return (
@@ -117,6 +126,40 @@ function CategoryForm({record, formLoader, callback, loader}:{record:any, formLo
                             }}
                             render={({ field, fieldState: { error } }: any) => (
                                 <FormInput fullWidth={true} error={error} field={field} value={field.value || ''} label={'Name'}/>
+                            )}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <Controller name="hourlyRate" control={control}
+                            rules={{
+                                required: {
+                                    value: true,
+                                    message: "Hourly Rate is required"
+                                },
+                                min: {
+                                    value: 0,
+                                    message: "Hourly Rate must be at least 0"
+                                },
+                            }}
+                            render={({ field, fieldState: { error } }: any) => (
+                                <FormInput fullWidth={true} error={error} field={field} value={field.value || ''} label={'Hourly Rate'} type="number"/>
+                            )}
+                        />
+                    </Grid>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <Controller
+                            name="enablePersonCount"
+                            control={control}
+                            render={({ field }) => (
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={Boolean(field.value)}
+                                            onChange={(e) => field.onChange(e.target.checked)}
+                                        />
+                                    }
+                                    label="Enable per person count on table booking"
+                                />
                             )}
                         />
                     </Grid>

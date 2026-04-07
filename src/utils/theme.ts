@@ -98,6 +98,22 @@ export const darkTheme = createTheme({
     },
     components: {
         ...components,
+        MuiCard: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: '#fff',
+                    color: '#000',
+                },
+            },
+        },
+        MuiPaper: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: '#fff',
+                    color: '#000',
+                },
+            },
+        },
         MuiTableCell: {
             styleOverrides: {
                 root: {
@@ -126,29 +142,55 @@ export const darkTheme = createTheme({
         MuiInputBase: {
             styleOverrides: {
                 input: {
-                    color: 'rgba(255, 255, 255, 0.7)'
+                    color: '#000',
+                }
+            },
+        },
+        MuiInputLabel: {
+            styleOverrides: {
+                root: {
+                    color: '#000',
+                },
+            },
+        },
+        MuiOutlinedInput: {
+            styleOverrides: {
+                root: {
+                    backgroundColor: '#fff',
+                    color: '#000',
+                },
+                notchedOutline: {
+                    borderColor: '#2196f3',
+                },
+            },
+        },
+        MuiFormLabel: {
+            styleOverrides: {
+                root: {
+                    color: '#000',
                 },
             },
         },
         MuiAutocomplete: {
             styleOverrides: {
                 paper: {
-                    color: 'rgba(255, 255, 255, 0.7)'
-                },
+                    backgroundColor: '#fff',
+                    color: '#000',
+                }
             },
         },
         MuiSelect: {
             styleOverrides: {
                 select: {
-                    color: 'rgba(255, 255, 255, 0.7)'
+                    color: '#000'
                 }
             },
         },
         MuiMenuItem: {
             styleOverrides: {
                 root: {
-                    color: 'rgba(255, 255, 255, 0.7)'
-                },
+                    color: '#000',
+                }
             },
         },
         MuiCssBaseline: {
